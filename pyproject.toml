@@ -1,0 +1,77 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pydeb-s3"
+version = "0.1.0"
+description = "A simple utility to make creating and managing APT repositories on S3"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+authors = [
+    { name = "deb-s3 team", email = "deb-s3@github.com" },
+]
+keywords = ["apt", "debian", "s3", "repository", "package"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Software Distribution",
+    "Topic :: System :: Systems Administration",
+]
+
+dependencies = [
+    "boto3>=1.34.0",
+    "typer>=0.12.0",
+    "python-debian>=1.0.0",
+    "jinja2>=3.1.0",
+    "rich>=13.0.0",
+    "typing-extensions>=4.0.0",
+]
+
+[tool.hatch.envs.default]
+dependencies = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[tool.hatch.envs.lint]
+dependencies = [
+    "ruff>=0.1.0",
+]
+
+[tool.hatch.envs.type]
+dependencies = [
+    "mypy>=1.0.0",
+]
+
+[project.scripts]
+pydeb-s3 = "pydeb_s3.cli:app"
+
+[tool.hatch.version]
+path = "src/pydeb_s3/__init__.py"
+
+[tool.ruff]
+line-length = 100
+
+[tool.mypy]
+python_version = "3.8"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+pythonpath = "src"
