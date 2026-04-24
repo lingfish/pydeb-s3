@@ -30,6 +30,9 @@ htmlcov/
 # hatch
 .hatch/
 
+# hatch-vcs
+src/pydeb_s3/_version.py
+
 # Distribution / packaging
 *.egg
 MANIFEST
