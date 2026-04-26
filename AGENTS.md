@@ -17,6 +17,13 @@ hatch fmt
 hatch run pydeb-s3 --help
 ```
 
+## Key Conventions
+
+- **Commit format**: conventional commits (e.g., `fix:`, `feat:`)
+- **Tag format**: `X.Y.Z` (no 'v' prefix)
+- **Run tests before committing**
+
+
 ## Project Structure
 
 - `src/pydeb_s3/` - Main package code
