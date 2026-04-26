@@ -10,7 +10,7 @@ from typing import Optional
 from debian.deb822 import Packages
 
 from pydeb_s3 import package as pkg_module
-from pydeb_s3.s3_utils import s3_exists, s3_read, s3_remove, s3_store
+from pydeb_s3.s3_utils import S3NotFoundError, s3_exists, s3_read, s3_store
 
 
 class AlreadyExistsError(Exception):
@@ -44,7 +44,10 @@ class Manifest:
     ) -> "Manifest":
         """Retrieve an existing manifest from S3 or create a new one."""
         path = f"dists/{codename}/{component}/binary-{architecture}/Packages"
-        s = s3_read(path)
+        try:
+            s = s3_read(path)
+        except S3NotFoundError:
+            s = None
 
         m = cls()
         if s:
@@ -160,18 +163,15 @@ class Manifest:
     ) -> None:
         """Write the manifest to S3."""
         manifest = self.generate()
+        from loguru import logger
+        logger.debug(f"write_to_s3: generated manifest length: {len(manifest)}")
+        logger.debug(f"write_to_s3: generated manifest preview: {manifest[:200]}")
 
         if not self.skip_package_upload:
             for pkg in self.packages_to_be_upload:
                 new_path = pkg.url_filename_for(self.component)
-                old_path = f"pool/{self.codename}/{pkg.name[0]}/{pkg.name[0:2]}/{os.path.basename(pkg.filename)}"
 
-                if s3_exists(new_path):
-                    if callback:
-                        callback(new_path)
-                elif s3_exists(old_path):
-                    self._migrate_package(old_path, new_path, callback)
-                else:
+                if not s3_exists(new_path):
                     if callback:
                         callback(new_path)
                     s3_store(
@@ -183,11 +183,15 @@ class Manifest:
                     )
 
         packages_temp = tempfile.NamedTemporaryFile(
-            mode="w", suffix=".Packages", delete=False
+            mode="wb", suffix=".Packages", delete=False
         )
         try:
-            packages_temp.write(manifest)
+            packages_temp.write(manifest.encode("utf-8"))
+            packages_temp.flush()
             packages_temp.close()
+            from loguru import logger
+            logger.debug(f"write_to_s3: Packages temp file size: {os.path.getsize(packages_temp.name)}")
+            logger.debug(f"write_to_s3: Packages manifest length: {len(manifest)}")
             path = f"dists/{self.codename}/{self.component}/binary-{self.architecture}/Packages"
             if callback:
                 callback(path)
@@ -200,6 +204,7 @@ class Manifest:
             self.files[f"{self.component}/binary-{self.architecture}/Packages"] = self._hashfile(
                 packages_temp.name
             )
+            logger.debug(f"write_to_s3: Packages hash result: {self.files[f'{self.component}/binary-{self.architecture}/Packages']}")
         finally:
             os.unlink(packages_temp.name)
 
@@ -224,21 +229,6 @@ class Manifest:
         finally:
             os.unlink(gztemp.name)
 
-    def _migrate_package(
-        self,
-        old_path: str,
-        new_path: str,
-        callback: Optional[callable],
-    ) -> None:
-        """Migrate a package from old path to new path."""
-        from pydeb_s3.s3_utils import s3_copy
-
-        print(f"Migrating package from {old_path} to {new_path}")
-        s3_copy(old_path, new_path)
-        s3_remove(old_path)
-        if callback:
-            callback(new_path)
-
     def _hashfile(self, path: str) -> dict:
         """Calculate hashes for a file."""
         with open(path, "rb") as f:
@@ -247,6 +237,7 @@ class Manifest:
             "size": os.path.getsize(path),
             "sha1": hashlib.sha1(data).hexdigest(),
             "sha256": hashlib.sha256(data).hexdigest(),
+            "sha512": hashlib.sha512(data).hexdigest(),
             "md5": hashlib.md5(data).hexdigest(),
         }
 

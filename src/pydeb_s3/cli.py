@@ -5,7 +5,7 @@ import os
 from typing import Annotated, Optional
 
 import typer
-from rich.console import Console
+from loguru import logger
 
 from pydeb_s3 import lock as lock_module
 from pydeb_s3 import manifest as manifest_module
@@ -13,40 +13,11 @@ from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
 from pydeb_s3 import s3_utils
 
-app = typer.Typer(name="pydeb-s3", help="Easily create and manage an APT repository on S3")
-console = Console()
-
-
-def log(message: str) -> None:
-    """Log a message to the console."""
-    if not _get_quiet():
-        console.print(f"[bold white]{message}[/bold white]")
-
-
-def sublog(message: str) -> None:
-    """Log a sub-message to the console."""
-    if not _get_quiet():
-        console.print(f"  {message}")
-
-
-def error(message: str) -> None:
-    """Log an error and exit."""
-    console.print(f"[bold red]Error:[/bold red] {message}")
-    raise typer.Exit(code=1)
-
-
-def _get_quiet() -> bool:
-    """Check if quiet mode is enabled."""
-    return _QUIET
-
-
-def _set_quiet(q: bool) -> None:
-    """Set quiet mode."""
-    global _QUIET
-    _QUIET = q
-
-
-_QUIET = False
+app = typer.Typer(
+    name="pydeb-s3",
+    help="Easily create and manage an APT repository on S3",
+    rich_markup_mode=None,
+)
 
 
 def _configure_s3(
@@ -65,10 +36,8 @@ def _configure_s3(
     proxy_uri: Optional[str] = None,
     force_path_style: bool = False,
     checksum_when_required: bool = False,
-    quiet: bool = False,
 ) -> None:
     """Configure S3 connection."""
-    _set_quiet(quiet)
     s3_utils.configure_s3(
         bucket=bucket,
         prefix=prefix,
@@ -115,19 +84,21 @@ def upload_command(
     gpg_options: Annotated[str, typer.Option("--gpg-options", help="Additional command line options to pass to GPG when signing.")] = "",
     gpg_provider: Annotated[str, typer.Option("--gpg-provider", help="GPG provider to use.")] = "gpg",
     encryption: Annotated[bool, typer.Option("-e", "--encryption", help="Use S3 server side encryption.")] = False,
-    quiet: Annotated[bool, typer.Option("-q", "--quiet", help="Doesn't output information, just returns status appropriately.")] = False,
     cache_control: Annotated[Optional[str], typer.Option("-C", "--cache-control", help="Add cache-control headers to S3 objects.")] = None,
     checksum_when_required: Annotated[bool, typer.Option("--checksum-when-required", help="Disable SDK upload checksums for S3-compatible endpoints.")] = False,
 ):
     """Upload the given files to a S3 bucket as an APT repository."""
     if not bucket:
-        error("No value provided for required option '--bucket'")
+        logger.error("No value provided for required option '--bucket'")
+        raise typer.Exit(code=1)
     if not files:
-        error("You must specify at least one file to upload")
+        logger.error("You must specify at least one file to upload")
+        raise typer.Exit(code=1)
 
     for pattern in files:
         if not glob.glob(pattern):
-            error(f"File '{pattern}' doesn't exist")
+            logger.error(f"File '{pattern}' doesn't exist")
+            raise typer.Exit(code=1)
 
     _configure_s3(
         bucket=bucket,
@@ -145,12 +116,11 @@ def upload_command(
         proxy_uri=proxy_uri,
         force_path_style=force_path_style,
         checksum_when_required=checksum_when_required,
-        quiet=quiet,
     )
 
     comp = component
     if section:
-        log("Warning: --section is deprecated, use --component instead")
+        logger.warning("--section is deprecated, use --component instead")
         if not comp:
             comp = section
 
@@ -159,56 +129,86 @@ def upload_command(
 
     try:
         release = release_module.Release.retrieve(codename, origin, suite)
-        log(f"Retrieving existing manifests for {codename}")
+        logger.info("Retrieving existing manifests")
 
-        existing_arch = None
-        if arch:
-            existing_arch = [arch]
+        manifests = {}
+
+        if arch and arch != "all":
+            manifests.setdefault(arch, manifest_module.Manifest.retrieve(
+                codename, comp, arch, cache_control, fail_if_exists, skip_package_upload
+            ))
+        elif arch == "all" and not release.architectures:
+            manifests.setdefault("amd64", manifest_module.Manifest.retrieve(
+                codename, comp, "amd64", cache_control, fail_if_exists, skip_package_upload
+            ))
+            manifests.setdefault("i386", manifest_module.Manifest.retrieve(
+                codename, comp, "i386", cache_control, fail_if_exists, skip_package_upload
+            ))
+            manifests.setdefault("armhf", manifest_module.Manifest.retrieve(
+                codename, comp, "armhf", cache_control, fail_if_exists, skip_package_upload
+            ))
+            manifests.setdefault("arm64", manifest_module.Manifest.retrieve(
+                codename, comp, "arm64", cache_control, fail_if_exists, skip_package_upload
+            ))
         else:
-            existing_arch = release.architectures
+            for arch_item in release.architectures:
+                manifests.setdefault(arch_item, manifest_module.Manifest.retrieve(
+                    codename, comp, arch_item, cache_control, fail_if_exists, skip_package_upload
+                ))
 
-        for architecture in existing_arch:
-            sublog(f"Checking {codename}/{comp}/{architecture}")
-            manifest = manifest_module.Manifest.retrieve(
-                codename, comp, architecture, cache_control, fail_if_exists
-            )
+        packages_arch_all = []
 
-            for pattern in files:
-                for filepath in glob.glob(pattern):
-                    log(f"Uploading {filepath}")
-                    pkg = package_module.Package.from_path(filepath)
+        for pattern in files:
+            for filepath in glob.glob(pattern):
+                logger.info(f"Examining package file {os.path.basename(filepath)}")
+                pkg = package_module.Package.parse_file(filepath)
 
-                    if arch and pkg.arch != arch:
-                        error(
-                            f"Package architecture {pkg.arch} does not match specified architecture {arch}"
-                        )
+                pkg_arch = arch if arch else pkg.architecture
 
-                    if fail_if_exists and pkg.name in manifest.packages:
-                        error(f"Package {pkg.name} already exists")
+                if not pkg_arch:
+                    logger.error(
+                        f"No architecture given and unable to determine one for {filepath}. "
+                        "Please specify one with --arch [i386|amd64|armhf|arm64]."
+                    )
+                    raise typer.Exit(code=1)
 
-                    manifest.add(pkg, preserve_versions)
+                if arch and arch != pkg_arch:
+                    logger.warning(
+                        f"You specified architecture {arch} but package {pkg.name} has architecture type of {pkg_arch}"
+                    )
 
-                    if not skip_package_upload:
-                        sublog("  Uploading package to S3")
-                        s3_utils.s3_store(
-                            filepath,
-                            s3_utils.s3_path(f"pool/{pkg.name[0]}/{pkg.name}/{os.path.basename(filepath)}"),
-                            visibility,
-                            encryption,
-                        )
+                manifests.setdefault(pkg_arch, manifest_module.Manifest.retrieve(
+                    codename, comp, pkg_arch, cache_control, fail_if_exists, skip_package_upload
+                ))
 
-            log(f"Uploading new manifest to S3 for {codename}/{comp}/{architecture}")
-            manifest.upload(visibility)
+                manifests[pkg_arch].add(pkg, preserve_versions)
 
-            if fail_if_exists:
-                log(f"Uploaded {codename}/{comp}/{architecture}")
+                if pkg_arch == "all":
+                    packages_arch_all.append(pkg)
+
+        for arch_key, manifest in manifests.items():
+            if arch_key == "all":
+                continue
+            for pkg in packages_arch_all:
+                manifest.add(pkg, preserve_versions, False)
+
+        logger.info("Uploading packages and new manifests to S3")
+
+        logger.debug(f"Uploading manifests for architectures: {list(manifests.keys())}")
+        for arch_key, manifest in manifests.items():
+            logger.debug(f"  Before write_to_s3: arch_key={arch_key}, packages count={len(manifest.packages)}")
+            logger.info(f"  Transferring dists/{codename}/{comp}/binary-{arch_key}/Packages")
+            manifest.write_to_s3()
+            logger.debug(f"  After write_to_s3: release.files={list(release.files.keys())}")
+            release.update_manifest(manifest)
+
+        release.write_to_s3()
 
         if sign:
-            log(f"Signing Release file for {codename}")
-            release.sign(sign, gpg_provider, gpg_options)
-            release.upload(visibility)
+            logger.info(f"Signing Release file for {codename}")
+            release.sign(sign, gpg_provider, gpg_options, visibility)
 
-        log("Update complete.")
+        logger.info("Update complete.")
     finally:
         if lock:
             lock_module.unlock()
@@ -227,16 +227,16 @@ def list_command(
     secret_access_key: Annotated[Optional[str], typer.Option("--secret-access-key", help="The secret key for connecting to S3.")] = None,
     session_token: Annotated[Optional[str], typer.Option("--session-token", help="The session token for connecting to S3.")] = None,
     endpoint: Annotated[Optional[str], typer.Option("--endpoint", help="The URL endpoint to the S3 API.")] = None,
-    quiet: Annotated[bool, typer.Option("-q", "--quiet", help="Doesn't output information, just returns status appropriately.")] = False,
     cache_control: Annotated[Optional[str], typer.Option("-C", "--cache-control", help="Add cache-control headers to S3 objects.")] = None,
 ):
     """List packages in given codename, component, and optionally architecture."""
     if not bucket:
-        error("No value provided for required option '--bucket'")
+        logger.error("No value provided for required option '--bucket'")
+        raise typer.Exit(code=1)
 
     _configure_s3(bucket=bucket, prefix=prefix, region=s3_region,
                   access_key_id=access_key_id, secret_access_key=secret_access_key,
-                  session_token=session_token, endpoint=endpoint, quiet=quiet)
+                  session_token=session_token, endpoint=endpoint)
 
     release = release_module.Release.retrieve(codename)
     archs = release.architectures
@@ -265,11 +265,11 @@ def list_command(
                 widths[1] = max(widths[1], len(pkg.version))
 
     if rows:
-        console.print("[bold]Package[/bold]" + " " * (widths[0] - 7) + "[bold]Version[/bold]" + " " * (widths[1] - 7) + "[bold]Architecture[/bold]  [bold]Section[/bold]  [bold]Description[/bold]")
+        logger.info("[bold]Package[/bold]" + " " * (widths[0] - 7) + "[bold]Version[/bold]" + " " * (widths[1] - 7) + "[bold]Architecture[/bold]  [bold]Section[/bold]  [bold]Description[/bold]")
 
         for row in rows:
             name, version, arch, section, desc = row
-            console.print(
+            logger.info(
                 f"{name}"
                 + " " * (widths[0] - len(name) + 1)
                 + f"{version}"
@@ -292,35 +292,34 @@ def show_command(
     secret_access_key: Annotated[Optional[str], typer.Option("--secret-access-key", help="The secret key for connecting to S3.")] = None,
     session_token: Annotated[Optional[str], typer.Option("--session-token", help="The session token for connecting to S3.")] = None,
     endpoint: Annotated[Optional[str], typer.Option("--endpoint", help="The URL endpoint to the S3 API.")] = None,
-    quiet: Annotated[bool, typer.Option("-q", "--quiet", help="Doesn't output information, just returns status appropriately.")] = False,
     cache_control: Annotated[Optional[str], typer.Option("-C", "--cache-control", help="Add cache-control headers to S3 objects.")] = None,
 ):
     """Show information about a package."""
     if not bucket:
-        error("No value provided for required option '--bucket'")
+        logger.error("No value provided for required option '--bucket'")
+        raise typer.Exit(code=1)
 
     _configure_s3(bucket=bucket, prefix=prefix, region=s3_region,
                   access_key_id=access_key_id, secret_access_key=secret_access_key,
-                  session_token=session_token, endpoint=endpoint, quiet=quiet)
+                  session_token=session_token, endpoint=endpoint)
 
     if not arch:
         arch = "amd64"
-    if not version:
-        versions = []
 
     manifest = manifest_module.Manifest.retrieve(codename, component, arch, cache_control)
 
     pkg = manifest.packages.get(package)
     if not pkg:
-        error(f"Package {package} not found.")
+        logger.error(f"Package {package} not found.")
+        raise typer.Exit(code=1)
 
     if version:
         if version in pkg.versions:
-            error(f"Version {version} not found.")
-        else:
-            console.print(pkg.version)
+            logger.error(f"Version {version} not found.")
+            raise typer.Exit(code=1)
+        logger.info(pkg.version)
     else:
-        console.print(pkg.full_description)
+        logger.info(pkg.full_description)
 
 
 @app.command("exists")
@@ -337,16 +336,16 @@ def exists_command(
     secret_access_key: Annotated[Optional[str], typer.Option("--secret-access-key", help="The secret key for connecting to S3.")] = None,
     session_token: Annotated[Optional[str], typer.Option("--session-token", help="The session token for connecting to S3.")] = None,
     endpoint: Annotated[Optional[str], typer.Option("--endpoint", help="The URL endpoint to the S3 API.")] = None,
-    quiet: Annotated[bool, typer.Option("-q", "--quiet", help="Doesn't output information, just returns status appropriately.")] = False,
     cache_control: Annotated[Optional[str], typer.Option("-C", "--cache-control", help="Add cache-control headers to S3 objects.")] = None,
 ):
     """Check if a package exists in the repository."""
     if not bucket:
-        error("No value provided for required option '--bucket'")
+        logger.error("No value provided for required option '--bucket'")
+        raise typer.Exit(code=1)
 
     _configure_s3(bucket=bucket, prefix=prefix, region=s3_region,
                   access_key_id=access_key_id, secret_access_key=secret_access_key,
-                  session_token=session_token, endpoint=endpoint, quiet=quiet)
+                  session_token=session_token, endpoint=endpoint)
 
     if not arch:
         arch = "amd64"
@@ -356,13 +355,13 @@ def exists_command(
     if package in manifest.packages:
         if version:
             if version in manifest.packages[package].versions:
-                console.print("1")
+                logger.info("1")
             else:
-                console.print("0")
+                logger.info("0")
         else:
-            console.print("1")
+            logger.info("1")
     else:
-        console.print("0")
+        logger.info("0")
 
 
 @app.command("copy")
@@ -381,30 +380,32 @@ def copy_command(
     secret_access_key: Annotated[Optional[str], typer.Option("--secret-access-key", help="The secret key for connecting to S3.")] = None,
     session_token: Annotated[Optional[str], typer.Option("--session-token", help="The session token for connecting to S3.")] = None,
     endpoint: Annotated[Optional[str], typer.Option("--endpoint", help="The URL endpoint to the S3 API.")] = None,
-    quiet: Annotated[bool, typer.Option("-q", "--quiet", help="Doesn't output information, just returns status appropriately.")] = False,
     cache_control: Annotated[Optional[str], typer.Option("-C", "--cache-control", help="Add cache-control headers to S3 objects.")] = None,
 ):
     """Copy a package to another codename and component."""
     if not bucket:
-        error("No value provided for required option '--bucket'")
+        logger.error("No value provided for required option '--bucket'")
+        raise typer.Exit(code=1)
 
     _configure_s3(bucket=bucket, prefix=prefix, region=s3_region,
                   access_key_id=access_key_id, secret_access_key=secret_access_key,
-                  session_token=session_token, endpoint=endpoint, quiet=quiet)
+                  session_token=session_token, endpoint=endpoint)
 
     if not arch:
         arch = "amd64"
 
-    log(f"Retrieving existing manifests for {codename}")
+    logger.info(f"Retrieving existing manifests for {codename}")
 
     from_manifest = manifest_module.Manifest.retrieve(codename, component, arch, cache_control)
 
     if package not in from_manifest.packages:
-        error(f"Package {package} not found in repository.")
+        logger.error(f"Package {package} not found in repository.")
+        raise typer.Exit(code=1)
 
     to_release = release_module.Release.retrieve(to_codename)
     if arch not in to_release.architectures:
-        error(f"Architecture {arch} not available in target codename.")
+        logger.error(f"Architecture {arch} not available in target codename.")
+        raise typer.Exit(code=1)
 
     to_manifest = manifest_module.Manifest.retrieve(to_codename, to_component, arch, cache_control)
 
@@ -413,23 +414,24 @@ def copy_command(
     if versions:
         for version in versions:
             if version not in pkg.versions:
-                error(f"Version {version} not found in package.")
+                logger.error(f"Version {version} not found in package.")
+                raise typer.Exit(code=1)
 
         for version in list(pkg.versions):
             if version not in versions:
                 del pkg.versions[version]
     else:
-        log(f"Copying all versions of {package}")
+        logger.info(f"Copying all versions of {package}")
 
     if package in to_manifest.packages:
         to_manifest.packages[package].versions.update(pkg.versions)
     else:
         to_manifest.packages[package] = pkg
 
-    log(f"Uploading new manifest to S3 for {to_codename}/{to_component}/{arch}")
+    logger.info(f"Uploading new manifest to S3 for {to_codename}/{to_component}/{arch}")
     to_manifest.upload()
 
-    log("Copy complete.")
+    logger.info("Copy complete.")
 
 
 @app.command("delete")
@@ -446,34 +448,35 @@ def delete_command(
     secret_access_key: Annotated[Optional[str], typer.Option("--secret-access-key", help="The secret key for connecting to S3.")] = None,
     session_token: Annotated[Optional[str], typer.Option("--session-token", help="The session token for connecting to S3.")] = None,
     endpoint: Annotated[Optional[str], typer.Option("--endpoint", help="The URL endpoint to the S3 API.")] = None,
-    quiet: Annotated[bool, typer.Option("-q", "--quiet", help="Doesn't output information, just returns status appropriately.")] = False,
     cache_control: Annotated[Optional[str], typer.Option("-C", "--cache-control", help="Add cache-control headers to S3 objects.")] = None,
 ):
     """Remove a package from the repository."""
     if not bucket:
-        error("No value provided for required option '--bucket'")
+        logger.error("No value provided for required option '--bucket'")
+        raise typer.Exit(code=1)
 
     _configure_s3(bucket=bucket, prefix=prefix, region=s3_region,
                   access_key_id=access_key_id, secret_access_key=secret_access_key,
-                  session_token=session_token, endpoint=endpoint, quiet=quiet)
+                  session_token=session_token, endpoint=endpoint)
 
     if not arch:
         arch = "amd64"
 
-    log("Retrieving existing manifests")
+    logger.info("Retrieving existing manifests")
     manifest = manifest_module.Manifest.retrieve(codename, component, arch, cache_control)
 
     if package not in manifest.packages:
-        error(f"Package {package} not found.")
+        logger.error(f"Package {package} not found.")
+        raise typer.Exit(code=1)
 
-    log(f"Deleting {package} version {versions or 'all'}")
+    logger.info(f"Deleting {package} version {versions or 'all'}")
     deleted = manifest.delete_package(package, versions)
 
-    log("Uploading new manifests to S3")
-    log(f"Transferring dists/{codename}/{component}/binary-{arch}/Packages")
+    logger.info("Uploading new manifests to S3")
+    logger.info(f"Transferring dists/{codename}/{component}/binary-{arch}/Packages")
     manifest.upload()
 
-    log("Update complete.")
+    logger.info("Update complete.")
 
 
 @app.command("verify")
@@ -493,19 +496,19 @@ def verify_command(
     endpoint: Annotated[Optional[str], typer.Option("--endpoint", help="The URL endpoint to the S3 API.")] = None,
     force_path_style: Annotated[bool, typer.Option("--force-path-style", help="Use S3 path style instead of subdomains.")] = False,
     encryption: Annotated[bool, typer.Option("-e", "--encryption", help="Use S3 server side encryption.")] = False,
-    quiet: Annotated[bool, typer.Option("-q", "--quiet", help="Doesn't output information, just returns status appropriately.")] = False,
     cache_control: Annotated[Optional[str], typer.Option("-C", "--cache-control", help="Add cache-control headers to S3 objects.")] = None,
 ):
     """Verify that the files in the package manifests exist."""
     if not bucket:
-        error("No value provided for required option '--bucket'")
+        logger.error("No value provided for required option '--bucket'")
+        raise typer.Exit(code=1)
 
     _configure_s3(bucket=bucket, prefix=prefix, region=s3_region,
                   access_key_id=access_key_id, secret_access_key=secret_access_key,
                   session_token=session_token, endpoint=endpoint, force_path_style=force_path_style,
-                  encryption=encryption, quiet=quiet)
+                  encryption=encryption)
 
-    log("Retrieving existing manifests")
+    logger.info("Retrieving existing manifests")
     release = release_module.Release.retrieve(codename, origin, suite)
 
     components = component.split(",")
@@ -518,30 +521,29 @@ def verify_command(
         for arch in architectures:
             if arch == "all":
                 continue
-            log(f"Checking for missing packages in: {codename}/{comp} {arch}")
-            manifest = manifest_module.Manifest.retrieve(codename, comp, arch, cache_control, false)
+            logger.info(f"Checking for missing packages in: {codename}/{comp} {arch}")
+            manifest = manifest_module.Manifest.retrieve(codename, comp, arch, cache_control, False)
             if manifest.packages:
                 for pkg_name, pkg in sorted(manifest.packages.items()):
                     for version, version_info in list(pkg.versions.items()):
                         path = version_info.get("filename", f"pool/{pkg_name[0]}/{pkg_name}/{pkg_name}_{version}_{arch}.deb")
                         if not s3_utils.s3_exists(path):
-                            log(f"Missing file: {path}")
+                            logger.warning(f"Missing file: {path}")
                             if fix_manifests:
-                                log(f"Deleting reference to {pkg_name} {version}")
+                                logger.info(f"Deleting reference to {pkg_name} {version}")
                                 del pkg.versions[version]
                                 if not pkg.versions:
                                     del manifest.packages[pkg_name]
 
                 if fix_manifests and (len(manifest.packages) > 0):
-                    log(f"Uploading fixed manifest for {codename}/{comp}/{arch}")
+                    logger.info(f"Uploading fixed manifest for {codename}/{comp}/{arch}")
                     manifest.upload()
 
     if sign:
-        log(f"Signing Release file for {codename}")
+        logger.info(f"Signing Release file for {codename}")
         release.sign(sign, "gpg", "")
-        release.upload("public")
 
-    log("Verify complete.")
+    logger.info("Verify complete.")
 
 
 @app.command("clean")
@@ -559,19 +561,19 @@ def clean_command(
     endpoint: Annotated[Optional[str], typer.Option("--endpoint", help="The URL endpoint to the S3 API.")] = None,
     force_path_style: Annotated[bool, typer.Option("--force-path-style", help="Use S3 path style instead of subdomains.")] = False,
     encryption: Annotated[bool, typer.Option("-e", "--encryption", help="Use S3 server side encryption.")] = False,
-    quiet: Annotated[bool, typer.Option("-q", "--quiet", help="Doesn't output information, just returns status appropriately.")] = False,
     cache_control: Annotated[Optional[str], typer.Option("-C", "--cache-control", help="Add cache-control headers to S3 objects.")] = None,
 ):
     """Remove orphaned package files."""
     if not bucket:
-        error("No value provided for required option '--bucket'")
+        logger.error("No value provided for required option '--bucket'")
+        raise typer.Exit(code=1)
 
     _configure_s3(bucket=bucket, prefix=prefix, region=s3_region,
                   access_key_id=access_key_id, secret_access_key=secret_access_key,
                   session_token=session_token, endpoint=endpoint, force_path_style=force_path_style,
-                  encryption=encryption, quiet=quiet)
+                  encryption=encryption)
 
-    log("Retrieving existing manifests")
+    logger.info("Retrieving existing manifests")
     release = release_module.Release.retrieve(codename, origin, suite)
 
     components = component.split(",")
@@ -597,7 +599,7 @@ def clean_command(
 
                         all_pkgs[path].append(f"{codename}/{comp}/{arch}")
 
-    log("Searching for unreferenced packages")
+    logger.info("Searching for unreferenced packages")
     prefix_path = f"{prefix}/pool/" if prefix else "pool/"
 
     objects = s3_utils.s3_list_objects(prefix_path)
@@ -606,11 +608,11 @@ def clean_command(
     for obj in objects:
         path = obj.get("Key", "")
         if path and path not in all_pkgs:
-            log(f"Removing {path}")
+            logger.warning(f"Removing {path}")
             s3_utils.s3_remove(path)
             removed_count += 1
 
     if removed_count > 0:
-        log(f"Removed {removed_count} orphaned package(s).")
+        logger.info(f"Removed {removed_count} orphaned package(s).")
     else:
-        log("No orphaned packages found.")
+        logger.info("No orphaned packages found.")

@@ -6,6 +6,29 @@ from typing import Optional
 
 import boto3
 from botocore.exceptions import ClientError
+from loguru import logger
+
+
+class S3Error(Exception):
+    """Base S3 exception."""
+
+
+class S3NotFoundError(S3Error):
+    """Object not found."""
+
+    def __init__(self, path: str):
+        super().__init__(f"Object not found: {path}")
+        self.path = path
+
+
+class S3AccessError(S3Error):
+    """Access denied."""
+
+    def __init__(self, path: str, operation: str):
+        super().__init__(f"Access denied to {path}: {operation}")
+        self.path = path
+        self.operation = operation
+
 
 _s3_client: Optional[boto3.client] = None
 _bucket: Optional[str] = None
@@ -37,6 +60,8 @@ def configure_s3(
     """Configure the S3 client."""
     global _s3_client, _bucket, _access_policy, _signing_key
     global _gpg_provider, _gpg_options, _prefix, _encryption
+
+    logger.info("Configuring S3: region={}, bucket={}", region, bucket)
 
     settings = {"region_name": region}
 
@@ -74,6 +99,8 @@ def configure_s3(
     else:
         _access_policy = None
 
+    logger.success("S3 configured: bucket={}, prefix={}", bucket, prefix)
+
 
 def s3_path(path: str) -> str:
     """Get the full S3 path with prefix."""
@@ -85,25 +112,41 @@ def s3_path(path: str) -> str:
 def s3_exists(path: str) -> bool:
     """Check if an object exists in S3."""
     if not _s3_client or not _bucket:
-        return False
+        logger.error("S3 not configured")
+        raise S3Error("S3 not configured")
+
     try:
         _s3_client.head_object(Bucket=_bucket, Key=s3_path(path))
+        logger.debug("Object exists: {}", path)
         return True
     except ClientError as e:
-        if e.response["Error"]["Code"] == "404":
+        code = e.response["Error"]["Code"]
+        if code == "404":
+            logger.debug("Object not found: {}", path)
             return False
-        raise
+        logger.error("S3 error checking {}: {}", path, e)
+        raise S3Error(f"Failed to check {path}: {e}")
 
 
-def s3_read(path: str) -> Optional[str]:
+def s3_read(path: str) -> str:
     """Read an object from S3."""
     if not _s3_client or not _bucket:
-        return None
+        logger.error("S3 not configured")
+        raise S3Error("S3 not configured")
+
     try:
+        logger.info("Reading s3://{}/{}", _bucket, path)
         response = _s3_client.get_object(Bucket=_bucket, Key=s3_path(path))
-        return response["Body"].read().decode("utf-8")
-    except ClientError:
-        return None
+        content = response["Body"].read().decode("utf-8")
+        logger.success("Read {} bytes from {}", len(content), path)
+        return content
+    except ClientError as e:
+        code = e.response["Error"]["Code"]
+        if code == "NoSuchKey":
+            logger.warning("Object not found: {}", path)
+            raise S3NotFoundError(path)
+        logger.error("S3 error reading {}: {}", path, e)
+        raise S3Error(f"Failed to read {path}: {e}")
 
 
 def s3_store(
@@ -115,9 +158,11 @@ def s3_store(
 ) -> None:
     """Store a file in S3."""
     if not _s3_client or not _bucket:
-        return
+        logger.error("S3 not configured")
+        raise S3Error("S3 not configured")
 
     key = s3_path(key)
+    logger.info("Storing {} to s3://{}/{}", filepath, _bucket, key)
 
     if fail_if_exists and s3_exists(key):
         existing = s3_head(key)
@@ -126,8 +171,10 @@ def s3_store(
             etag = existing.get("ETag", "").strip('"')
             meta_md5 = existing.get("Metadata", {}).get("md5", "")
             if file_md5 == etag or file_md5 == meta_md5:
+                logger.info("File already exists with same content: {}", key)
                 return
-            raise Exception(f"file {key} already exists with different contents")
+            logger.error("File exists with different content: {}", key)
+            raise S3Error(f"file {key} already exists with different contents")
 
     extra_args = {"ContentType": content_type.split(";")[0].strip()}
 
@@ -152,65 +199,90 @@ def s3_store(
             **extra_args,
         )
 
+    logger.success("Stored {} bytes to s3://{}/{}", len(data), _bucket, key)
 
-def s3_head(path: str) -> Optional[dict]:
+
+def s3_head(path: str) -> dict:
     """Get head information for an object."""
     if not _s3_client or not _bucket:
-        return None
+        logger.error("S3 not configured")
+        raise S3Error("S3 not configured")
+
     try:
+        logger.debug("Head s3://{}/{}", _bucket, path)
         return _s3_client.head_object(Bucket=_bucket, Key=s3_path(path))
-    except ClientError:
-        return None
+    except ClientError as e:
+        code = e.response["Error"]["Code"]
+        if code == "404":
+            logger.warning("Object not found: {}", path)
+            raise S3NotFoundError(path)
+        logger.error("S3 error head {}: {}", path, e)
+        raise S3Error(f"Failed to head {path}: {e}")
 
 
 def s3_remove(path: str) -> None:
     """Remove an object from S3."""
     if not _s3_client or not _bucket:
-        return
+        logger.error("S3 not configured")
+        raise S3Error("S3 not configured")
+
     try:
+        logger.info("Removing s3://{}/{}", _bucket, path)
         _s3_client.delete_object(Bucket=_bucket, Key=s3_path(path))
-    except ClientError:
-        pass
+        logger.success("Removed s3://{}/{}", _bucket, path)
+    except ClientError as e:
+        code = e.response["Error"]["Code"]
+        if code == "404":
+            logger.warning("Object not found (already removed?): {}", path)
+            raise S3NotFoundError(path)
+        logger.error("S3 error removing {}: {}", path, e)
+        raise S3Error(f"Failed to remove {path}: {e}")
 
 
 def s3_copy(source: str, destination: str) -> None:
     """Copy an object in S3."""
     if not _s3_client or not _bucket:
-        return
-    _s3_client.copy_object(
-        Bucket=_bucket,
-        CopySource=s3_path(source),
-        Key=s3_path(destination),
-    )
+        logger.error("S3 not configured")
+        raise S3Error("S3 not configured")
+
+    try:
+        logger.info("Copying s3://{}/{} to s3://{}/{}", _bucket, source, _bucket, destination)
+        _s3_client.copy_object(
+            Bucket=_bucket,
+            CopySource=s3_path(source),
+            Key=s3_path(destination),
+        )
+        logger.success("Copied s3://{}/{} to s3://{}/{}", _bucket, source, _bucket, destination)
+    except ClientError as e:
+        code = e.response["Error"]["Code"]
+        if code == "404":
+            logger.warning("Source object not found: {}", source)
+            raise S3NotFoundError(source)
+        if code in ("403", "403"):
+            logger.error("Access denied copying {}: {}", source, e)
+            raise S3AccessError(source, "copy")
+        logger.error("S3 error copying {} to {}: {}", source, destination, e)
+        raise S3Error(f"Failed to copy {source} to {destination}: {e}")
 
 
 def s3_list_objects(prefix: str, continuation_token: Optional[str] = None) -> tuple[list, Optional[str]]:
     """List objects with a given prefix."""
     if not _s3_client or not _bucket:
-        return [], None
+        logger.error("S3 not configured")
+        raise S3Error("S3 not configured")
 
-    params = {"Bucket": _bucket, "Prefix": s3_path(prefix)}
-    if continuation_token:
-        params["ContinuationToken"] = continuation_token
+    try:
+        logger.debug("Listing s3://{}/{} with prefix {}", _bucket, prefix, prefix)
+        params = {"Bucket": _bucket, "Prefix": s3_path(prefix)}
+        if continuation_token:
+            params["ContinuationToken"] = continuation_token
 
-    response = _s3_client.list_objects_v2(**params)
-    contents = response.get("Contents", [])
-    next_token = response.get("NextContinuationToken")
+        response = _s3_client.list_objects_v2(**params)
+        contents = response.get("Contents", [])
+        next_token = response.get("NextContinuationToken")
 
-    return contents, next_token
-
-
-def log(message: str) -> None:
-    """Print a log message."""
-    print(f">> {message}")
-
-
-def sublog(message: str) -> None:
-    """Print a sub log message."""
-    print(f"   -- {message}")
-
-
-def error(message: str) -> None:
-    """Print an error message and exit."""
-    print(f"!! {message}", file=__import__("sys").stderr)
-    __import__("sys").exit(1)
+        logger.debug("Listed {} objects", len(contents))
+        return contents, next_token
+    except ClientError as e:
+        logger.error("S3 error listing {}: {}", prefix, e)
+        raise S3Error(f"Failed to list {prefix}: {e}")

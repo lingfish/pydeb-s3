@@ -22,6 +22,8 @@ class Package:
     url: Optional[str] = None
     category: Optional[str] = None
     license: Optional[str] = None
+    priority: Optional[str] = None
+    priority: Optional[str] = None
     architecture: Optional[str] = None
     description: Optional[str] = None
     dependencies: list[str] = field(default_factory=list)
@@ -82,6 +84,8 @@ class Package:
         self.url = df.get("Homepage")
         self.category = df.get("Section")
         self.license = df.get("License")
+        self.vendor = df.get("Vendor")
+        self.vendor = df.get("Vendor")
 
         full_version = self.version or ""
         if ":" in full_version:
@@ -92,7 +96,7 @@ class Package:
                 self.version = parts[0]
                 self.iteration = parts[1]
 
-        self.attributes["deb_priority"] = df.get("Priority")
+        self.priority = df.get("Priority")
         self.attributes["deb_origin"] = df.get("Origin")
         self.attributes["deb_installed_size"] = df.get("Installed-Size")
 
@@ -205,12 +209,40 @@ class Package:
             self.category = value
         elif field_lower == "license":
             self.license = value
+        elif field_lower == "vendor":
+            self.vendor = value
         elif field_lower == "priority":
-            self.attributes["deb_priority"] = value
+            self.priority = value
         elif field_lower == "origin":
             self.attributes["deb_origin"] = value
         elif field_lower == "installed-size":
             self.attributes["deb_installed_size"] = value
+        elif field_lower == "recommends":
+            self.attributes["deb_recommends"] = value
+        elif field_lower == "suggests":
+            self.attributes["deb_suggests"] = value
+        elif field_lower == "enhances":
+            self.attributes["deb_enhances"] = value
+        elif field_lower == "pre-depends":
+            self.attributes["deb_pre_depends"] = value
+        elif field_lower == "breaks":
+            self.attributes["deb_breaks"] = value
+        elif field_lower == "conflicts":
+            self.attributes["deb_conflicts"] = value
+        elif field_lower == "provides":
+            self.attributes["deb_provides"] = value
+        elif field_lower == "replaces":
+            self.attributes["deb_replaces"] = value
+        elif field_lower == "filename":
+            self.url_filename = value
+        elif field_lower == "size":
+            self.size = int(value)
+        elif field_lower == "sha1":
+            self.sha1 = value
+        elif field_lower == "sha256":
+            self.sha256 = value
+        elif field_lower == "md5sum":
+            self.md5 = value
         elif field_lower == "depends":
             self._parse_depends(value)
 
@@ -245,44 +277,53 @@ class Package:
     def generate(self, component: str) -> str:
         """Generate the package entry for the Packages file."""
         lines = []
-        if self.name:
-            lines.append(f"Package: {self.name}")
-        if self.version:
-            full_ver = self.full_version or self.version
-            lines.append(f"Version: {full_ver}")
-        if self.architecture:
-            lines.append(f"Architecture: {self.architecture}")
-        if self.maintainer:
-            lines.append(f"Maintainer: {self.maintainer}")
-        if self.category:
-            lines.append(f"Section: {self.category}")
-        if self.license:
-            lines.append(f"License: {self.license}")
-        if self.url:
-            lines.append(f"Homepage: {self.url}")
+
+        # Define the desired order of standard Debian fields
+        # Description is handled separately at the very end.
+        fields_order = [
+            ("Package", self.name),
+            ("Version", self.full_version or self.version),
+            ("License", self.license),
+            ("Vendor", self.vendor),
+            ("Architecture", self.architecture),
+            ("Maintainer", self.maintainer),
+            ("Installed-Size", self.attributes.get("deb_installed_size")),
+            ("Depends", ', '.join(self.dependencies) if self.dependencies else None),
+            ("Recommends", self.attributes.get("deb_recommends")),
+            ("Suggests", self.attributes.get("deb_suggests")),
+            ("Enhances", self.attributes.get("deb_enhances")),
+            ("Pre-Depends", self.attributes.get("deb_pre_depends")),
+            ("Breaks", self.attributes.get("deb_breaks")),
+            ("Conflicts", self.attributes.get("deb_conflicts")),
+            ("Provides", self.attributes.get("deb_provides")),
+            ("Replaces", self.attributes.get("deb_replaces")),
+            ("Section", self.category),
+            ("Priority", self.priority),
+            ("Homepage", self.url),
+            ("Filename", self.url_filename_for(component)),
+            ("Size", self.size),
+            ("SHA1", self.sha1),
+            ("SHA256", self.sha256),
+            ("MD5sum", self.md5),
+        ]
+
+        for field_name, value in fields_order:
+            if value is not None and value != []:
+                lines.append(f"{field_name}: {value}")
+
+        final_content = "\n".join(lines)
         if self.description:
-            desc = self.description.replace("\n", "\n ")
-            lines.append(f"Description: {desc}")
-
-        if self.dependencies:
-            lines.append(f"Depends: {', '.join(self.dependencies)}")
-
-        for key, value in self.attributes.items():
-            if value:
-                field = key.replace("_", "-").title().replace("-", "")
-                lines.append(f"{field}: {value}")
-
-        lines.append(f"Filename: {self.url_filename_for(component)}")
-        if self.sha256:
-            lines.append(f"SHA256: {self.sha256}")
-        if self.sha1:
-            lines.append(f"SHA1: {self.sha1}")
-        if self.md5:
-            lines.append(f"MD5sum: {self.md5}")
-        if self.size:
-            lines.append(f"Size: {self.size}")
-
-        return "\n".join(lines)
+            # Ensure multiline descriptions are indented correctly
+            desc_lines = self.description.split("\n")
+            final_content += f"\nDescription: {desc_lines[0]}"
+            for line in desc_lines[1:]:
+                # Debian policy for description continuation lines: starts with space, blank lines are ' .' (space dot)
+                if line.strip() == "":
+                    final_content += f"\n ."
+                else:
+                    final_content += f"\n {line}"
+        
+        return final_content
 
 
 def parse_string(s: str) -> Package:
