@@ -2,6 +2,7 @@
 
 import glob
 import os
+import sys
 from typing import Annotated, Optional
 
 import typer
@@ -13,10 +14,23 @@ from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
 from pydeb_s3 import s3_utils
 
+
+def cli_callback(
+    ctx: typer.Context,
+    quiet: Annotated[bool, typer.Option("--quiet", help="Only show errors")] = False,
+    debug: Annotated[bool, typer.Option("--debug", help="Enable debug output")] = False,
+):
+    level = "DEBUG" if debug else ("ERROR" if quiet else "INFO")
+    logger.remove()
+    logger.add(sys.stderr, level=level)
+    ctx.obj = {"quiet": quiet, "debug": debug}
+
+
 app = typer.Typer(
     name="pydeb-s3",
     help="Easily create and manage an APT repository on S3",
     rich_markup_mode=None,
+    callback=cli_callback,
 )
 
 
