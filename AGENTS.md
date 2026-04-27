@@ -7,8 +7,8 @@ Uses **hatch** for Python packaging. Source code is in `src/pydeb_s3/` (src layo
 ## Key Commands
 
 ```bash
-# Run tests
-hatch test
+# Run tests with coverage
+hatch test --cover
 
 # Format (ruff)
 hatch fmt
@@ -22,6 +22,7 @@ hatch run pydeb-s3 --help
 - **Commit format**: conventional commits (e.g., `fix:`, `feat:`)
 - **Tag format**: `X.Y.Z` (no 'v' prefix)
 - **Run tests before committing**
+- **Integration test file naming**: `test_<module>_behavior.py`
 
 
 ## Project Structure

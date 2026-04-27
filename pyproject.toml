@@ -38,14 +38,6 @@ dependencies = [
     "setuptools-scm>=8.2.0",
 ]
 
-[tool.hatch.envs.default]
-dependencies = [
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
-    "moto>=5.0.0",
-    "requests-mock>=1.11.0",
-]
-
 [tool.hatch.envs.lint]
 dependencies = [
     "ruff>=0.1.0",
@@ -54,6 +46,14 @@ dependencies = [
 [tool.hatch.envs.type]
 dependencies = [
     "mypy>=1.0.0",
+]
+
+[tool.hatch.envs.hatch-test]
+extra-dependencies = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "moto>=5.0.0",
+    "requests-mock>=1.11.0",
 ]
 
 [project.scripts]
