@@ -603,11 +603,13 @@ def clean_command(
                 continue
             manifest = manifest_module.Manifest.retrieve(codename, comp, arch, cache_control, False)
             if manifest.packages:
-                for pkg in manifest.packages.values():
-                    for version, info in list(pkg.versions.items()):
-                        path = info.get("filename")
-                        if not path:
-                            path = f"pool/{pkg.name[0]}/{pkg.name}/{pkg.name}_{version}_{arch}.deb"
+                for pkg in manifest.packages:
+                    # Get filename from package - prefer url_filename (Filename field in Packages)
+                    path = pkg.url_filename
+                    if not path:
+                        # Fallback: construct path from package attributes
+                        path = f"pool/{pkg.name[0]}/{pkg.name}/{pkg.name}_{pkg.version}_{arch}.deb"
+                    if path:
                         if path not in all_pkgs:
                             all_pkgs[path] = []
 
@@ -616,7 +618,9 @@ def clean_command(
     logger.info("Searching for unreferenced packages")
     prefix_path = f"{prefix}/pool/" if prefix else "pool/"
 
-    objects = s3_utils.s3_list_objects(prefix_path)
+    result = s3_utils.s3_list_objects(prefix_path)
+    # s3_list_objects returns tuple of (objects list, continuation token)
+    objects = result[0] if isinstance(result, tuple) else result
     removed_count = 0
 
     for obj in objects:
