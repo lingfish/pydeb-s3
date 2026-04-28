@@ -242,6 +242,7 @@ def list_command(
     session_token: Annotated[Optional[str], typer.Option("--session-token", help="The session token for connecting to S3.")] = None,
     endpoint: Annotated[Optional[str], typer.Option("--endpoint", help="The URL endpoint to the S3 API.")] = None,
     cache_control: Annotated[Optional[str], typer.Option("-C", "--cache-control", help="Add cache-control headers to S3 objects.")] = None,
+    quiet: Annotated[bool, typer.Option("-q", "--quiet", help="Suppress output")] = False,
 ):
     """List packages in given codename, component, and optionally architecture."""
     if not bucket:
@@ -279,17 +280,15 @@ def list_command(
                 widths[1] = max(widths[1], len(pkg.version))
 
     if rows:
-        logger.info("[bold]Package[/bold]" + " " * (widths[0] - 7) + "[bold]Version[/bold]" + " " * (widths[1] - 7) + "[bold]Architecture[/bold]  [bold]Section[/bold]  [bold]Description[/bold]")
-
+        if not quiet:
+            # Print header to stdout
+            print(f"{'Package':<{widths[0]}} {'Version':<{widths[1]}} Architecture Section Description")
+        
         for row in rows:
             name, version, arch, section, desc = row
-            logger.info(
-                f"{name}"
-                + " " * (widths[0] - len(name) + 1)
-                + f"{version}"
-                + " " * (widths[1] - len(version) + 2)
-                + f"{arch}  {section}  {desc[:62]}"
-            )
+            if not quiet:
+                # Print row to stdout
+                print(f"{name:<{widths[0]}} {version:<{widths[1]}} {arch}  {section}  {desc[:62]}")
 
 
 @app.command("show")
@@ -307,6 +306,7 @@ def show_command(
     session_token: Annotated[Optional[str], typer.Option("--session-token", help="The session token for connecting to S3.")] = None,
     endpoint: Annotated[Optional[str], typer.Option("--endpoint", help="The URL endpoint to the S3 API.")] = None,
     cache_control: Annotated[Optional[str], typer.Option("-C", "--cache-control", help="Add cache-control headers to S3 objects.")] = None,
+    quiet: Annotated[bool, typer.Option("-q", "--quiet", help="Suppress output")] = False,
 ):
     """Show information about a package."""
     if not bucket:
@@ -333,13 +333,15 @@ def show_command(
         if version != pkg.version and version != pkg.full_version:
             logger.error(f"Version {version} not found for package {package}.")
             raise typer.Exit(code=1)
-        logger.info(pkg.version)
+        if not quiet:
+            print(pkg.version)
     else:
         # Output package info - name, version, and description
         output = f"{pkg.name} ({pkg.full_version or pkg.version})"
         if pkg.description:
             output += f"\n{pkg.description}"
-        logger.info(output)
+        if not quiet:
+            print(output)
 
 
 @app.command("exists")
@@ -357,6 +359,7 @@ def exists_command(
     session_token: Annotated[Optional[str], typer.Option("--session-token", help="The session token for connecting to S3.")] = None,
     endpoint: Annotated[Optional[str], typer.Option("--endpoint", help="The URL endpoint to the S3 API.")] = None,
     cache_control: Annotated[Optional[str], typer.Option("-C", "--cache-control", help="Add cache-control headers to S3 objects.")] = None,
+    quiet: Annotated[bool, typer.Option("-q", "--quiet", help="Suppress output")] = False,
 ):
     """Check if a package exists in the repository."""
     if not bucket:
@@ -379,13 +382,17 @@ def exists_command(
         if version:
             # Check if version matches (compare against both version and full_version)
             if version == pkg.version or version == pkg.full_version:
-                logger.info("1")
+                if not quiet:
+                    print("1")
             else:
-                logger.info("0")
+                if not quiet:
+                    print("0")
         else:
-            logger.info("1")
+            if not quiet:
+                print("1")
     else:
-        logger.info("0")
+        if not quiet:
+            print("0")
 
 
 @app.command("copy")

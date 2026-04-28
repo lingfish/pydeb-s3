@@ -234,6 +234,119 @@ class TestShowErrors:
             )
 
 
+class TestShowQuietOutput:
+    """Tests for show command output to stdout with --quiet flag."""
+
+    @pytest.fixture(autouse=True)
+    def setup(self, s3_client, sample_deb_file):
+        """Set up test fixtures with S3 bucket and configuration."""
+        self.s3_client = s3_client
+        self.s3_client.create_bucket(Bucket="test-bucket")
+        s3_utils._s3_client = self.s3_client
+        s3_utils._bucket = "test-bucket"
+        s3_utils._access_policy = "public-read"
+        self.sample_deb_file = sample_deb_file
+
+    def _create_release(self, codename="stable", architectures=None, components=None):
+        """Create and upload a Release file."""
+        if architectures is None:
+            architectures = ["amd64"]
+        if components is None:
+            components = ["main"]
+        release = release_module.Release(
+            codename=codename,
+            origin="TestRepo",
+            architectures=architectures,
+            components=components,
+        )
+        release.write_to_s3()
+        return release
+
+    def _add_packages_to_manifest(self, release, deb_file, component="main", arch="amd64"):
+        """Add packages to manifest and update release."""
+        pkg = package_module.Package.parse_file(deb_file)
+        manifest = manifest_module.Manifest.retrieve("stable", component, arch)
+        manifest.add(pkg)
+        manifest.write_to_s3()
+        release.update_manifest(manifest)
+        release.write_to_s3()
+        return pkg
+
+    def test_show_outputs_to_stdout_not_stderr(self, capfd):
+        """show command output should go to stdout, not stderr."""
+        setup_logger()
+
+        release = self._create_release()
+        self._add_packages_to_manifest(release, self.sample_deb_file)
+
+        # Clear any setup output before running the command
+        capfd.readouterr()
+
+        show_command(
+            package="test-pkg",
+            version=None,
+            arch=None,
+            bucket="test-bucket",
+            codename="stable",
+            component="main",
+        )
+
+        captured = capfd.readouterr()
+        # Output should go to stdout
+        assert "test-pkg" in captured.out
+        # stderr should not contain the package info
+        assert "test-pkg" not in captured.err
+
+    def test_show_with_quiet_flag_outputs_nothing(self, capfd):
+        """show command with --quiet should output nothing."""
+        setup_logger()
+
+        release = self._create_release()
+        self._add_packages_to_manifest(release, self.sample_deb_file)
+
+        # Clear any setup output before running the command
+        capfd.readouterr()
+
+        # Call the show command with quiet flag
+        show_command(
+            package="test-pkg",
+            version=None,
+            arch=None,
+            bucket="test-bucket",
+            codename="stable",
+            component="main",
+            quiet=True,
+        )
+
+        captured = capfd.readouterr()
+        # With --quiet, there should be no user-facing output
+        assert "test-pkg" not in captured.out
+        assert "1.0.0" not in captured.out
+
+    def test_show_version_only_to_stdout(self, capfd):
+        """show with version output should go to stdout."""
+        setup_logger()
+
+        release = self._create_release()
+        self._add_packages_to_manifest(release, self.sample_deb_file)
+
+        # Clear any setup output before running the command
+        capfd.readouterr()
+
+        show_command(
+            package="test-pkg",
+            version="1.0.0",
+            arch=None,
+            bucket="test-bucket",
+            codename="stable",
+            component="main",
+        )
+
+        captured = capfd.readouterr()
+        # Version output should go to stdout (not stderr)
+        assert "1.0.0" in captured.out
+
+
 class TestShowMultiplePackages:
     """Tests for show with multiple packages."""
 

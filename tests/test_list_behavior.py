@@ -352,3 +352,130 @@ class TestListErrors:
                 codename="stable",
                 component="main",
             )
+
+
+class TestListQuietOutput:
+    """Tests for list command output to stdout with --quiet flag."""
+
+    @pytest.fixture(autouse=True)
+    def setup(self, s3_client, sample_deb_file):
+        """Set up test fixtures with S3 bucket and configuration."""
+        self.s3_client = s3_client
+        self.s3_client.create_bucket(Bucket="test-bucket")
+        s3_utils._s3_client = self.s3_client
+        s3_utils._bucket = "test-bucket"
+        s3_utils._access_policy = "public-read"
+        self.sample_deb_file = sample_deb_file
+
+    def _create_release(self, codename="stable", architectures=None, components=None):
+        """Create and upload a Release file."""
+        if architectures is None:
+            architectures = ["amd64"]
+        if components is None:
+            components = ["main"]
+        release = release_module.Release(
+            codename=codename,
+            origin="TestRepo",
+            architectures=architectures,
+            components=components,
+        )
+        release.write_to_s3()
+        return release
+
+    def _add_packages_to_manifest(self, release, deb_file, component="main", arch="amd64"):
+        """Add packages to manifest and update release."""
+        pkg = package_module.Package.parse_file(deb_file)
+        manifest = manifest_module.Manifest.retrieve("stable", component, arch)
+        manifest.add(pkg)
+        manifest.write_to_s3()
+        release.update_manifest(manifest)
+        release.write_to_s3()
+        return pkg
+
+    def test_list_outputs_to_stdout_not_stderr(self, capfd):
+        """List command output should go to stdout, not stderr."""
+        setup_logger()
+
+        self._create_release()
+        self._add_packages_to_manifest(
+            self._create_release(),
+            self.sample_deb_file,
+        )
+
+        # Clear any setup output before running the command
+        capfd.readouterr()
+
+        # Call the list command
+        list_command(
+            bucket="test-bucket",
+            long=False,
+            arch=None,
+            codename="stable",
+            component="main",
+        )
+
+        captured = capfd.readouterr()
+        # Output should go to stdout (not stderr)
+        assert "test-pkg" in captured.out
+        assert "test-pkg" not in captured.err
+
+    def test_list_with_quiet_flag_outputs_nothing(self, capfd):
+        """List command with --quiet should output nothing."""
+        setup_logger()
+
+        # Set quiet in context
+        from pydeb_s3.cli import app
+        app_ctx = {"quiet": True, "debug": False}
+
+        self._create_release()
+        self._add_packages_to_manifest(
+            self._create_release(),
+            self.sample_deb_file,
+        )
+
+        # Clear any setup output before running the command
+        capfd.readouterr()
+
+        # Call the list command with quiet flag
+        list_command(
+            bucket="test-bucket",
+            long=False,
+            arch=None,
+            codename="stable",
+            component="main",
+            quiet=True,
+        )
+
+        captured = capfd.readouterr()
+        # With --quiet, there should be no user-facing output
+        assert "test-pkg" not in captured.out
+        assert "1.0.0" not in captured.out
+
+    def test_list_output_is_parseable_one_line_per_package(self, capfd):
+        """List command output should be machine-parseable, one package per line."""
+        setup_logger()
+
+        self._create_release()
+        self._add_packages_to_manifest(
+            self._create_release(),
+            self.sample_deb_file,
+        )
+
+        # Clear any setup output before running the command
+        capfd.readouterr()
+
+        list_command(
+            bucket="test-bucket",
+            long=False,
+            arch=None,
+            codename="stable",
+            component="main",
+        )
+
+        captured = capfd.readouterr()
+        output = captured.out
+        # Each package should be on its own line
+        lines = [line.strip() for line in output.split("\n") if line.strip()]
+        assert any("test-pkg" in line for line in lines), (
+            f"Expected parseable output with package name, got: {output}"
+        )
