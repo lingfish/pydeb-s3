@@ -538,20 +538,21 @@ def verify_command(
             logger.info(f"Checking for missing packages in: {codename}/{comp} {arch}")
             manifest = manifest_module.Manifest.retrieve(codename, comp, arch, cache_control, False)
             if manifest.packages:
-                for pkg_name, pkg in sorted(manifest.packages.items()):
-                    for version, version_info in list(pkg.versions.items()):
-                        path = version_info.get("filename", f"pool/{pkg_name[0]}/{pkg_name}/{pkg_name}_{version}_{arch}.deb")
-                        if not s3_utils.s3_exists(path):
-                            logger.warning(f"Missing file: {path}")
-                            if fix_manifests:
-                                logger.info(f"Deleting reference to {pkg_name} {version}")
-                                del pkg.versions[version]
-                                if not pkg.versions:
-                                    del manifest.packages[pkg_name]
+                for pkg in sorted(manifest.packages):
+                    logger.info(f"Checking files for package: {pkg.name} {pkg.full_version}")
+                    # Use the url_filename_for method to get the correct path including component prefix
+                    path = pkg.url_filename_for(comp)
+                    if not path:
+                        path = f"pool/{pkg.name[0]}/{pkg.name}/{pkg.name}_{pkg.full_version}_{arch}.deb"
+                    if not s3_utils.s3_exists(path):
+                        logger.warning(f"Missing file: {path}")
+                        if fix_manifests:
+                            logger.info(f"Deleting package {pkg.name} {pkg.full_version} from manifest")
+                            manifest.delete_package(pkg.name, [pkg.full_version])
 
-                if fix_manifests and (len(manifest.packages) > 0):
+                if fix_manifests:
                     logger.info(f"Uploading fixed manifest for {codename}/{comp}/{arch}")
-                    manifest.upload()
+                    manifest.write_to_s3()
 
     if sign:
         logger.info(f"Signing Release file for {codename}")
