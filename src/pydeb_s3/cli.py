@@ -322,18 +322,24 @@ def show_command(
 
     manifest = manifest_module.Manifest.retrieve(codename, component, arch, cache_control)
 
-    pkg = manifest.packages.get(package)
+    # Find package by name in the list
+    pkg = next((p for p in manifest.packages if p.name == package), None)
     if not pkg:
         logger.error(f"Package {package} not found.")
         raise typer.Exit(code=1)
 
     if version:
-        if version in pkg.versions:
-            logger.error(f"Version {version} not found.")
+        # Check if version matches (compare against both version and full_version)
+        if version != pkg.version and version != pkg.full_version:
+            logger.error(f"Version {version} not found for package {package}.")
             raise typer.Exit(code=1)
         logger.info(pkg.version)
     else:
-        logger.info(pkg.full_description)
+        # Output package info - name, version, and description
+        output = f"{pkg.name} ({pkg.full_version or pkg.version})"
+        if pkg.description:
+            output += f"\n{pkg.description}"
+        logger.info(output)
 
 
 @app.command("exists")
