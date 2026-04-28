@@ -366,9 +366,13 @@ def exists_command(
 
     manifest = manifest_module.Manifest.retrieve(codename, component, arch, cache_control)
 
-    if package in manifest.packages:
+    # Find package by name in the list
+    pkg = next((p for p in manifest.packages if p.name == package), None)
+
+    if pkg:
         if version:
-            if version in manifest.packages[package].versions:
+            # Check if version matches (compare against both version and full_version)
+            if version == pkg.version or version == pkg.full_version:
                 logger.info("1")
             else:
                 logger.info("0")
