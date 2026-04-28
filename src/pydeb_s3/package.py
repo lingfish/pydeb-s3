@@ -51,6 +51,18 @@ class Package:
             full = f"{full}-{self.iteration}"
         return full
 
+    def __lt__(self, other: "Package") -> bool:
+        """Enable sorting by name then version."""
+        if not isinstance(other, Package):
+            return NotImplemented
+        self_name = (self.name or "").lower()
+        other_name = (other.name or "").lower()
+        if self_name != other_name:
+            return self_name < other_name
+        self_version = self.full_version or ""
+        other_version = other.full_version or ""
+        return self_version < other_version
+
     def url_filename_for(self, component: str) -> str:
         """Return the URL filename for this package in the pool."""
         if self.url_filename:
