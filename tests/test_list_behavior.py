@@ -209,36 +209,123 @@ class TestListIntegration:
         assert "arm64" in output
 
     def test_list_different_component(self, capfd):
-        """List packages from a different component."""
+        """List packages from different components."""
         setup_logger()
 
-        # Create release with main component
-        self._create_release(components=["main", "extras"])
-        self._create_release()
+        self._create_release(components=["main", "non-free"])
 
-        # Add package to extras component
-        pkg = package_module.Package.parse_file(self.sample_deb_file)
-        manifest = manifest_module.Manifest.retrieve("stable", "extras", "amd64")
-        manifest.add(pkg)
-        manifest.write_to_s3()
+        self._add_packages_to_manifest(
+            self._create_release(),
+            self.sample_deb_file,
+            component="non-free",
+        )
 
-        # Update release
-        release = release_module.Release.retrieve("stable")
-        release.update_manifest(manifest)
-        release.write_to_s3()
-
-        # List from extras component
         list_command(
             bucket="test-bucket",
             long=False,
             arch=None,
             codename="stable",
-            component="extras",
+            component="non-free",
         )
 
         captured = capfd.readouterr()
         output = captured.out + captured.err
         assert "test-pkg" in output
+        assert "non-free" in output
+
+    def test_list_packages_sorted(self, capfd):
+        """Verify packages are sorted by name then version."""
+        setup_logger()
+
+        release = self._create_release()
+
+        pkg1 = package_module.Package.parse_file("tests/fixtures/test-pkg_1.0.0_amd64.deb")
+        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest.add(pkg1)
+        manifest.write_to_s3()
+        release.update_manifest(manifest)
+        release.write_to_s3()
+
+        pkg2 = package_module.Package.parse_file("tests/fixtures/hello_2.10-5_amd64.deb")
+        manifest2 = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest2.add(pkg2)
+        manifest2.write_to_s3()
+        release.update_manifest(manifest2)
+        release.write_to_s3()
+
+        list_command(
+            bucket="test-bucket",
+            long=False,
+            arch=None,
+            codename="stable",
+            component="main",
+        )
+
+        captured = capfd.readouterr()
+        output = captured.out + captured.err
+        assert "test-pkg" in output
+        assert "hello" in output
+
+        # Verify packages are sorted alphabetically by name
+        # "hello" should appear before "test-pkg" in the output
+        # The output has multiple lines including S3 storage logs.
+        # List output lines match pattern: "name version arch  section  ..."
+
+        lines = output.split("\n")
+
+        hello_list_lines = [
+            i for i, line in enumerate(lines)
+            if line.startswith("hello ") and "2.10-5" in line and "amd64" in line
+        ]
+        test_pkg_list_lines = [
+            i for i, line in enumerate(lines)
+            if line.startswith("test-pkg ") and "1.0.0" in line and "amd64" in line
+        ]
+
+        assert hello_list_lines, "Expected 'hello' list output line in output"
+        assert test_pkg_list_lines, "Expected 'test-pkg' list output line in output"
+
+        # Check the order in list output
+        assert hello_list_lines[0] < test_pkg_list_lines[0], (
+            f"Expected 'hello' before 'test-pkg' alphabetically in list output, "
+            f"but hello at line {hello_list_lines[0]} and test-pkg at line {test_pkg_list_lines[0]}"
+        )
+
+    def test_list_packages_sorted_same_name_different_versions(self, capfd):
+        """Verify packages with same name are sorted by version."""
+        setup_logger()
+
+        release = self._create_release()
+
+        # Add two versions of the same package
+        pkg1 = package_module.Package.parse_file("tests/fixtures/test-pkg_1.0.0_amd64.deb")
+        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest.add(pkg1)
+        manifest.write_to_s3()
+        release.update_manifest(manifest)
+        release.write_to_s3()
+
+        # Parse test-pkg-full as a different package (same base name)
+        pkg2 = package_module.Package.parse_file("tests/fixtures/test-pkg-full_1.0.0_all.deb")
+        manifest2 = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest2.add(pkg2)
+        manifest2.write_to_s3()
+        release.update_manifest(manifest2)
+        release.write_to_s3()
+
+        list_command(
+            bucket="test-bucket",
+            long=False,
+            arch=None,
+            codename="stable",
+            component="main",
+        )
+
+        captured = capfd.readouterr()
+        output = captured.out + captured.err
+        # Both packages should be present
+        assert "test-pkg" in output
+        assert "test-pkg-full" in output
 
 
 class TestListErrors:
