@@ -264,13 +264,13 @@ def list_command(
         manifest = manifest_module.Manifest.retrieve(codename, component, architecture, cache_control)
 
         if manifest.packages:
-            for pkg in sorted(manifest.packages.values()):
+            for pkg in sorted(manifest.packages):
                 rows.append(
                     [
                         f"{pkg.name}",
                         f"{pkg.version}",
                         f"{architecture}",
-                        f"{pkg.section}",
+                        f"{pkg.category}",
                         f"{pkg.description[:62]}...",
                     ]
                 )
