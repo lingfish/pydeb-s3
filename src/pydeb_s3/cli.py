@@ -416,7 +416,10 @@ def copy_command(
 
     from_manifest = manifest_module.Manifest.retrieve(codename, component, arch, cache_control)
 
-    if package not in from_manifest.packages:
+    # Find package in the list (packages is a list, not dict)
+    pkg = next((p for p in from_manifest.packages if p.name == package), None)
+
+    if not pkg:
         logger.error(f"Package {package} not found in repository.")
         raise typer.Exit(code=1)
 
@@ -427,27 +430,20 @@ def copy_command(
 
     to_manifest = manifest_module.Manifest.retrieve(to_codename, to_component, arch, cache_control)
 
-    pkg = from_manifest.packages[package]
-
+    # Filter versions if specified (pkg.version is a single version, not a dict)
+    version = pkg.full_version or pkg.version
     if versions:
-        for version in versions:
-            if version not in pkg.versions:
-                logger.error(f"Version {version} not found in package.")
-                raise typer.Exit(code=1)
-
-        for version in list(pkg.versions):
-            if version not in versions:
-                del pkg.versions[version]
+        if version not in versions:
+            logger.error(f"Version {version} not found in package.")
+            raise typer.Exit(code=1)
     else:
         logger.info(f"Copying all versions of {package}")
 
-    if package in to_manifest.packages:
-        to_manifest.packages[package].versions.update(pkg.versions)
-    else:
-        to_manifest.packages[package] = pkg
+    # Use manifest.add() to add package (not dict-style assignment)
+    to_manifest.add(pkg)
 
     logger.info(f"Uploading new manifest to S3 for {to_codename}/{to_component}/{arch}")
-    to_manifest.upload()
+    to_manifest.write_to_s3()
 
     logger.info("Copy complete.")
 
