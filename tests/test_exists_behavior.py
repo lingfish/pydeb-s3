@@ -75,7 +75,9 @@ class TestExistsIntegration:
         captured = capfd.readouterr()
         output = captured.out + captured.err
         # Command should output "1" indicating package exists
-        assert "1" in output
+        # Use line-based matching to catch bug where "0" is always returned
+        output_lines = [line.strip() for line in output.split("\n")]
+        assert "1" in output_lines, f"Expected '1' in output lines, got: {output_lines}"
 
     def test_exists_returns_false_for_nonexistent_package(self, capfd):
         """exists returns 0 for package that does not exist in repository."""
