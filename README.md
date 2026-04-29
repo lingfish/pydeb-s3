@@ -13,206 +13,145 @@ With **pydeb-s3**, there is no need for this. pydeb-s3 features:
 - Uploads the package itself, the Packages manifest, and the Packages.gz manifest. It will skip the uploading if the package is already there.
 - Updates the Release file with the new hashes and file sizes.
 
-## Getting Started
+## Updated Features
 
-Install the package via pip:
+pydeb-s3 has been rewritten in Python with modern tooling and additional capabilities:
+
+- Parses `.deb` files using the official `python-debian` library
+- Updates package manifests, replacing existing entries or adding new ones
+- Uploads packages, Packages manifest, and compressed manifests (`.gz`, `.bz2`, `.xz`)
+- Updates Release file with new hashes and file sizes
+- **GPG signing** of Release files for secure APT repositories
+- **S3-compatible storage** support (AWS S3, Google Cloud Storage, MinIO, etc.)
+- **Concurrent operation locking** to prevent conflicting uploads
+- **Dry-run mode** for clean/verify operations
+- Modern CLI with Typer, featuring help text and shell completion
+
+## Installation
+
+Install via pip:
 
 ```console
 $ pip install pydeb-s3
 ```
 
-Now to upload a package, simply use:
+For isolated installation, use [pipx](https://pipx.pypa.io/):
+
+```console
+$ pipx install pydeb-s3
+```
+
+## Quick Start
+
+Upload a package to S3:
 
 ```console
 $ pydeb-s3 upload --bucket my-bucket my-deb-package-1.0.0_amd64.deb
->> Examining package file my-deb-package-1.0.0_amd64.deb
->> Retrieving existing package manifest
->> Uploading package and new manifests to S3
-   -- Transferring pool/m/my/my-deb-package-1.0.0_amd64.deb
-   -- Transferring dists/stable/main/binary-amd64/Packages
-   -- Transferring dists/stable/main/binary-amd64/Packages.gz
-   -- Transferring dists/stable/Release
->> Update complete.
 ```
 
-For Google Cloud Storage (or other S3-compatible endpoints) you need to disable SDK checksum negotiation headers and set visibility settings to nil:
+For S3-compatible endpoints (e.g., Google Cloud Storage, MinIO):
 
 ```console
-$ pydeb-s3 upload --bucket my-bucket --endpoint https://storage.googleapis.com --checksum-when-required --visibility nil my-deb-package-1.0.0_amd64.deb
+$ pydeb-s3 upload --bucket my-bucket \
+    --endpoint https://storage.googleapis.com \
+    --checksum-when-required \
+    --visibility nil \
+    my-deb-package-1.0.0_amd64.deb
 ```
 
 ## Usage
 
-```
-Usage:
-  pydeb-s3 upload FILES
-  pydeb-s3 list
-  pydeb-s3 show PACKAGE VERSION ARCH
-  pydeb-s3 exists PACKAGE VERSION ARCH [PACKAGE VERSION ARCH ...]
-  pydeb-s3 copy PACKAGE TO_CODENAME TO_COMPONENT
-  pydeb-s3 delete PACKAGE
-  pydeb-s3 verify
-  pydeb-s3 clean
-```
+pydeb-s3 provides the following commands:
 
-## Commands
+```console
+$ pydeb-s3 --help
+Usage: pydeb-s3 [OPTIONS] COMMAND [ARGS]...
 
-### upload
+  Easily create and manage an APT repository on S3
 
-Uploads the given files to a S3 bucket as an APT repository.
+Options:
+  --quiet               Only show errors
+  --debug               Enable debug output
+  --install-completion  Install completion for the current shell.
+  --show-completion     Show completion for the current shell, to copy it or
+                        customize the installation.
+  --help                Show this message and exit.
 
-```
-pydeb-s3 upload [--arch=ARCH] [--preserve-versions] [--lock] [--fail-if-exists]
-              [--skip-package-upload] [--bucket=BUCKET] [--prefix=PREFIX]
-              [--origin=ORIGIN] [--suite=SUITE] [--codename=CODENAME]
-              [--component=COMPONENT] [--access-key-id=KEY] [--secret-access-key=KEY]
-              [--s3-region=REGION] [--force-path-style] [--proxy-uri=URI]
-              [--visibility=VISIBILITY] [--sign=KEY] [--gpg-options=OPTIONS]
-              [--encryption] [--quiet] [--cache-control=CONTROL]
-              FILES
+Commands:
+  upload   Upload the given files to a S3 bucket as an APT repository.
+  list     List packages in given codename, component, and optionally architecture.
+  show     Show information about a package.
+  exists   Check if a package exists in the repository.
+  copy     Copy a package to another codename and component.
+  delete   Remove a package from the repository.
+  verify   Verify that the files in the package manifests exist.
+  clean    Remove orphaned package files.
 ```
 
-### list
+For detailed options per command, run `pydeb-s3 <command> --help`.
 
-Lists packages in given codename, component, and optionally architecture.
+## Common Command Examples
 
-```
-pydeb-s3 list [--long] [--arch=ARCH] [--bucket=BUCKET] [--prefix=PREFIX]
-             [--codename=CODENAME] [--component=COMPONENT]
-             [--s3-region=REGION] [--quiet]
-```
-
-### show
-
-Shows information about a package.
-
-```
-pydeb-s3 show PACKAGE VERSION ARCH [--bucket=BUCKET] [--prefix=PREFIX]
-                          [--codename=CODENAME] [--component=COMPONENT]
-                          [--s3-region=REGION] [--quiet]
+### List packages
+```console
+$ pydeb-s3 list --bucket my-bucket --codename stable
 ```
 
-### exists
-
-Check if packages exist in the repository.
-
-```
-pydeb-s3 exists PACKAGE VERSION ARCH [PACKAGE VERSION ARCH ...]
-                 [--bucket=BUCKET] [--prefix=PREFIX]
-                 [--codename=CODENAME] [--component=COMPONENT]
-                 [--s3-region=REGION] [--quiet]
+### Show package info
+```console
+$ pydeb-s3 show mypackage --bucket my-bucket --version 1.0.0
 ```
 
-### copy
-
-Copy the package named PACKAGE to given codename and component.
-
-```
-pydeb-s3 copy PACKAGE TO_CODENAME TO_COMPONENT
-              [--arch=ARCH] [--lock] [--versions=VERSIONS]
-              [--preserve-versions] [--fail-if-exists]
-              [--bucket=BUCKET] [--prefix=PREFIX]
-              [--codename=CODENAME] [--component=COMPONENT]
-              [--s3-region=REGION] [--quiet]
+### Check if package exists
+```console
+$ pydeb-s3 exists mypackage --bucket my-bucket --version 1.0.0
 ```
 
-### delete
-
-Remove the package named PACKAGE.
-
-```
-pydeb-s3 delete PACKAGE [--arch=ARCH] [--lock] [--versions=VERSIONS]
-                  [--bucket=BUCKET] [--prefix=PREFIX]
-                  [--origin=ORIGIN] [--suite=SUITE]
-                  [--codename=CODENAME] [--component=COMPONENT]
-                  [--s3-region=REGION] [--visibility=VISIBILITY]
-                  [--sign=KEY] [--gpg-options=OPTIONS]
-                  [--encryption] [--quiet] [--cache-control=CONTROL]
+### Copy package to another codename
+```console
+$ pydeb-s3 copy mypackage --bucket my-bucket --to-codename jammy --to-component main
 ```
 
-### verify
-
-Verifies that the files in the package manifests exist.
-
-```
-pydeb-s3 verify [--fix-manifests] [--bucket=BUCKET] [--prefix=PREFIX]
-               [--origin=ORIGIN] [--suite=SUITE]
-               [--codename=CODENAME] [--component=COMPONENT]
-               [--s3-region=REGION] [--visibility=VISIBILITY]
-               [--sign=KEY] [--gpg-options=OPTIONS]
-               [--encryption] [--quiet] [--cache-control=CONTROL]
+### Verify repository integrity
+```console
+$ pydeb-s3 verify --bucket my-bucket --fix-manifests
 ```
 
-### clean
-
-Delete packages from the pool which are no longer referenced.
-
-```
-pydeb-s3 clean [--lock] [--bucket=BUCKET] [--prefix=PREFIX]
-              [--origin=ORIGIN] [--suite=SUITE]
-              [--codename=CODENAME] [--component=COMPONENT]
-              [--s3-region=REGION] [--visibility=VISIBILITY]
-              [--sign=KEY] [--gpg-options=OPTIONS]
-              [--encryption] [--quiet] [--cache-control=CONTROL]
+### Clean orphaned packages (dry-run first!)
+```console
+$ pydeb-s3 clean --bucket my-bucket --dry-run
+$ pydeb-s3 clean --bucket my-bucket  # Actually remove orphans
 ```
 
 ## Configuration
 
 ### AWS Credentials
 
-pydeb-s3 supports multiple methods for AWS credentials:
+pydeb-s3 uses standard `boto3` credential resolution:
 
-1. **Command-line options**:
-   - `--access-key-id` and `--secret-access-key`
-   - `--session-token` (for temporary credentials)
-
-2. **Environment variables**:
-   - `AWS_ACCESS_KEY_ID`
-   - `AWS_SECRET_ACCESS_KEY`
-   - `AWS_DEFAULT_REGION`
-
-3. **AWS Config file**: Uses standard boto3 credential resolution
+1. **Command-line options**: `--access-key-id`, `--secret-access-key`, `--session-token`
+2. **Environment variables**: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`
+3. **AWS config file**: `~/.aws/credentials` and `~/.aws/config`
 
 ### S3 Bucket
 
-The `--bucket` option is required for all commands.
+The `--bucket` option is required for all commands. Use `--prefix` to add a path prefix to all S3 objects.
 
-### Visibility
+### Visibility / ACL
 
-The `--visibility` option controls ACL on uploaded files:
-- `public` (default) - public-read
-- `private` - private
-- `authenticated` - authenticated-read
-- `nil` - do not set ACL (for buckets without ACL support)
+Control uploaded file permissions with `--visibility`:
+- `public` (default): public-read ACL
+- `private`: private ACL
+- `authenticated`: authenticated-read ACL
+- `nil`: No ACL (for S3-compatible storage that doesn't support ACLs)
 
-## Example S3 IAM Policy
+### GPG Signing
 
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": ["s3:ListBucket"],
-            "Resource": ["arn:aws:s3:::BUCKETNAME"]
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "s3:PutObject",
-                "s3:GetObject",
-                "s3:DeleteObject",
-                "s3:DeleteObjectVersion",
-                "s3:GetObjectAcl",
-                "s3:GetObjectVersionAcl",
-                "s3:PutObjectAcl",
-                "s3:PutObjectVersionAcl"
-            ],
-            "Resource": ["arn:aws:s3:::BUCKETNAME/*"]
-        }
-    ]
-}
-```
+Sign Release files with `--sign <KEY_ID>`. You can specify multiple keys if needed (though repeatable `--sign` is limited by Typer version constraints).
+
+## Development
+
+pydeb-s3 uses [hatch](https://hatch.pypa.io/latest/) for packaging and dependency management.
 
 ## License
 
@@ -221,4 +160,3 @@ MIT License - see LICENSE file for details.
 ## Credits
 
 - Original [deb-s3](https://github.com/deb-s3/deb-s3) by [Ken Robertson](https://github.com/krobertson)
-- Python port by pydeb-s3 team
