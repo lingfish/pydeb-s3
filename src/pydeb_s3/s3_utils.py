@@ -267,6 +267,7 @@ def s3_copy(source: str, destination: str) -> None:
 
 def s3_list_objects(prefix: str, continuation_token: Optional[str] = None) -> tuple[list, Optional[str]]:
     """List objects with a given prefix."""
+
     if not _s3_client or not _bucket:
         logger.error("S3 not configured")
         raise S3Error("S3 not configured")
@@ -287,3 +288,40 @@ def s3_list_objects(prefix: str, continuation_token: Optional[str] = None) -> tu
     except ClientError as e:
         logger.error("S3 error listing {}: {}", prefix, e)
         raise S3Error(f"Failed to list {prefix}: {e}")
+
+
+def list_codenames() -> list:
+    """List all codenames by scanning the dists/ directory in S3.
+
+    Returns a list of codename names found in the dists/ directory.
+    Handles S3 pagination to ensure all codenames are found.
+    """
+    codenames = []
+    continuation_token = None
+
+    while True:
+        result = s3_list_objects("dists/", continuation_token=continuation_token)
+        objects, continuation_token = result
+
+        for obj in objects:
+            key = obj.get("Key", "")
+            # Strip S3 prefix from key for comparison
+            if _prefix and key.startswith(_prefix):
+                key = key[len(_prefix):].lstrip("/")
+
+            # Parse codename from path like "dists/stable/Release" or "dists/rc/main/binary-amd64/Packages"
+            # Extract the codename (first directory after "dists/")
+            if key.startswith("dists/"):
+                # Remove "dists/" prefix and split
+                path_after_dists = key[len("dists/"):]
+                parts = path_after_dists.split("/")
+                if len(parts) >= 2:
+                    codename = parts[0]
+                    if codename and codename not in codenames:
+                        codenames.append(codename)
+
+        if not continuation_token:
+            break
+
+    logger.debug("Found codenames: {}", codenames)
+    return codenames

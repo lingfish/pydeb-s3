@@ -603,48 +603,77 @@ def clean_command(
                   encryption=encryption)
 
     logger.info("Retrieving existing manifests")
-    release = release_module.Release.retrieve(codename, origin, suite)
+
+    # Get all codenames from S3 to check all of them
+    all_codenames = s3_utils.list_codenames()
+    if not all_codenames:
+        # Fallback to specified codename if no codenames found in S3
+        all_codenames = [codename]
+
+    logger.info("Checking codenames: {}", all_codenames)
 
     components = component.split(",")
     if not components:
         components = ["main"]
 
-    architectures = release.architectures
     all_pkgs = {}
 
-    for comp in components:
-        for arch in architectures:
-            if arch == "all":
-                continue
-            manifest = manifest_module.Manifest.retrieve(codename, comp, arch, cache_control, False)
-            if manifest.packages:
-                for pkg in manifest.packages:
-                    # Get filename from package - prefer url_filename (Filename field in Packages)
-                    path = pkg.url_filename
-                    if not path:
-                        # Fallback: construct path from package attributes
-                        path = f"pool/{pkg.name[0]}/{pkg.name}/{pkg.name}_{pkg.version}_{arch}.deb"
-                    if path:
-                        if path not in all_pkgs:
-                            all_pkgs[path] = []
+    # Check ALL codenames, not just the specified one
+    for cname in all_codenames:
+        try:
+            release = release_module.Release.retrieve(cname, origin, suite)
+            architectures = release.architectures
 
-                        all_pkgs[path].append(f"{codename}/{comp}/{arch}")
+            for comp in components:
+                for arch in architectures:
+                    if arch == "all":
+                        continue
+                    manifest = manifest_module.Manifest.retrieve(cname, comp, arch, cache_control, False)
+                    if manifest.packages:
+                        for pkg in manifest.packages:
+                            # Get filename from package - prefer url_filename (Filename field in Packages)
+                            path = pkg.url_filename
+                            if not path:
+                                # Fallback: construct path from package attributes
+                                path = f"pool/{pkg.name[0]}/{pkg.name}/{pkg.name}_{pkg.version}_{arch}.deb"
+                            if path:
+                                if path not in all_pkgs:
+                                    all_pkgs[path] = []
+
+                                all_pkgs[path].append(f"{cname}/{comp}/{arch}")
+        except Exception as e:
+            logger.warning("Could not retrieve release for codename {}: {}", cname, e)
+            continue
 
     logger.info("Searching for unreferenced packages")
 
-    result = s3_utils.s3_list_objects("pool/")
-    # s3_list_objects returns tuple of (objects list, continuation token)
-    objects = result[0] if isinstance(result, tuple) else result
+    all_objects = []
+    for comp in components:
+        logger.debug("Listing objects for component: {}", comp)
+        continuation_token = None
+        while True:
+            result = s3_utils.s3_list_objects(f"pool/{comp}/", continuation_token=continuation_token)
+            objects, continuation_token = result
+            all_objects.extend(objects)
+            if not continuation_token:
+                break
+
     removed_count = 0
 
-    for obj in objects:
+    for obj in all_objects:
         path = obj.get("Key", "")
+        original_key = path
         # Strip S3 prefix from path for comparison with all_pkgs keys
         if path and s3_utils._prefix:
             prefix_stripped = s3_utils._prefix.rstrip("/") + "/"
             if path.startswith(prefix_stripped):
                 path = path[len(prefix_stripped):]
         if path and path not in all_pkgs:
+            logger.debug("ORPHANED: '{}' (S3 key: '{}')", path, original_key)
+            # Show what's in all_pkgs for comparison
+            if len(all_pkgs) > 0:
+                sample_keys = list(all_pkgs.keys())[:3]
+                logger.debug("  Sample all_pkgs keys: {}", sample_keys)
             if dry_run:
                 logger.warning(f"Would remove {path}")
             else:
