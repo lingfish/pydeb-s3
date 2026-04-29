@@ -256,6 +256,7 @@ class TestS3ListObjects:
         """Reset globals after each test."""
         s3_utils._s3_client = None
         s3_utils._bucket = None
+        s3_utils._prefix = None
 
     def test_raises_when_no_client(self):
         """Raises S3Error when S3 client not configured."""
@@ -286,6 +287,72 @@ class TestS3ListObjects:
         contents, token = s3_utils.s3_list_objects("prefix")
         assert len(contents) == 1
         assert token == "token123"
+
+    @patch("pydeb_s3.s3_utils.boto3.client")
+    def test_with_prefix_applies_prefix_once(self, mock_boto):
+        """S3 list objects applies prefix only once to the S3 API call.
+
+        This test verifies that when _prefix is configured (e.g., "apt"),
+        s3_list_objects("pool/") results in the S3 API Prefix being "apt/pool/"
+        (not "apt/apt/pool/" which would be double-prefixing).
+        """
+        mock_client = MagicMock()
+        mock_client.list_objects_v2.return_value = {"Contents": []}
+        mock_boto.return_value = mock_client
+
+        s3_utils._s3_client = mock_client
+        s3_utils._bucket = "mybucket"
+        s3_utils._prefix = "apt"
+
+        # Call s3_list_objects with "pool/" - it should NOT double-prefix
+        s3_utils.s3_list_objects("pool/")
+
+        # Verify the Prefix parameter passed to S3 API
+        call_kwargs = mock_client.list_objects_v2.call_args[1]
+        s3_prefix = call_kwargs["Prefix"]
+
+        # The prefix should be "apt/pool/" - NOT "apt/apt/pool/"
+        assert s3_prefix == "apt/pool/", f"Expected 'apt/pool/' but got '{s3_prefix}'"
+        assert not s3_prefix.startswith("apt/apt/"), "Prefix should not be double-prefixed"
+
+    @patch("pydeb_s3.s3_utils.boto3.client")
+    def test_with_prefix_and_nested_path(self, mock_boto):
+        """S3 list objects correctly handles prefix with nested path."""
+        mock_client = MagicMock()
+        mock_client.list_objects_v2.return_value = {"Contents": []}
+        mock_boto.return_value = mock_client
+
+        s3_utils._s3_client = mock_client
+        s3_utils._bucket = "mybucket"
+        s3_utils._prefix = "myrepo"
+
+        # Call with a nested path
+        s3_utils.s3_list_objects("dists/stable/main/binary-amd64/Packages")
+
+        call_kwargs = mock_client.list_objects_v2.call_args[1]
+        s3_prefix = call_kwargs["Prefix"]
+
+        # Should be "myrepo/dists/stable/main/binary-amd64/Packages"
+        assert s3_prefix == "myrepo/dists/stable/main/binary-amd64/Packages"
+
+    @patch("pydeb_s3.s3_utils.boto3.client")
+    def test_without_prefix_passes_path_directly(self, mock_boto):
+        """Without prefix, s3_list_objects passes path directly to S3 API."""
+        mock_client = MagicMock()
+        mock_client.list_objects_v2.return_value = {"Contents": []}
+        mock_boto.return_value = mock_client
+
+        s3_utils._s3_client = mock_client
+        s3_utils._bucket = "mybucket"
+        s3_utils._prefix = None
+
+        s3_utils.s3_list_objects("pool/")
+
+        call_kwargs = mock_client.list_objects_v2.call_args[1]
+        s3_prefix = call_kwargs["Prefix"]
+
+        # Without prefix, should be just "pool/"
+        assert s3_prefix == "pool/"
 
 
 class TestS3Exceptions:

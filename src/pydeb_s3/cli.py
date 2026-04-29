@@ -631,15 +631,19 @@ def clean_command(
                         all_pkgs[path].append(f"{codename}/{comp}/{arch}")
 
     logger.info("Searching for unreferenced packages")
-    prefix_path = f"{prefix}/pool/" if prefix else "pool/"
 
-    result = s3_utils.s3_list_objects(prefix_path)
+    result = s3_utils.s3_list_objects("pool/")
     # s3_list_objects returns tuple of (objects list, continuation token)
     objects = result[0] if isinstance(result, tuple) else result
     removed_count = 0
 
     for obj in objects:
         path = obj.get("Key", "")
+        # Strip S3 prefix from path for comparison with all_pkgs keys
+        if path and s3_utils._prefix:
+            prefix_stripped = s3_utils._prefix.rstrip("/") + "/"
+            if path.startswith(prefix_stripped):
+                path = path[len(prefix_stripped):]
         if path and path not in all_pkgs:
             if dry_run:
                 logger.warning(f"Would remove {path}")

@@ -272,8 +272,9 @@ def s3_list_objects(prefix: str, continuation_token: Optional[str] = None) -> tu
         raise S3Error("S3 not configured")
 
     try:
-        logger.debug("Listing s3://{}/{} with prefix {}", _bucket, prefix, prefix)
-        params = {"Bucket": _bucket, "Prefix": s3_path(prefix)}
+        resolved_prefix = s3_path(prefix)
+        logger.debug("Listing s3://{}/{} (S3 Prefix: {})", _bucket, prefix, resolved_prefix)
+        params = {"Bucket": _bucket, "Prefix": resolved_prefix}
         if continuation_token:
             params["ContinuationToken"] = continuation_token
 
