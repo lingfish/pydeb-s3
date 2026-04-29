@@ -1,5 +1,10 @@
 # pydeb-s3
 
+[![PyPI version](https://img.shields.io/pypi/v/pydeb-s3.svg)](https://pypi.org/project/pydeb-s3/)
+[![License](https://img.shields.io/pypi/l/pydeb-s3.svg)](LICENSE)
+[![Python versions](https://img.shields.io/pypi/pyversions/pydeb-s3.svg)](https://pypi.org/project/pydeb-s3/)
+[![GitHub stars](https://img.shields.io/github/stars/lingfish/pydeb-s3.svg)](https://github.com/lingfish/pydeb-s3/stargazers)
+
 **pydeb-s3** is a Python port of [deb-s3](https://github.com/deb-s3/deb-s3), a simple utility to make creating and managing APT repositories on S3.
 
 Most existing guides on using S3 to host an APT repository have you using something like [reprepro](http://mirrorer.alioth.debian.org/) to generate the repository file structure, and then [s3cmd](http://s3tools.org/s3cmd) to sync the files to S3.
@@ -31,13 +36,13 @@ pydeb-s3 has been rewritten in Python with modern tooling and additional capabil
 
 Install via pip:
 
-```console
+```bash
 $ pip install pydeb-s3
 ```
 
 For isolated installation, use [pipx](https://pipx.pypa.io/):
 
-```console
+```bash
 $ pipx install pydeb-s3
 ```
 
@@ -45,13 +50,13 @@ $ pipx install pydeb-s3
 
 Upload a package to S3:
 
-```console
+```bash
 $ pydeb-s3 upload --bucket my-bucket my-deb-package-1.0.0_amd64.deb
 ```
 
 For S3-compatible endpoints (e.g., Google Cloud Storage, MinIO):
 
-```console
+```bash
 $ pydeb-s3 upload --bucket my-bucket \
     --endpoint https://storage.googleapis.com \
     --checksum-when-required \
@@ -63,7 +68,7 @@ $ pydeb-s3 upload --bucket my-bucket \
 
 pydeb-s3 provides the following commands:
 
-```console
+```bash
 $ pydeb-s3 --help
 Usage: pydeb-s3 [OPTIONS] COMMAND [ARGS]...
 
@@ -93,32 +98,32 @@ For detailed options per command, run `pydeb-s3 <command> --help`.
 ## Common Command Examples
 
 ### List packages
-```console
+```bash
 $ pydeb-s3 list --bucket my-bucket --codename stable
 ```
 
 ### Show package info
-```console
+```bash
 $ pydeb-s3 show mypackage --bucket my-bucket --version 1.0.0
 ```
 
 ### Check if package exists
-```console
+```bash
 $ pydeb-s3 exists mypackage --bucket my-bucket --version 1.0.0
 ```
 
 ### Copy package to another codename
-```console
+```bash
 $ pydeb-s3 copy mypackage --bucket my-bucket --to-codename jammy --to-component main
 ```
 
 ### Verify repository integrity
-```console
+```bash
 $ pydeb-s3 verify --bucket my-bucket --fix-manifests
 ```
 
 ### Clean orphaned packages (dry-run first!)
-```console
+```bash
 $ pydeb-s3 clean --bucket my-bucket --dry-run
 $ pydeb-s3 clean --bucket my-bucket  # Actually remove orphans
 ```
