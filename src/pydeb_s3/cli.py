@@ -590,6 +590,7 @@ def clean_command(
     force_path_style: Annotated[bool, typer.Option("--force-path-style", help="Use S3 path style instead of subdomains.")] = False,
     encryption: Annotated[bool, typer.Option("-e", "--encryption", help="Use S3 server side encryption.")] = False,
     cache_control: Annotated[Optional[str], typer.Option("-C", "--cache-control", help="Add cache-control headers to S3 objects.")] = None,
+    dry_run: Annotated[bool, typer.Option("-n", "--dry-run", help="Show what would be removed without deleting.")] = False,
 ):
     """Remove orphaned package files."""
     if not bucket:
@@ -640,11 +641,17 @@ def clean_command(
     for obj in objects:
         path = obj.get("Key", "")
         if path and path not in all_pkgs:
-            logger.warning(f"Removing {path}")
-            s3_utils.s3_remove(path)
+            if dry_run:
+                logger.warning(f"Would remove {path}")
+            else:
+                logger.warning(f"Removing {path}")
+                s3_utils.s3_remove(path)
             removed_count += 1
 
     if removed_count > 0:
-        logger.info(f"Removed {removed_count} orphaned package(s).")
+        if dry_run:
+            logger.info(f"Would remove {removed_count} orphaned package(s).")
+        else:
+            logger.info(f"Removed {removed_count} orphaned package(s).")
     else:
         logger.info("No orphaned packages found.")

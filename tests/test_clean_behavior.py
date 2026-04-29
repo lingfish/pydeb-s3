@@ -263,6 +263,116 @@ class TestCleanIntegration:
         assert not any("test-pkg-full" in f for f in pool_files_after), "Orphan should be removed"
 
 
+    def test_clean_dry_run_does_not_remove_orphans(self, capfd):
+        """Dry-run mode reports orphans but does not delete them."""
+        setup_logger()
+
+        release = self._create_release()
+        self._add_packages_to_manifest(
+            release,
+            "tests/fixtures/test-pkg_1.0.0_amd64.deb",
+        )
+        self._upload_deb_to_pool("tests/fixtures/hello_2.10-5_amd64.deb")
+
+        pool_files_before = self._get_pool_files()
+        assert any("hello" in f for f in pool_files_before)
+
+        clean_command(
+            bucket="test-bucket",
+            codename="stable",
+            component="main",
+            dry_run=True,
+        )
+
+        captured = capfd.readouterr()
+        output = captured.out + captured.err
+
+        pool_files_after = self._get_pool_files()
+        assert any("hello" in f for f in pool_files_after), "Orphan file should still exist in dry-run"
+        assert "Would remove" in output, "Dry-run should report would-be removals"
+        assert "Would remove 1 orphaned package(s)." in output, "Dry-run should report correct summary"
+
+    def test_clean_dry_run_no_orphans(self, capfd):
+        """Dry-run mode with no orphans reports nothing to remove."""
+        setup_logger()
+
+        release = self._create_release()
+        self._add_packages_to_manifest(
+            release,
+            "tests/fixtures/test-pkg_1.0.0_amd64.deb",
+        )
+
+        clean_command(
+            bucket="test-bucket",
+            codename="stable",
+            component="main",
+            dry_run=True,
+        )
+
+        captured = capfd.readouterr()
+        output = captured.out + captured.err
+
+        assert "No orphaned packages found" in output
+        assert "Would remove" not in output
+
+    def test_clean_dry_run_multiple_orphans(self, capfd):
+        """Dry-run mode reports multiple would-be removals."""
+        setup_logger()
+
+        release = self._create_release()
+        self._add_packages_to_manifest(
+            release,
+            "tests/fixtures/test-pkg_1.0.0_amd64.deb",
+        )
+
+        orphan_files = [
+            "tests/fixtures/hello_2.10-5_amd64.deb",
+            "tests/fixtures/test-pkg_1.0.0_arm64.deb",
+        ]
+        for deb_file in orphan_files:
+            self._upload_deb_to_pool(deb_file)
+
+        clean_command(
+            bucket="test-bucket",
+            codename="stable",
+            component="main",
+            dry_run=True,
+        )
+
+        captured = capfd.readouterr()
+        output = captured.out + captured.err
+
+        pool_files_after = self._get_pool_files()
+        assert any("hello" in f for f in pool_files_after), "Orphan should still exist in dry-run"
+        assert any("test-pkg_1.0.0_arm64" in f for f in pool_files_after), "Orphan should still exist in dry-run"
+        assert "Would remove 2 orphaned package(s)." in output
+
+    def test_clean_normal_run_still_works(self, capfd):
+        """Normal (non-dry-run) clean still removes orphans."""
+        setup_logger()
+
+        release = self._create_release()
+        self._add_packages_to_manifest(
+            release,
+            "tests/fixtures/test-pkg_1.0.0_amd64.deb",
+        )
+        self._upload_deb_to_pool("tests/fixtures/hello_2.10-5_amd64.deb")
+
+        clean_command(
+            bucket="test-bucket",
+            codename="stable",
+            component="main",
+            dry_run=False,
+        )
+
+        captured = capfd.readouterr()
+        output = captured.out + captured.err
+
+        pool_files_after = self._get_pool_files()
+        assert not any("hello" in f for f in pool_files_after), "Orphan should be removed in normal run"
+        assert "Removed 1 orphaned package(s)." in output
+
+
 class TestCleanErrors:
     """Tests for error handling in clean command."""
 
