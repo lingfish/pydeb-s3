@@ -63,7 +63,7 @@ class Manifest:
 
     def _parse_packages(self, content: str) -> None:
         """Parse Packages content into Package objects."""
-        for para in Packages.iter_paragraphs(content.splitlines()):
+        for para in Packages.iter_paragraphs(content.splitlines(), use_apt_pkg=False):
             pkg = self._package_from_paragraph(para)
             if pkg:
                 self.packages.append(pkg)
