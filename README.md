@@ -30,6 +30,7 @@ pydeb-s3 has been rewritten in Python with modern tooling and additional capabil
 - **S3-compatible storage** support (AWS S3, Google Cloud Storage, MinIO, etc.)
 - **Concurrent operation locking** to prevent conflicting uploads
 - **Dry-run mode** for clean/verify operations
+- **Configurable timestamps** with `--timestamps/--no-timestamps` flag, auto-detects TTY for clean interactive output
 - Modern CLI with Typer, featuring help text and shell completion
 
 ## Installation
@@ -75,12 +76,14 @@ Usage: pydeb-s3 [OPTIONS] COMMAND [ARGS]...
   Easily create and manage an APT repository on S3
 
 Options:
-  --quiet               Only show errors
-  --debug               Enable debug output
-  --install-completion  Install completion for the current shell.
-  --show-completion     Show completion for the current shell, to copy it or
-                        customize the installation.
-  --help                Show this message and exit.
+  --quiet                         Only show errors
+  --debug                         Enable debug output
+  --timestamps / --no-timestamps  Enable/disable timestamps (auto-detects TTY
+                                  by default)
+  --install-completion            Install completion for the current shell.
+  --show-completion               Show completion for the current shell, to
+                                  copy it or customize the installation.
+  --help                          Show this message and exit.
 
 Commands:
   upload   Upload the given files to a S3 bucket as an APT repository.
@@ -94,6 +97,14 @@ Commands:
 ```
 
 For detailed options per command, run `pydeb-s3 <command> --help`.
+
+## Output Control
+
+pydeb-s3 provides control over log output:
+
+- **Timestamps**: Use `--timestamps` to enable or `--no-timestamps` to disable timestamp prefixes
+- **Auto-detection**: By default, timestamps are automatically disabled when output is a terminal (TTY) for cleaner interactive use, and enabled when output is piped or redirected for logging purposes
+- **Log format**: When timestamps are enabled, loguru's default format is used (includes timestamp with milliseconds, level, and source location)
 
 ## Common Command Examples
 
