@@ -318,7 +318,6 @@ class TestExistsErrors:
 
     def test_exists_requires_package_argument(self):
         """exists command requires package argument."""
-        import typer
 
         # Can't call without package argument - typer handles required args
         # This test just verifies the command signature is correct
@@ -413,7 +412,7 @@ class TestExistsQuietOutput:
         captured = capfd.readouterr()
         # With --quiet, there should be no user-facing output
         assert captured.out.strip() == "", (
-            f"Expected no output with --quiet, but got: out={repr(captured.out)}"
+            f"Expected no output with --quiet, but got: out={captured.out!r}"
         )
 
     def test_exists_nonexistent_with_quiet_outputs_nothing(self, capfd):

@@ -11,8 +11,6 @@ key is "apt/dists/stable/Release".
 
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from pydeb_s3 import s3_utils
 
 

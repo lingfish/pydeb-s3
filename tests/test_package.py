@@ -108,9 +108,9 @@ class TestPackageParseString:
             license="MIT",
             vendor="ExampleCorp",
             category="misc",
-            priority="optional", 
-            url="http://example.com", 
-            dependencies=["depA (>= 1.0)", "depB"], 
+            priority="optional",
+            url="http://example.com",
+            dependencies=["depA (>= 1.0)", "depB"],
             attributes={
                 "deb_installed_size": 1234,
                 "deb_recommends": "dependencyA",
@@ -148,10 +148,10 @@ class TestPackageParseString:
         assert "Architecture: amd64" in generated_content
         assert "Maintainer: Test <test@example.com>" in generated_content
         assert "Installed-Size: 1234" in generated_content
-        assert "Depends: depA (>= 1.0), depB" in generated_content 
+        assert "Depends: depA (>= 1.0), depB" in generated_content
         assert "Recommends: dependencyA" in generated_content
         assert "Section: misc" in generated_content
-        assert "Priority: optional" in generated_content 
+        assert "Priority: optional" in generated_content
         assert "Homepage: http://example.com" in generated_content
         assert "Filename: pool/main/t/test-pkg_1.0.0_amd64.deb" in generated_content
         assert "Size: 5678" in generated_content

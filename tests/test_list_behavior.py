@@ -424,7 +424,6 @@ class TestListQuietOutput:
         setup_logger()
 
         # Set quiet in context
-        from pydeb_s3.cli import app
         app_ctx = {"quiet": True, "debug": False}
 
         self._create_release()

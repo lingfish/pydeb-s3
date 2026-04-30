@@ -331,10 +331,10 @@ class Package:
             for line in desc_lines[1:]:
                 # Debian policy for description continuation lines: starts with space, blank lines are ' .' (space dot)
                 if line.strip() == "":
-                    final_content += f"\n ."
+                    final_content += "\n ."
                 else:
                     final_content += f"\n {line}"
-        
+
         return final_content
 
 

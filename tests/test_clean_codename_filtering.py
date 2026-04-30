@@ -17,7 +17,7 @@ The fix requires:
 import os
 import sys
 import tempfile
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 import pytest
 
@@ -131,13 +131,12 @@ class TestListCodenames:
                     {"Key": "dists/stable/Release"},
                     {"Key": "dists/rc/Release"},
                 ], "next-token"
-            else:
-                # Second call - return remaining results
-                return [
-                    {"Key": "dists/testing/Release"},
-                    {"Key": "dists/unstable/Release"},
-                    {"Key": "dists/experimental/Release"},
-                ], None
+            # Second call - return remaining results
+            return [
+                {"Key": "dists/testing/Release"},
+                {"Key": "dists/unstable/Release"},
+                {"Key": "dists/experimental/Release"},
+            ], None
 
         with patch.object(s3_utils, "s3_list_objects", side_effect=paginated_list):
             codenames = s3_utils.list_codenames()

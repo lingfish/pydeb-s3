@@ -88,7 +88,7 @@ class TestCleanRealScenario:
             if entry.strip():
                 pkg = package_module.parse_string(entry)
                 pkg_list.append(pkg)
-        
+
         arch = "amd64"
         manifest = manifest_module.Manifest.retrieve(codename, component, arch)
         for pkg in pkg_list:
@@ -208,7 +208,7 @@ Filename: pool/non-free/o/ol/ollama_0.22.0_amd64.deb"""
         # Step 3: Upload pool objects for ALL versions
         # ----------------------------
         # These are the files that exist in the pool (some referenced, some orphaned)
-        
+
         # Referenced by rc manifest (0.21.3~rc0)
         self._upload_deb_to_pool(
             "pool/non-free/l/li/libollama-amd_0.21.3~rc0_amd64.deb",
@@ -258,7 +258,7 @@ Filename: pool/non-free/o/ol/ollama_0.22.0_amd64.deb"""
         # Verify initial pool state
         pool_files_before = self._get_pool_files_stripped("non-free")
         print(f"\nPool files BEFORE clean: {sorted(pool_files_before)}")
-        
+
         # Verify all expected files exist
         assert len(pool_files_before) == 10, f"Expected 10 files before clean, got {len(pool_files_before)}"
 
@@ -307,24 +307,24 @@ Filename: pool/non-free/o/ol/ollama_0.22.0_amd64.deb"""
         # ----------------------------
         # Step 6: Assertions
         # ----------------------------
-        
+
         # Assert 0.21.3~rc0 packages are NOT removed (referenced by rc codename)
         assert any("0.21.3~rc0" in f for f in pool_files_final), (
             "0.21.3~rc0 packages should NOT be removed - they're referenced by rc codename"
         )
-        
+
         # Assert 0.22.0 packages are NOT removed (referenced by stable codename)
         assert any("0.22.0" in f for f in pool_files_final), (
             "0.22.0 packages should NOT be removed - they're referenced by stable codename"
         )
-        
+
         # Assert OLD packages ARE removed (orphaned - not in any manifest)
         # The 0.21.1 and 0.21.2 versions should be removed
         assert not any("0.21.1" in f or "0.21.2" in f for f in pool_files_final), (
             f"OLD packages (0.21.1, 0.21.2) SHOULD be removed - they're orphaned. "
             f"Files remaining: {pool_files_final}"
         )
-        
+
         # Should have removed 4 orphaned packages
         assert len(pool_files_final) == 6, (
             f"Expected 6 files remaining (3 from rc + 3 from stable), got {len(pool_files_final)}"
@@ -344,9 +344,9 @@ class TestListCodenames(TestCleanRealScenario):
 
         # Get codenames
         codenames = s3_utils.list_codenames()
-        
+
         print(f"\nFound codenames: {codenames}")
-        
+
         assert "rc" in codenames, "rc should be in codenames"
         assert "stable" in codenames, "stable should be in codenames"
 
@@ -409,7 +409,7 @@ Filename: pool/non-free/o/ol/ollama_0.21.3~rc0_arm64.deb"""
         # Add arm64 packages to a separate manifest
         # Note: For simplicity, we add them to the same release
         # In a real scenario, there would be separate binary-arm64/Packages file
-        
+
         # Packages content for stable codename (amd64)
         stable_packages_amd64 = """Package: libollama-amd
 Version: 0.22.0
@@ -458,7 +458,7 @@ Filename: pool/non-free/o/ol/ollama_0.22.0_amd64.deb"""
         # Verify initial pool state
         pool_files_before = self._get_pool_files_stripped("non-free")
         print(f"\nPool files BEFORE clean: {sorted(pool_files_before)}")
-        
+
         # Should have all 20 files (6 rc + 6 stable + 8 old)
         assert len(pool_files_before) == 20, f"Expected 20 files, got {len(pool_files_before)}"
 
@@ -478,29 +478,29 @@ Filename: pool/non-free/o/ol/ollama_0.22.0_amd64.deb"""
         assert any("0.21.3~rc0" in f for f in pool_files_after), (
             "0.21.3~rc0 packages should NOT be removed"
         )
-        
+
         assert any("0.22.0" in f for f in pool_files_after), (
             "0.22.0 packages should NOT be removed"
         )
-        
+
         # Should NOT have 0.21.x OLD packages
         assert not any("0.21.1" in f or "0.21.2" in f for f in pool_files_after), (
             f"OLD packages (0.21.1, 0.21.2) SHOULD be removed. Files: {pool_files_after}"
         )
-        
+
         # Should have 8 files remaining (3 rc + 3 stable + 2 arm64 for each = 12? No, 10 pools with arm64)
-        # Let's calculate: 3 packages * 2 versions (rc + stable) * 2 arch = 12... 
+        # Let's calculate: 3 packages * 2 versions (rc + stable) * 2 arch = 12...
         # But we uploaded: 6 rc + 6 stable = 12, minus 8 orphans = 4 orphaned
         # So remaining = 16 - 8 = 8 files (but we also uploaded arm64 versions)
-        
-        # Count: 6 (rc amd64+arm64) + 6 (stable amd64+arm64) - 8 orphans (4 amd64 + 4 arm64) = 4? 
+
+        # Count: 6 (rc amd64+arm64) + 6 (stable amd64+arm64) - 8 orphans (4 amd64 + 4 arm64) = 4?
         # Wait, we uploaded: 6 rc + 6 stable + 8 old = 20 files but we only check up to 16
         # Actually: For each version we have 3 packages * (amd64 + arm64) = 6 files per version
         # rc: 6 files, stable: 6 files, old: 8 files (4 amd64 + 4 arm64)
         # Total: 20 files
         # But we check only non-free pool
         # Let me recalculate...
-        
+
         # The old test expected 10 files. Let me simplify - we have fewer files
         # Let's check what we have after clean
         print(f"\nNumber of files after clean: {len(pool_files_after)}")

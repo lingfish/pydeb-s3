@@ -16,7 +16,7 @@ The fix requires:
 import os
 import sys
 import tempfile
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 import pytest
 
@@ -631,11 +631,10 @@ class TestCleanPaginationMocked:
                 return [
                     {"Key": "pool/main/o/orphan/orphan_1.0.0_amd64.deb", "Size": 100},
                 ], "token-page-2"
-            else:
-                # Second call - return another orphan, no continuation token (last page)
-                return [
-                    {"Key": "pool/main/t/testpkg/test-package_2.0.0_amd64.deb", "Size": 100},
-                ], None
+            # Second call - return another orphan, no continuation token (last page)
+            return [
+                {"Key": "pool/main/t/testpkg/test-package_2.0.0_amd64.deb", "Size": 100},
+            ], None
 
         with patch.object(s3_utils, "s3_list_objects", side_effect=mock_list_objects):
             clean_command(

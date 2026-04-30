@@ -19,11 +19,23 @@ def cli_callback(
     ctx: typer.Context,
     quiet: Annotated[bool, typer.Option("--quiet", help="Only show errors")] = False,
     debug: Annotated[bool, typer.Option("--debug", help="Enable debug output")] = False,
+    timestamps: Annotated[Optional[bool], typer.Option("--timestamps/--no-timestamps", help="Enable/disable timestamps (auto-detects TTY by default)")] = None,
 ):
     level = "DEBUG" if debug else ("ERROR" if quiet else "INFO")
     logger.remove()
-    logger.add(sys.stderr, level=level)
-    ctx.obj = {"quiet": quiet, "debug": debug}
+
+    # Auto-detect timestamps based on TTY if not explicitly set
+    if timestamps is None:
+        show_timestamps = not sys.stderr.isatty()
+    else:
+        show_timestamps = timestamps
+
+    if show_timestamps:
+        # Use loguru's default format
+        logger.add(sys.stderr, level=level)
+    else:
+        logger.add(sys.stderr, level=level, format="{message}")
+    ctx.obj = {"quiet": quiet, "debug": debug, "timestamps": show_timestamps}
 
 
 app = typer.Typer(
@@ -283,7 +295,7 @@ def list_command(
         if not quiet:
             # Print header to stdout
             print(f"{'Package':<{widths[0]}} {'Version':<{widths[1]}} Architecture Section Description")
-        
+
         for row in rows:
             name, version, arch, section, desc = row
             if not quiet:
@@ -384,15 +396,12 @@ def exists_command(
             if version == pkg.version or version == pkg.full_version:
                 if not quiet:
                     print("1")
-            else:
-                if not quiet:
-                    print("0")
-        else:
-            if not quiet:
-                print("1")
-    else:
-        if not quiet:
-            print("0")
+            elif not quiet:
+                print("0")
+        elif not quiet:
+            print("1")
+    elif not quiet:
+        print("0")
 
 
 @app.command("copy")
