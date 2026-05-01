@@ -173,6 +173,7 @@ class Release:
         provider: str = "gpg",
         options: str = "",
         visibility: str = "public",
+        use_bytes: bool = False,
     ) -> None:
         """Sign the Release file with GPG and upload it to S3."""
         import tempfile
@@ -197,12 +198,13 @@ class Release:
                 self.filename,
                 "text/plain; charset=utf-8",
                 self.cache_control,
+                use_bytes=use_bytes,
             )
-            self._sign_release(release_temp.name, visibility)
+            self._sign_release(release_temp.name, visibility, use_bytes=use_bytes)
         finally:
             os.unlink(release_temp.name)
 
-    def upload(self, visibility: str = "public") -> None:
+    def upload(self, visibility: str = "public", use_bytes: bool = False) -> None:
         """Upload the Release file to S3."""
         from pydeb_s3 import s3_utils
 
@@ -220,6 +222,7 @@ class Release:
                 self.filename,
                 "text/plain; charset=utf-8",
                 self.cache_control,
+                use_bytes=use_bytes,
             )
         finally:
             os.unlink(release_temp.name)
@@ -236,8 +239,22 @@ class Release:
             return "bucket-owner-full-control"
         return "public-read"
 
-    def write_to_s3(self, callback: Optional[callable] = None) -> None:
-        """Write the Release file to S3."""
+    def write_to_s3(
+        self,
+        callback: Optional[callable] = None,
+        use_bytes: bool = False,
+        progress: Optional["Progress"] = None,
+    ) -> None:
+        """Write the Release file to S3.
+
+        Args:
+            callback: Optional callback function for progress updates.
+            use_bytes: If True, display speed in bytes/s. If False, display in bits/s.
+            progress: Optional shared Progress instance for multiple uploads.
+        """
+        # Import Progress type for type hint (avoid circular import at runtime)
+        from rich.progress import Progress
+
         release_content = self.generate()
         release_temp = tempfile.NamedTemporaryFile(
             mode="w", suffix=".Release", delete=False
@@ -253,12 +270,14 @@ class Release:
                 self.filename,
                 "text/plain; charset=utf-8",
                 self.cache_control,
+                use_bytes=use_bytes,
+                progress=progress,
             )
         finally:
             os.unlink(release_temp.name)
 
     def _sign_release(
-        self, release_path: str, visibility: str = "public", callback: Optional[callable] = None
+        self, release_path: str, visibility: str = "public", callback: Optional[callable] = None, use_bytes: bool = False
     ) -> None:
         """Sign the Release file with GPG - both clearsign (InRelease) and detached (Release.gpg)."""
         from pydeb_s3 import s3_utils
@@ -302,6 +321,7 @@ class Release:
             inrelease_path,
             "application/pgp-signature; charset=us-ascii",
             self.cache_control,
+            use_bytes=use_bytes,
         )
         os.unlink(asc_path)
 
@@ -337,10 +357,11 @@ class Release:
             gpg_path,
             "application/pgp-signature; charset=us-ascii",
             self.cache_control,
+            use_bytes=use_bytes,
         )
         os.unlink(asc_path)
 
-    def _validate_others(self, callback: Optional[callable] = None) -> None:
+    def _validate_others(self, callback: Optional[callable] = None, use_bytes: bool = False) -> None:
         """Validate other architectures are present."""
         for comp in self.components:
             for arch in ["amd64", "i386", "armhf", "arm64"]:
@@ -350,7 +371,7 @@ class Release:
                     m.codename = self.codename
                     m.component = comp
                     m.architecture = arch
-                    m.write_to_s3(callback)
+                    m.write_to_s3(callback, use_bytes=use_bytes)
                     self.update_manifest(m)
 
     def update_manifest(self, manifest: man_module.Manifest) -> None:

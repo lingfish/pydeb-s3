@@ -159,9 +159,20 @@ class Manifest:
 
     def write_to_s3(
         self,
-        callback: Optional[callable] = None
+        callback: Optional[callable] = None,
+        use_bytes: bool = False,
+        progress: Optional["Progress"] = None,
     ) -> None:
-        """Write the manifest to S3."""
+        """Write the manifest to S3.
+
+        Args:
+            callback: Optional callback function for progress updates.
+            use_bytes: If True, display speed in bytes/s. If False, display in bits/s.
+            progress: Optional shared Progress instance for multiple uploads.
+        """
+        # Import Progress type for type hint (avoid circular import at runtime)
+        from rich.progress import Progress
+
         manifest = self.generate()
         from loguru import logger
         logger.debug(f"write_to_s3: generated manifest length: {len(manifest)}")
@@ -180,6 +191,8 @@ class Manifest:
                         "application/octet-stream; charset=binary",
                         self.cache_control,
                         self.fail_if_exists,
+                        use_bytes=use_bytes,
+                        progress=progress,
                     )
 
         packages_temp = tempfile.NamedTemporaryFile(
@@ -200,6 +213,8 @@ class Manifest:
                 path,
                 "text/plain; charset=utf-8",
                 self.cache_control,
+                use_bytes=use_bytes,
+                progress=progress,
             )
             self.files[f"{self.component}/binary-{self.architecture}/Packages"] = self._hashfile(
                 packages_temp.name
@@ -222,6 +237,8 @@ class Manifest:
                 path,
                 "application/x-gzip; charset=binary",
                 self.cache_control,
+                use_bytes=use_bytes,
+                progress=progress,
             )
             self.files[f"{self.component}/binary-{self.architecture}/Packages.gz"] = self._hashfile(
                 gztemp.name

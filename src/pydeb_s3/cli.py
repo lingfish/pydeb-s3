@@ -7,12 +7,14 @@ from typing import Annotated, Optional
 
 import typer
 from loguru import logger
+from rich.progress import BarColumn, DownloadColumn, Progress
 
 from pydeb_s3 import lock as lock_module
 from pydeb_s3 import manifest as manifest_module
 from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
 from pydeb_s3 import s3_utils
+from pydeb_s3.s3_utils import BitsTransferSpeedColumn
 
 
 def cli_callback(
@@ -112,6 +114,7 @@ def upload_command(
     encryption: Annotated[bool, typer.Option("-e", "--encryption", help="Use S3 server side encryption.")] = False,
     cache_control: Annotated[Optional[str], typer.Option("-C", "--cache-control", help="Add cache-control headers to S3 objects.")] = None,
     checksum_when_required: Annotated[bool, typer.Option("--checksum-when-required", help="Disable SDK upload checksums for S3-compatible endpoints.")] = False,
+    bytes: Annotated[bool, typer.Option("--bytes", help="Display bandwidth speed in bytes/second instead of bits/second.")] = False,
 ):
     """Upload the given files to a S3 bucket as an APT repository."""
     if not bucket:
@@ -220,19 +223,41 @@ def upload_command(
 
         logger.info("Uploading packages and new manifests to S3")
 
+        # Create ONE shared Progress instance for all uploads (only in interactive mode)
+        # Use BitsTransferSpeedColumn for bits/s (default) or TransferSpeedColumn for bytes/s
+        shared_progress = None
+        if sys.stderr.isatty():
+            if bytes:
+                from rich.progress import TransferSpeedColumn
+                shared_progress = Progress(
+                    BarColumn(),
+                    TransferSpeedColumn(),
+                    DownloadColumn(),
+                )
+            else:
+                shared_progress = Progress(
+                    BarColumn(),
+                    BitsTransferSpeedColumn(),
+                    DownloadColumn(),
+                )
+
         logger.debug(f"Uploading manifests for architectures: {list(manifests.keys())}")
         for arch_key, manifest in manifests.items():
             logger.debug(f"  Before write_to_s3: arch_key={arch_key}, packages count={len(manifest.packages)}")
             logger.info(f"  Transferring dists/{codename}/{comp}/binary-{arch_key}/Packages")
-            manifest.write_to_s3()
+            manifest.write_to_s3(use_bytes=bytes, progress=shared_progress)
             logger.debug(f"  After write_to_s3: release.files={list(release.files.keys())}")
             release.update_manifest(manifest)
 
-        release.write_to_s3()
+        release.write_to_s3(use_bytes=bytes, progress=shared_progress)
+
+        # Stop the shared progress after all uploads are done
+        if shared_progress is not None:
+            shared_progress.stop()
 
         if sign:
             logger.info(f"Signing Release file for {codename}")
-            release.sign(sign, gpg_provider, gpg_options, visibility)
+            release.sign(sign, gpg_provider, gpg_options, visibility, use_bytes=bytes)
 
         logger.info("Update complete.")
     finally:
@@ -465,7 +490,7 @@ def copy_command(
     to_manifest.add(pkg)
 
     logger.info(f"Uploading new manifest to S3 for {to_codename}/{to_component}/{arch}")
-    to_manifest.write_to_s3()
+    to_manifest.write_to_s3(use_bytes=False)
 
     logger.info("Copy complete.")
 
@@ -574,11 +599,11 @@ def verify_command(
 
                 if fix_manifests:
                     logger.info(f"Uploading fixed manifest for {codename}/{comp}/{arch}")
-                    manifest.write_to_s3()
+                    manifest.write_to_s3(use_bytes=False)
 
     if sign:
         logger.info(f"Signing Release file for {codename}")
-        release.sign(sign, "gpg", "")
+        release.sign(sign, "gpg", "", use_bytes=False)
 
     logger.info("Verify complete.")
 
