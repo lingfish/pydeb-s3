@@ -12,7 +12,13 @@ from loguru import logger
 
 # Rich is available via typer dependency
 try:
-    from rich.progress import BarColumn, DownloadColumn, Progress, ProgressColumn, TransferSpeedColumn
+    from rich.progress import (
+        BarColumn,
+        DownloadColumn,
+        Progress,
+        ProgressColumn,
+        TransferSpeedColumn,
+    )
     from rich.text import Text
     RICH_AVAILABLE = True
 except ImportError:

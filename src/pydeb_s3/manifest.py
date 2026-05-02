@@ -124,7 +124,15 @@ class Manifest:
                 if not (p.name == pkg.name and p.full_version == pkg.full_version)
             ]
         else:
-            self.packages = [p for p in self.packages if p.name != pkg.name]
+            # Only remove versions <= incoming, keep newer ones
+            from debian.debian_support import Version
+
+            incoming_ver = Version(pkg.full_version or "")
+            self.packages = [
+                p
+                for p in self.packages
+                if p.name != pkg.name or Version(p.full_version or "") > incoming_ver
+            ]
 
         self.packages.append(pkg)
         if needs_uploading:
@@ -171,7 +179,6 @@ class Manifest:
             progress: Optional shared Progress instance for multiple uploads.
         """
         # Import Progress type for type hint (avoid circular import at runtime)
-        from rich.progress import Progress
 
         manifest = self.generate()
         from loguru import logger

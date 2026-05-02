@@ -253,7 +253,6 @@ class Release:
             progress: Optional shared Progress instance for multiple uploads.
         """
         # Import Progress type for type hint (avoid circular import at runtime)
-        from rich.progress import Progress
 
         release_content = self.generate()
         release_temp = tempfile.NamedTemporaryFile(

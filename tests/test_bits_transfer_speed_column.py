@@ -2,8 +2,6 @@
 
 from unittest.mock import MagicMock, patch
 
-import pytest
-from rich.progress import Progress
 from rich.text import Text
 
 
@@ -109,8 +107,9 @@ class TestUploadProgressWithSharedProgress:
         with patch("sys.stderr") as mock_stderr:
             mock_stderr.isatty.return_value = True
 
-            from pydeb_s3.s3_utils import UploadProgress, BitsTransferSpeedColumn
             from rich.progress import BarColumn, DownloadColumn, Progress
+
+            from pydeb_s3.s3_utils import BitsTransferSpeedColumn, UploadProgress
 
             # Create a shared Progress instance
             shared_progress = Progress(
@@ -185,7 +184,7 @@ class TestS3StoreWithSharedProgress:
         """s3_store() accepts optional progress parameter."""
         import os
         import tempfile
-        from unittest.mock import MagicMock, patch
+        from unittest.mock import patch
 
         import boto3
         from moto import mock_aws
@@ -227,8 +226,9 @@ class TestProgressConsoleLogging:
         with patch("sys.stderr") as mock_stderr:
             mock_stderr.isatty.return_value = True
 
-            from pydeb_s3.s3_utils import UploadProgress, BitsTransferSpeedColumn
             from rich.progress import BarColumn, DownloadColumn, Progress
+
+            from pydeb_s3.s3_utils import BitsTransferSpeedColumn, UploadProgress
 
             # Create a shared Progress with console
             shared_progress = Progress(
