@@ -30,12 +30,13 @@ hatch run pydeb-s3 --help
 - `src/pydeb_s3/` - Main package code
   - `package.py` - Package model (parsing .deb files via python-debian)
   - `manifest.py` - Packages manifest (debian.deb822.Packages)
-  - `release.py` - Release file generation
+  - `release.py` - Release file generation, `SigningAdapter` protocol, `GpgSigningAdapter`
   - `lock.py` - S3 locking mechanism
   - `s3_utils.py` - boto3 S3 operations
   - `cli.py` - Typer CLI commands
 
 - `tests/` - pytest tests (use `pythonpath = "src"` in pyproject.toml)
+  - `conftest.py` - `MockSigningAdapter` for testing without GPG
 
 ## Dependencies
 
@@ -53,3 +54,5 @@ CLI is invoked via `pyproject.toml` script entry: `pydeb-s3 = "pydeb_s3.cli:app"
 ## Important Notes
 
 - `--sign` option is currently not repeatable (unlike Ruby version) due to Typer version constraints
+- Signing uses `SigningAdapter` protocol - pass adapter to `Release.sign()` method
+- `GpgSigningAdapter` implements GPG subprocess calls; use `MockSigningAdapter` from `conftest.py` for tests
