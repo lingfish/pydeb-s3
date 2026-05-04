@@ -3,6 +3,7 @@
 import glob
 import os
 import sys
+from dataclasses import dataclass
 from typing import Annotated, Optional
 
 import typer
@@ -15,6 +16,96 @@ from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
 from pydeb_s3 import s3_utils
 from pydeb_s3.s3_utils import BitsTransferSpeedColumn
+
+
+@dataclass
+class S3Config:
+    """S3 configuration grouping all S3-related options."""
+
+    bucket: Optional[str] = None
+    prefix: Optional[str] = None
+    region: str = "us-east-1"
+    endpoint: Optional[str] = None
+    access_key_id: Optional[str] = None
+    secret_access_key: Optional[str] = None
+    session_token: Optional[str] = None
+    visibility: str = "public"
+    signing_key: Optional[list[str]] = None
+    gpg_provider: str = "gpg"
+    gpg_options: str = ""
+    encryption: bool = False
+    proxy_uri: Optional[str] = None
+    force_path_style: bool = False
+    checksum_when_required: bool = False
+    cache_control: Optional[str] = None
+
+
+def build_s3_config(
+    bucket=None,
+    prefix=None,
+    s3_region="us-east-1",
+    endpoint=None,
+    access_key_id=None,
+    secret_access_key=None,
+    session_token=None,
+    visibility="public",
+    sign=None,
+    gpg_provider="gpg",
+    gpg_options="",
+    encryption=False,
+    proxy_uri=None,
+    force_path_style=False,
+    checksum_when_required=False,
+    cache_control=None,
+    **kwargs,
+) -> S3Config:
+    """Build S3Config from CLI command kwargs.
+
+    Maps CLI parameter names to S3Config fields:
+    - s3_region -> region
+    - sign -> signing_key
+    """
+    if not bucket:
+        raise ValueError("bucket is required")
+    return S3Config(
+        bucket=bucket,
+        prefix=prefix,
+        region=s3_region,
+        endpoint=endpoint,
+        access_key_id=access_key_id,
+        secret_access_key=secret_access_key,
+        session_token=session_token,
+        visibility=visibility,
+        signing_key=sign,
+        gpg_provider=gpg_provider,
+        gpg_options=gpg_options,
+        encryption=encryption,
+        proxy_uri=proxy_uri,
+        force_path_style=force_path_style,
+        checksum_when_required=checksum_when_required,
+        cache_control=cache_control,
+    )
+
+
+def _configure_s3(config: S3Config) -> None:
+    """Configure S3 connection using S3Config object."""
+    s3_utils.configure_s3(
+        bucket=config.bucket,
+        prefix=config.prefix,
+        region=config.region,
+        endpoint=config.endpoint,
+        access_key_id=config.access_key_id,
+        secret_access_key=config.secret_access_key,
+        session_token=config.session_token,
+        visibility=config.visibility,
+        signing_key=config.signing_key,
+        gpg_provider=config.gpg_provider,
+        gpg_options=config.gpg_options,
+        encryption=config.encryption,
+        proxy_uri=config.proxy_uri,
+        force_path_style=config.force_path_style,
+        checksum_when_required=config.checksum_when_required,
+    )
 
 
 def cli_callback(
@@ -46,43 +137,6 @@ app = typer.Typer(
     rich_markup_mode=None,
     callback=cli_callback,
 )
-
-
-def _configure_s3(
-    bucket: str,
-    prefix: Optional[str] = None,
-    region: str = "us-east-1",
-    endpoint: Optional[str] = None,
-    access_key_id: Optional[str] = None,
-    secret_access_key: Optional[str] = None,
-    session_token: Optional[str] = None,
-    visibility: str = "public",
-    signing_key: Optional[list[str]] = None,
-    gpg_provider: str = "gpg",
-    gpg_options: str = "",
-    encryption: bool = False,
-    proxy_uri: Optional[str] = None,
-    force_path_style: bool = False,
-    checksum_when_required: bool = False,
-) -> None:
-    """Configure S3 connection."""
-    s3_utils.configure_s3(
-        bucket=bucket,
-        prefix=prefix,
-        region=region,
-        endpoint=endpoint,
-        access_key_id=access_key_id,
-        secret_access_key=secret_access_key,
-        session_token=session_token,
-        visibility=visibility,
-        signing_key=signing_key,
-        gpg_provider=gpg_provider,
-        gpg_options=gpg_options,
-        encryption=encryption,
-        proxy_uri=proxy_uri,
-        force_path_style=force_path_style,
-        checksum_when_required=checksum_when_required,
-    )
 
 
 @app.command("upload")
@@ -129,23 +183,25 @@ def upload_command(
             logger.error(f"File '{pattern}' doesn't exist")
             raise typer.Exit(code=1)
 
-    _configure_s3(
+    s3_config = build_s3_config(
         bucket=bucket,
         prefix=prefix,
-        region=s3_region,
+        s3_region=s3_region,
         endpoint=endpoint,
         access_key_id=access_key_id,
         secret_access_key=secret_access_key,
         session_token=session_token,
         visibility=visibility,
-        signing_key=sign,
+        sign=sign,
         gpg_provider=gpg_provider,
         gpg_options=gpg_options,
         encryption=encryption,
         proxy_uri=proxy_uri,
         force_path_style=force_path_style,
         checksum_when_required=checksum_when_required,
+        cache_control=cache_control,
     )
+    _configure_s3(s3_config)
 
     comp = component
     if section:
@@ -286,9 +342,17 @@ def list_command(
         logger.error("No value provided for required option '--bucket'")
         raise typer.Exit(code=1)
 
-    _configure_s3(bucket=bucket, prefix=prefix, region=s3_region,
-                  access_key_id=access_key_id, secret_access_key=secret_access_key,
-                  session_token=session_token, endpoint=endpoint)
+    s3_config = build_s3_config(
+        bucket=bucket,
+        prefix=prefix,
+        s3_region=s3_region,
+        endpoint=endpoint,
+        access_key_id=access_key_id,
+        secret_access_key=secret_access_key,
+        session_token=session_token,
+        cache_control=cache_control,
+    )
+    _configure_s3(s3_config)
 
     release = release_module.Release.retrieve(codename)
     archs = release.architectures
@@ -350,9 +414,17 @@ def show_command(
         logger.error("No value provided for required option '--bucket'")
         raise typer.Exit(code=1)
 
-    _configure_s3(bucket=bucket, prefix=prefix, region=s3_region,
-                  access_key_id=access_key_id, secret_access_key=secret_access_key,
-                  session_token=session_token, endpoint=endpoint)
+    s3_config = build_s3_config(
+        bucket=bucket,
+        prefix=prefix,
+        s3_region=s3_region,
+        endpoint=endpoint,
+        access_key_id=access_key_id,
+        secret_access_key=secret_access_key,
+        session_token=session_token,
+        cache_control=cache_control,
+    )
+    _configure_s3(s3_config)
 
     if not arch:
         arch = "amd64"
@@ -403,9 +475,17 @@ def exists_command(
         logger.error("No value provided for required option '--bucket'")
         raise typer.Exit(code=1)
 
-    _configure_s3(bucket=bucket, prefix=prefix, region=s3_region,
-                  access_key_id=access_key_id, secret_access_key=secret_access_key,
-                  session_token=session_token, endpoint=endpoint)
+    s3_config = build_s3_config(
+        bucket=bucket,
+        prefix=prefix,
+        s3_region=s3_region,
+        endpoint=endpoint,
+        access_key_id=access_key_id,
+        secret_access_key=secret_access_key,
+        session_token=session_token,
+        cache_control=cache_control,
+    )
+    _configure_s3(s3_config)
 
     if not arch:
         arch = "amd64"
@@ -452,9 +532,17 @@ def copy_command(
         logger.error("No value provided for required option '--bucket'")
         raise typer.Exit(code=1)
 
-    _configure_s3(bucket=bucket, prefix=prefix, region=s3_region,
-                  access_key_id=access_key_id, secret_access_key=secret_access_key,
-                  session_token=session_token, endpoint=endpoint)
+    s3_config = build_s3_config(
+        bucket=bucket,
+        prefix=prefix,
+        s3_region=s3_region,
+        endpoint=endpoint,
+        access_key_id=access_key_id,
+        secret_access_key=secret_access_key,
+        session_token=session_token,
+        cache_control=cache_control,
+    )
+    _configure_s3(s3_config)
 
     if not arch:
         arch = "amd64"
@@ -516,9 +604,17 @@ def delete_command(
         logger.error("No value provided for required option '--bucket'")
         raise typer.Exit(code=1)
 
-    _configure_s3(bucket=bucket, prefix=prefix, region=s3_region,
-                  access_key_id=access_key_id, secret_access_key=secret_access_key,
-                  session_token=session_token, endpoint=endpoint)
+    s3_config = build_s3_config(
+        bucket=bucket,
+        prefix=prefix,
+        s3_region=s3_region,
+        endpoint=endpoint,
+        access_key_id=access_key_id,
+        secret_access_key=secret_access_key,
+        session_token=session_token,
+        cache_control=cache_control,
+    )
+    _configure_s3(s3_config)
 
     if not arch:
         arch = "amd64"
@@ -564,10 +660,19 @@ def verify_command(
         logger.error("No value provided for required option '--bucket'")
         raise typer.Exit(code=1)
 
-    _configure_s3(bucket=bucket, prefix=prefix, region=s3_region,
-                  access_key_id=access_key_id, secret_access_key=secret_access_key,
-                  session_token=session_token, endpoint=endpoint, force_path_style=force_path_style,
-                  encryption=encryption)
+    s3_config = build_s3_config(
+        bucket=bucket,
+        prefix=prefix,
+        s3_region=s3_region,
+        endpoint=endpoint,
+        access_key_id=access_key_id,
+        secret_access_key=secret_access_key,
+        session_token=session_token,
+        force_path_style=force_path_style,
+        encryption=encryption,
+        cache_control=cache_control,
+    )
+    _configure_s3(s3_config)
 
     logger.info("Retrieving existing manifests")
     release = release_module.Release.retrieve(codename, origin, suite)
@@ -631,10 +736,19 @@ def clean_command(
         logger.error("No value provided for required option '--bucket'")
         raise typer.Exit(code=1)
 
-    _configure_s3(bucket=bucket, prefix=prefix, region=s3_region,
-                  access_key_id=access_key_id, secret_access_key=secret_access_key,
-                  session_token=session_token, endpoint=endpoint, force_path_style=force_path_style,
-                  encryption=encryption)
+    s3_config = build_s3_config(
+        bucket=bucket,
+        prefix=prefix,
+        s3_region=s3_region,
+        endpoint=endpoint,
+        access_key_id=access_key_id,
+        secret_access_key=secret_access_key,
+        session_token=session_token,
+        force_path_style=force_path_style,
+        encryption=encryption,
+        cache_control=cache_control,
+    )
+    _configure_s3(s3_config)
 
     logger.info("Retrieving existing manifests")
 
