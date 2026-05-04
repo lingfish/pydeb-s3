@@ -5,7 +5,7 @@ import re
 import subprocess
 import tempfile
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Protocol
 
 from loguru import logger
 
@@ -15,6 +15,115 @@ from pydeb_s3.s3_utils import (
     s3_read,
     s3_store,
 )
+
+
+class SigningAdapter(Protocol):
+    """Interface for GPG signing operations.
+
+    A SigningAdapter provides a seam between the Release module
+    and the signing implementation (currently GPG subprocess).
+    """
+
+    def clearsign(self, input_path: str, output_path: str) -> None:
+        """Create clearsigned file (InRelease).
+
+        Args:
+            input_path: Path to file to sign
+            output_path: Path where clearsigned output should be written
+        """
+        ...
+
+    def detach_sign(self, input_path: str, output_path: str) -> None:
+        """Create detached signature (Release.gpg).
+
+        Args:
+            input_path: Path to file to sign
+            output_path: Path where detached signature should be written
+        """
+        ...
+
+    def get_key_info(self) -> dict:
+        """Return info about signing keys (for error messages)."""
+        ...
+
+
+class GpgSigningAdapter:
+    """Concrete adapter wrapping gpg subprocess.
+
+    Attributes:
+        keys: List of GPG key IDs to use for signing
+        provider: GPG provider command (default: "gpg")
+        options: Additional GPG command line options
+    """
+
+    def __init__(self, keys: list[str], provider: str = "gpg", options: str = ""):
+        self.keys = keys
+        self.provider = provider
+        self.options = options
+
+    def clearsign(self, input_path: str, output_path: str) -> None:
+        """Create clearsigned file (InRelease)."""
+        key_param = " ".join(f"-u {k}" for k in self.keys) if self.keys else ""
+        cmd = f"{self.provider} -a {key_param} --digest-algo SHA256 {self.options} -s --clearsign {input_path}"
+        result = subprocess.run(cmd, check=False, shell=True, capture_output=True)
+
+        if result.returncode != 0:
+            stderr = result.stderr.decode() if result.stderr else ""
+            if "no such key" in stderr.lower() or "secret key not found" in stderr.lower():
+                raise RuntimeError(
+                    "GPG signing failed: Secret key not found. "
+                    "Make sure the key ID is correct and the secret key is available."
+                )
+            if "bad passphrase" in stderr.lower() or "passphrase" in stderr.lower():
+                raise RuntimeError(
+                    "GPG signing failed: Bad passphrase or passphrase required. "
+                    "Make sure GPG agent is running or use --gpg-options to provide passphrase."
+                )
+            raise RuntimeError(f"GPG signing failed with return code {result.returncode}: {stderr}")
+
+        asc_path = input_path + ".asc"
+        if not os.path.exists(asc_path):
+            raise RuntimeError(
+                f"GPG clearsign did not produce expected output file: {asc_path}. "
+                "Check GPG configuration and try again."
+            )
+
+        # Rename to output_path
+        os.rename(asc_path, output_path)
+
+    def detach_sign(self, input_path: str, output_path: str) -> None:
+        """Create detached signature (Release.gpg)."""
+        key_param = " ".join(f"-u {k}" for k in self.keys) if self.keys else ""
+        cmd = f"{self.provider} -a {key_param} --digest-algo SHA256 {self.options} -b {input_path}"
+        result = subprocess.run(cmd, check=False, shell=True, capture_output=True)
+
+        if result.returncode != 0:
+            stderr = result.stderr.decode() if result.stderr else ""
+            if "no such key" in stderr.lower() or "secret key not found" in stderr.lower():
+                raise RuntimeError(
+                    "GPG detached signing failed: Secret key not found. "
+                    "Make sure the key ID is correct and the secret key is available."
+                )
+            if "bad passphrase" in stderr.lower() or "passphrase" in stderr.lower():
+                raise RuntimeError(
+                    "GPG detached signing failed: Bad passphrase or passphrase required. "
+                    "Make sure GPG agent is running or use --gpg-options to provide passphrase."
+                )
+            raise RuntimeError(f"GPG detached signing failed with return code {result.returncode}: {stderr}")
+
+        asc_path = input_path + ".asc"
+        if not os.path.exists(asc_path):
+            raise RuntimeError(
+                f"GPG detached signing did not produce expected output file: {asc_path}. "
+                "Check GPG configuration and try again."
+            )
+
+        # Rename to output_path
+        os.rename(asc_path, output_path)
+
+    def get_key_info(self) -> dict:
+        """Return info about signing keys."""
+        return {"keys": self.keys, "provider": self.provider}
 
 
 @dataclass
@@ -169,21 +278,19 @@ class Release:
 
     def sign(
         self,
-        keys: list[str],
-        provider: str = "gpg",
-        options: str = "",
+        signing_adapter: SigningAdapter,
         visibility: str = "public",
         use_bytes: bool = False,
     ) -> None:
-        """Sign the Release file with GPG and upload it to S3."""
-        import tempfile
+        """Sign the Release file with GPG and upload it to S3.
 
-        from pydeb_s3 import s3_utils
-
-        s3_utils._signing_key = keys
-        s3_utils._gpg_provider = provider
-        s3_utils._gpg_options = options
-        s3_utils._access_policy = self._get_policy(visibility)
+        Args:
+            signing_adapter: Adapter handling GPG signing operations
+            visibility: Access policy for uploaded files
+            use_bytes: If True, display speed in bytes/s
+        """
+        if not signing_adapter or not signing_adapter.get_key_info():
+            return  # No keys = no signing
 
         release_content = self.generate()
         logger.debug(f"Release.sign(): content=\n{release_content}")
@@ -193,6 +300,8 @@ class Release:
         try:
             release_temp.write(release_content)
             release_temp.close()
+
+            # Upload unsigned Release to S3
             s3_store(
                 release_temp.name,
                 self.filename,
@@ -200,7 +309,31 @@ class Release:
                 self.cache_control,
                 use_bytes=use_bytes,
             )
-            self._sign_release(release_temp.name, visibility, use_bytes=use_bytes)
+
+            # Adapter handles ONLY GPG operations
+            clearsigned_path = release_temp.name + ".asc"
+            detached_path = release_temp.name + ".asc"
+            signing_adapter.clearsign(release_temp.name, clearsigned_path)
+            signing_adapter.detach_sign(release_temp.name, detached_path)
+
+            # Upload signed files to S3
+            inrelease_path = f"dists/{self.codename}/InRelease"
+            s3_store(
+                clearsigned_path,
+                inrelease_path,
+                "application/pgp-signature; charset=us-ascii",
+                self.cache_control,
+                use_bytes=use_bytes,
+            )
+
+            gpg_path = self.filename + ".gpg"
+            s3_store(
+                detached_path,
+                gpg_path,
+                "application/pgp-signature; charset=us-ascii",
+                self.cache_control,
+                use_bytes=use_bytes,
+            )
         finally:
             os.unlink(release_temp.name)
 
@@ -275,90 +408,7 @@ class Release:
         finally:
             os.unlink(release_temp.name)
 
-    def _sign_release(
-        self, release_path: str, visibility: str = "public", callback: Optional[callable] = None, use_bytes: bool = False
-    ) -> None:
-        """Sign the Release file with GPG - both clearsign (InRelease) and detached (Release.gpg)."""
-        from pydeb_s3 import s3_utils
 
-        signing_key = s3_utils._signing_key or []
-        if not signing_key:
-            return
-
-        s3_utils._access_policy = self._get_policy(visibility)
-        key_param = " ".join(f"-u {k}" for k in signing_key) if signing_key else ""
-
-        cmd = f"{s3_utils._gpg_provider} -a {key_param} --digest-algo SHA256 {s3_utils._gpg_options} -s --clearsign {release_path}"
-        result = subprocess.run(cmd, check=False, shell=True, capture_output=True)
-
-        if result.returncode != 0:
-            stderr = result.stderr.decode() if result.stderr else ""
-            if "no such key" in stderr.lower() or "secret key not found" in stderr.lower():
-                raise RuntimeError(
-                    "GPG signing failed: Secret key not found. "
-                    "Make sure the key ID is correct and the secret key is available."
-                )
-            if "bad passphrase" in stderr.lower() or "passphrase" in stderr.lower():
-                raise RuntimeError(
-                    "GPG signing failed: Bad passphrase or passphrase required. "
-                    "Make sure GPG agent is running or use --gpg-options to provide passphrase."
-                )
-            raise RuntimeError(f"GPG signing failed with return code {result.returncode}: {stderr}")
-
-        asc_path = release_path + ".asc"
-        if not os.path.exists(asc_path):
-            raise RuntimeError(
-                f"GPG clearsign did not produce expected output file: {asc_path}. "
-                "Check GPG configuration and try again."
-            )
-
-        inrelease_path = f"dists/{self.codename}/InRelease"
-        if callback:
-            callback(inrelease_path)
-        s3_store(
-            asc_path,
-            inrelease_path,
-            "application/pgp-signature; charset=us-ascii",
-            self.cache_control,
-            use_bytes=use_bytes,
-        )
-        os.unlink(asc_path)
-
-        cmd = f"{s3_utils._gpg_provider} -a {key_param} --digest-algo SHA256 {s3_utils._gpg_options} -b {release_path}"
-        result = subprocess.run(cmd, check=False, shell=True, capture_output=True)
-
-        if result.returncode != 0:
-            stderr = result.stderr.decode() if result.stderr else ""
-            if "no such key" in stderr.lower() or "secret key not found" in stderr.lower():
-                raise RuntimeError(
-                    "GPG detached signing failed: Secret key not found. "
-                    "Make sure the key ID is correct and the secret key is available."
-                )
-            if "bad passphrase" in stderr.lower() or "passphrase" in stderr.lower():
-                raise RuntimeError(
-                    "GPG detached signing failed: Bad passphrase or passphrase required. "
-                    "Make sure GPG agent is running or use --gpg-options to provide passphrase."
-                )
-            raise RuntimeError(f"GPG detached signing failed with return code {result.returncode}: {stderr}")
-
-        asc_path = release_path + ".asc"
-        if not os.path.exists(asc_path):
-            raise RuntimeError(
-                f"GPG detached signing did not produce expected output file: {asc_path}. "
-                "Check GPG configuration and try again."
-            )
-
-        gpg_path = self.filename + ".gpg"
-        if callback:
-            callback(gpg_path)
-        s3_store(
-            asc_path,
-            gpg_path,
-            "application/pgp-signature; charset=us-ascii",
-            self.cache_control,
-            use_bytes=use_bytes,
-        )
-        os.unlink(asc_path)
 
     def _validate_others(self, callback: Optional[callable] = None, use_bytes: bool = False) -> None:
         """Validate other architectures are present."""

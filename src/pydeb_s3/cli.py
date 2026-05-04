@@ -313,7 +313,9 @@ def upload_command(
 
         if sign:
             logger.info(f"Signing Release file for {codename}")
-            release.sign(sign, gpg_provider, gpg_options, visibility, use_bytes=bytes)
+            from pydeb_s3.release import GpgSigningAdapter
+            signing_adapter = GpgSigningAdapter(sign, gpg_provider, gpg_options)
+            release.sign(signing_adapter, visibility, use_bytes=bytes)
 
         logger.info("Update complete.")
     finally:
@@ -708,7 +710,9 @@ def verify_command(
 
     if sign:
         logger.info(f"Signing Release file for {codename}")
-        release.sign(sign, "gpg", "", use_bytes=False)
+        from pydeb_s3.release import GpgSigningAdapter
+        signing_adapter = GpgSigningAdapter(sign, "gpg", "")
+        release.sign(signing_adapter, "public", use_bytes=False)
 
     logger.info("Verify complete.")
 
