@@ -271,9 +271,6 @@ class S3AccessError(S3Error):
 _s3_client: Optional[boto3.client] = None
 _bucket: Optional[str] = None
 _access_policy: Optional[str] = None
-_signing_key: Optional[list[str]] = None
-_gpg_provider: str = "gpg"
-_gpg_options: str = ""
 _prefix: Optional[str] = None
 _encryption: bool = False
 
