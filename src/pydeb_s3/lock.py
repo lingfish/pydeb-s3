@@ -5,11 +5,7 @@ import socket
 import time
 from dataclasses import dataclass
 
-from pydeb_s3.s3_utils import (
-    s3_exists,
-    s3_read,
-    s3_remove,
-)
+from pydeb_s3.s3_adapter import S3Adapter
 
 
 @dataclass
@@ -45,6 +41,7 @@ def _lock_path(
 
 
 def lock(
+    s3_adapter: S3Adapter,
     codename: str,
     component: str = None,
     architecture: str = None,
@@ -64,8 +61,8 @@ def lock(
     for i in range(max_attempts):
         wait_interval = min((1 << i) / 10, max_wait_interval)
 
-        if s3_exists(final_lockfile):
-            current_lock = _current(codename, component, architecture, cache_control)
+        if s3_adapter.exists(final_lockfile):
+            current_lock = _current(s3_adapter, codename, component, architecture, cache_control)
             print(
                 f"Repository is locked by another user: {current_lock.user} at host {current_lock.host} (phase-1)"
             )
@@ -73,24 +70,24 @@ def lock(
             time.sleep(wait_interval)
         else:
             try:
-                s3_store_by_content(
+                s3_adapter.store_content(
                     lockbody,
                     initial_lockfile,
-                    "text/plain",
+                    content_type="text/plain",
                     md5=md5_hex,
                 )
             except Exception:
                 pass
 
             try:
-                s3_copy_with_if_match(
+                s3_adapter.copy_with_if_match(
                     initial_lockfile,
                     final_lockfile,
                     md5_hex,
                 )
                 return
             except Exception:
-                current_lock = _current(codename, component, architecture, cache_control)
+                current_lock = _current(s3_adapter, codename, component, architecture, cache_control)
                 print(
                     f"Repository is locked by another user: {current_lock.user} at host {current_lock.host} (phase-2)"
                 )
@@ -100,60 +97,8 @@ def lock(
     raise LockError(f"Unable to obtain a lock after {max_attempts} attempts, giving up.")
 
 
-def s3_store_by_content(
-    content: str,
-    key: str,
-    content_type: str = "text/plain",
-    md5: str = None,
-) -> None:
-    """Store content directly to S3."""
-    from pydeb_s3 import s3_utils
-
-    if not s3_utils._s3_client or not s3_utils._bucket:
-        return
-
-    key = s3_utils.s3_path(key)
-    extra_args = {"ContentType": content_type}
-
-    if s3_utils._access_policy:
-        extra_args["ACL"] = s3_utils._access_policy
-
-    extra_args["Metadata"] = {}
-    if md5:
-        extra_args["Metadata"]["md5"] = md5
-
-    s3_utils._s3_client.put_object(
-        Bucket=s3_utils._bucket,
-        Key=key,
-        Body=content.encode(),
-        **extra_args,
-    )
-
-
-def s3_copy_with_if_match(source: str, destination: str, etag: str) -> None:
-    """Copy an object with If-Match condition."""
-    from pydeb_s3 import s3_utils
-
-    if not s3_utils._s3_client or not s3_utils._bucket:
-        return
-
-    source_path = s3_utils.s3_path(source)
-    dest_path = s3_utils.s3_path(destination)
-
-    try:
-        s3_utils._s3_client.copy_object(
-            Bucket=s3_utils._bucket,
-            Key=dest_path,
-            CopySource=f"/{s3_utils._bucket}/{source_path}",
-            CopySourceIfMatch=etag,
-        )
-    except Exception as e:
-        if "PreconditionFailed" in str(e):
-            raise Exception("PreconditionFailed")
-        raise
-
-
 def unlock(
+    s3_adapter: S3Adapter,
     codename: str,
     component: str = None,
     architecture: str = None,
@@ -163,13 +108,14 @@ def unlock(
     initial = _initial_lock_path(codename, component, architecture, cache_control)
     final = _lock_path(codename, component, architecture, cache_control)
 
-    if s3_exists(initial):
-        s3_remove(initial)
-    if s3_exists(final):
-        s3_remove(final)
+    if s3_adapter.exists(initial):
+        s3_adapter.remove(initial)
+    if s3_adapter.exists(final):
+        s3_adapter.remove(final)
 
 
 def _current(
+    s3_adapter: S3Adapter,
     codename: str,
     component: str = None,
     architecture: str = None,
@@ -177,7 +123,7 @@ def _current(
 ) -> Lock:
     """Get the current lock holder."""
     lock_path = _lock_path(codename, component, architecture, cache_control)
-    lockbody = s3_read(lock_path)
+    lockbody = s3_adapter.read(lock_path)
 
     if lockbody:
         user_host = lockbody.split("@", 1)

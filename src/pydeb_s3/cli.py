@@ -15,6 +15,7 @@ from pydeb_s3 import manifest as manifest_module
 from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
 from pydeb_s3 import s3_utils
+from pydeb_s3.s3_adapter import S3Adapter, Boto3S3Adapter
 from pydeb_s3.s3_utils import BitsTransferSpeedColumn
 
 
@@ -87,24 +88,46 @@ def build_s3_config(
     )
 
 
-def _configure_s3(config: S3Config) -> None:
-    """Configure S3 connection using S3Config object."""
-    s3_utils.configure_s3(
+def _configure_s3(config: S3Config) -> S3Adapter:
+    """Configure S3 connection using S3Config object. Returns S3Adapter."""
+    import boto3
+
+    settings = {"region_name": config.region}
+
+    if config.endpoint:
+        settings["endpoint_url"] = config.endpoint
+    if config.proxy_uri:
+        settings["proxy"] = {"http": config.proxy_uri, "https": config.proxy_uri}
+    if config.force_path_style:
+        settings["use_accelerate_endpoint"] = False
+    if config.checksum_when_required:
+        settings["request_checksum_calculation"] = "when_required"
+
+    if config.access_key_id and config.secret_access_key:
+        settings["aws_access_key_id"] = config.access_key_id
+        settings["aws_secret_access_key"] = config.secret_access_key
+        if config.session_token:
+            settings["aws_session_token"] = config.session_token
+
+    client = boto3.client("s3", **settings)
+
+    # Map visibility to access policy
+    access_policy = None
+    if config.visibility == "public":
+        access_policy = "public-read"
+    elif config.visibility == "private":
+        access_policy = "private"
+    elif config.visibility == "authenticated":
+        access_policy = "authenticated-read"
+    elif config.visibility == "bucket_owner":
+        access_policy = "bucket-owner-full-control"
+
+    return Boto3S3Adapter(
+        client=client,
         bucket=config.bucket,
         prefix=config.prefix,
-        region=config.region,
-        endpoint=config.endpoint,
-        access_key_id=config.access_key_id,
-        secret_access_key=config.secret_access_key,
-        session_token=config.session_token,
-        visibility=config.visibility,
-        signing_key=config.signing_key,
-        gpg_provider=config.gpg_provider,
-        gpg_options=config.gpg_options,
+        access_policy=access_policy,
         encryption=config.encryption,
-        proxy_uri=config.proxy_uri,
-        force_path_style=config.force_path_style,
-        checksum_when_required=config.checksum_when_required,
     )
 
 
@@ -201,7 +224,7 @@ def upload_command(
         checksum_when_required=checksum_when_required,
         cache_control=cache_control,
     )
-    _configure_s3(s3_config)
+    s3_adapter = _configure_s3(s3_config)
 
     comp = component
     if section:
@@ -210,7 +233,7 @@ def upload_command(
             comp = section
 
     if lock:
-        lock_module.lock()
+        lock_module.lock(s3_adapter)
 
     try:
         release = release_module.Release.retrieve(codename, origin, suite)
@@ -220,25 +243,25 @@ def upload_command(
 
         if arch and arch != "all":
             manifests.setdefault(arch, manifest_module.Manifest.retrieve(
-                codename, comp, arch, cache_control, fail_if_exists, skip_package_upload
+                s3_adapter, codename, comp, arch, cache_control, fail_if_exists, skip_package_upload
             ))
         elif arch == "all" and not release.architectures:
             manifests.setdefault("amd64", manifest_module.Manifest.retrieve(
-                codename, comp, "amd64", cache_control, fail_if_exists, skip_package_upload
+                s3_adapter, codename, comp, "amd64", cache_control, fail_if_exists, skip_package_upload
             ))
             manifests.setdefault("i386", manifest_module.Manifest.retrieve(
-                codename, comp, "i386", cache_control, fail_if_exists, skip_package_upload
+                s3_adapter, codename, comp, "i386", cache_control, fail_if_exists, skip_package_upload
             ))
             manifests.setdefault("armhf", manifest_module.Manifest.retrieve(
-                codename, comp, "armhf", cache_control, fail_if_exists, skip_package_upload
+                s3_adapter, codename, comp, "armhf", cache_control, fail_if_exists, skip_package_upload
             ))
             manifests.setdefault("arm64", manifest_module.Manifest.retrieve(
-                codename, comp, "arm64", cache_control, fail_if_exists, skip_package_upload
+                s3_adapter, codename, comp, "arm64", cache_control, fail_if_exists, skip_package_upload
             ))
         else:
             for arch_item in release.architectures:
                 manifests.setdefault(arch_item, manifest_module.Manifest.retrieve(
-                    codename, comp, arch_item, cache_control, fail_if_exists, skip_package_upload
+                    s3_adapter, codename, comp, arch_item, cache_control, fail_if_exists, skip_package_upload
                 ))
 
         packages_arch_all = []
@@ -263,7 +286,7 @@ def upload_command(
                     )
 
                 manifests.setdefault(pkg_arch, manifest_module.Manifest.retrieve(
-                    codename, comp, pkg_arch, cache_control, fail_if_exists, skip_package_upload
+                    s3_adapter, codename, comp, pkg_arch, cache_control, fail_if_exists, skip_package_upload
                 ))
 
                 manifests[pkg_arch].add(pkg, preserve_versions)
@@ -301,11 +324,11 @@ def upload_command(
         for arch_key, manifest in manifests.items():
             logger.debug(f"  Before write_to_s3: arch_key={arch_key}, packages count={len(manifest.packages)}")
             logger.info(f"  Transferring dists/{codename}/{comp}/binary-{arch_key}/Packages")
-            manifest.write_to_s3(use_bytes=bytes, progress=shared_progress)
+            manifest.write_to_s3(s3_adapter, use_bytes=bytes, progress=shared_progress)
             logger.debug(f"  After write_to_s3: release.files={list(release.files.keys())}")
             release.update_manifest(manifest)
 
-        release.write_to_s3(use_bytes=bytes, progress=shared_progress)
+        release.write_to_s3(s3_adapter, use_bytes=bytes, progress=shared_progress)
 
         # Stop the shared progress after all uploads are done
         if shared_progress is not None:
@@ -315,12 +338,12 @@ def upload_command(
             logger.info(f"Signing Release file for {codename}")
             from pydeb_s3.release import GpgSigningAdapter
             signing_adapter = GpgSigningAdapter(sign, gpg_provider, gpg_options)
-            release.sign(signing_adapter, visibility, use_bytes=bytes)
+            release.sign(s3_adapter, signing_adapter, use_bytes=bytes)
 
         logger.info("Update complete.")
     finally:
         if lock:
-            lock_module.unlock()
+            lock_module.unlock(s3_adapter)
 
 
 @app.command("list")
@@ -354,7 +377,7 @@ def list_command(
         session_token=session_token,
         cache_control=cache_control,
     )
-    _configure_s3(s3_config)
+    s3_adapter = _configure_s3(s3_config)
 
     release = release_module.Release.retrieve(codename)
     archs = release.architectures
@@ -365,7 +388,7 @@ def list_command(
     rows = []
 
     for architecture in archs:
-        manifest = manifest_module.Manifest.retrieve(codename, component, architecture, cache_control)
+        manifest = manifest_module.Manifest.retrieve(s3_adapter, codename, component, architecture, cache_control)
 
         if manifest.packages:
             for pkg in sorted(manifest.packages):
@@ -487,12 +510,12 @@ def exists_command(
         session_token=session_token,
         cache_control=cache_control,
     )
-    _configure_s3(s3_config)
+    s3_adapter = _configure_s3(s3_config)
 
     if not arch:
         arch = "amd64"
 
-    manifest = manifest_module.Manifest.retrieve(codename, component, arch, cache_control)
+    manifest = manifest_module.Manifest.retrieve(s3_adapter, codename, component, arch, cache_control)
 
     # Find package by name in the list
     pkg = next((p for p in manifest.packages if p.name == package), None)
@@ -544,14 +567,14 @@ def copy_command(
         session_token=session_token,
         cache_control=cache_control,
     )
-    _configure_s3(s3_config)
+    s3_adapter = _configure_s3(s3_config)
 
     if not arch:
         arch = "amd64"
 
     logger.info(f"Retrieving existing manifests for {codename}")
 
-    from_manifest = manifest_module.Manifest.retrieve(codename, component, arch, cache_control)
+    from_manifest = manifest_module.Manifest.retrieve(s3_adapter, codename, component, arch, cache_control)
 
     # Find package in the list (packages is a list, not dict)
     pkg = next((p for p in from_manifest.packages if p.name == package), None)
@@ -565,7 +588,7 @@ def copy_command(
         logger.error(f"Architecture {arch} not available in target codename.")
         raise typer.Exit(code=1)
 
-    to_manifest = manifest_module.Manifest.retrieve(to_codename, to_component, arch, cache_control)
+    to_manifest = manifest_module.Manifest.retrieve(s3_adapter, to_codename, to_component, arch, cache_control)
 
     # Filter versions if specified (pkg.version is a single version, not a dict)
     version = pkg.full_version or pkg.version
@@ -580,7 +603,7 @@ def copy_command(
     to_manifest.add(pkg)
 
     logger.info(f"Uploading new manifest to S3 for {to_codename}/{to_component}/{arch}")
-    to_manifest.write_to_s3(use_bytes=False)
+    to_manifest.write_to_s3(s3_adapter, use_bytes=False)
 
     logger.info("Copy complete.")
 
@@ -616,13 +639,13 @@ def delete_command(
         session_token=session_token,
         cache_control=cache_control,
     )
-    _configure_s3(s3_config)
+    s3_adapter = _configure_s3(s3_config)
 
     if not arch:
         arch = "amd64"
 
     logger.info("Retrieving existing manifests")
-    manifest = manifest_module.Manifest.retrieve(codename, component, arch, cache_control)
+    manifest = manifest_module.Manifest.retrieve(s3_adapter, codename, component, arch, cache_control)
 
     if package not in manifest.packages:
         logger.error(f"Package {package} not found.")
@@ -633,7 +656,7 @@ def delete_command(
 
     logger.info("Uploading new manifests to S3")
     logger.info(f"Transferring dists/{codename}/{component}/binary-{arch}/Packages")
-    manifest.upload()
+    manifest.write_to_s3(s3_adapter)
 
     logger.info("Update complete.")
 
@@ -674,7 +697,7 @@ def verify_command(
         encryption=encryption,
         cache_control=cache_control,
     )
-    _configure_s3(s3_config)
+    s3_adapter = _configure_s3(s3_config)
 
     logger.info("Retrieving existing manifests")
     release = release_module.Release.retrieve(codename, origin, suite)
@@ -690,7 +713,7 @@ def verify_command(
             if arch == "all":
                 continue
             logger.info(f"Checking for missing packages in: {codename}/{comp} {arch}")
-            manifest = manifest_module.Manifest.retrieve(codename, comp, arch, cache_control, False)
+            manifest = manifest_module.Manifest.retrieve(s3_adapter, codename, comp, arch, cache_control, False)
             if manifest.packages:
                 for pkg in sorted(manifest.packages):
                     logger.info(f"Checking files for package: {pkg.name} {pkg.full_version}")
@@ -698,7 +721,7 @@ def verify_command(
                     path = pkg.url_filename_for(comp)
                     if not path:
                         path = f"pool/{pkg.name[0]}/{pkg.name}/{pkg.name}_{pkg.full_version}_{arch}.deb"
-                    if not s3_utils.s3_exists(path):
+                    if not s3_adapter.exists(path):
                         logger.warning(f"Missing file: {path}")
                         if fix_manifests:
                             logger.info(f"Deleting package {pkg.name} {pkg.full_version} from manifest")
@@ -706,13 +729,13 @@ def verify_command(
 
                 if fix_manifests:
                     logger.info(f"Uploading fixed manifest for {codename}/{comp}/{arch}")
-                    manifest.write_to_s3(use_bytes=False)
+                    manifest.write_to_s3(s3_adapter, use_bytes=False)
 
     if sign:
         logger.info(f"Signing Release file for {codename}")
         from pydeb_s3.release import GpgSigningAdapter
         signing_adapter = GpgSigningAdapter(sign, "gpg", "")
-        release.sign(signing_adapter, "public", use_bytes=False)
+        release.sign(s3_adapter, signing_adapter, use_bytes=False)
 
     logger.info("Verify complete.")
 
@@ -752,12 +775,28 @@ def clean_command(
         encryption=encryption,
         cache_control=cache_control,
     )
-    _configure_s3(s3_config)
+    s3_adapter = _configure_s3(s3_config)
 
     logger.info("Retrieving existing manifests")
 
     # Get all codenames from S3 to check all of them
-    all_codenames = s3_utils.list_codenames()
+    # Need to get codenames from adapter - use list_objects
+    all_codenames = []
+    continuation_token = None
+    while True:
+        contents, next_token = s3_adapter.list_objects("dists/", continuation_token=continuation_token)
+        for obj in contents:
+            key = obj.get("Key", "")
+            if key.startswith("dists/"):
+                path_after_dists = key[len("dists/"):]
+                parts = path_after_dists.split("/")
+                if len(parts) >= 2:
+                    codename = parts[0]
+                    if codename and codename not in all_codenames:
+                        all_codenames.append(codename)
+        if not next_token:
+            break
+
     if not all_codenames:
         # Fallback to specified codename if no codenames found in S3
         all_codenames = [codename]
@@ -780,7 +819,7 @@ def clean_command(
                 for arch in architectures:
                     if arch == "all":
                         continue
-                    manifest = manifest_module.Manifest.retrieve(cname, comp, arch, cache_control, False)
+                    manifest = manifest_module.Manifest.retrieve(s3_adapter, cname, comp, arch, cache_control, False)
                     if manifest.packages:
                         for pkg in manifest.packages:
                             # Get filename from package - prefer url_filename (Filename field in Packages)
@@ -804,7 +843,7 @@ def clean_command(
         logger.debug("Listing objects for component: {}", comp)
         continuation_token = None
         while True:
-            result = s3_utils.s3_list_objects(f"pool/{comp}/", continuation_token=continuation_token)
+            result = s3_adapter.list_objects(f"pool/{comp}/", continuation_token=continuation_token)
             objects, continuation_token = result
             all_objects.extend(objects)
             if not continuation_token:
@@ -816,8 +855,8 @@ def clean_command(
         path = obj.get("Key", "")
         original_key = path
         # Strip S3 prefix from path for comparison with all_pkgs keys
-        if path and s3_utils._prefix:
-            prefix_stripped = s3_utils._prefix.rstrip("/") + "/"
+        if path and s3_adapter._prefix:
+            prefix_stripped = s3_adapter._prefix.rstrip("/") + "/"
             if path.startswith(prefix_stripped):
                 path = path[len(prefix_stripped):]
         if path and path not in all_pkgs:
@@ -830,7 +869,7 @@ def clean_command(
                 logger.warning(f"Would remove {path}")
             else:
                 logger.warning(f"Removing {path}")
-                s3_utils.s3_remove(path)
+                s3_adapter.remove(path)
             removed_count += 1
 
     if removed_count > 0:

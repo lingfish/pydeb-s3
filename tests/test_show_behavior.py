@@ -7,7 +7,7 @@ import pytest
 from pydeb_s3 import manifest as manifest_module
 from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
-from pydeb_s3 import s3_utils
+from pydeb_s3.s3_adapter import S3Adapter
 from pydeb_s3.cli import show_command
 
 
@@ -24,11 +24,11 @@ class TestShowIntegration:
     @pytest.fixture(autouse=True)
     def setup(self, s3_client, sample_deb_file):
         """Set up test fixtures with S3 bucket and configuration."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = mock_s3_adapter
+        
+        # s3_utils._s3_client removed - use S3Adapter
+        # s3_utils._bucket removed - use S3Adapter
+        # s3_utils._access_policy removed - use S3Adapter
         self.sample_deb_file = sample_deb_file
 
     def _create_release(self, codename="stable", architectures=None, components=None):
@@ -43,17 +43,17 @@ class TestShowIntegration:
             architectures=architectures,
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def _add_packages_to_manifest(self, release, deb_file, component="main", arch="amd64"):
         """Add packages to manifest and update release."""
         pkg = package_module.Package.parse_file(deb_file)
-        manifest = manifest_module.Manifest.retrieve("stable", component, arch)
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", component, arch)
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return pkg
 
     def test_show_displays_package_details(self, capfd):
@@ -182,13 +182,13 @@ class TestShowErrors:
     """Tests for error handling in show command."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client):
+    def setup(self, mock_s3_adapter):
         """Set up test fixtures with S3 bucket."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = mock_s3_adapter
+        
+        # s3_utils._s3_client removed - use S3Adapter
+        # s3_utils._bucket removed - use S3Adapter
+        # s3_utils._access_policy removed - use S3Adapter
 
     def test_show_requires_bucket(self):
         """show command requires bucket option."""
@@ -208,9 +208,9 @@ class TestShowErrors:
         """show returns error when package not found."""
         import typer
 
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
+        
+        # s3_utils._s3_client removed - use S3Adapter
+        # s3_utils._bucket removed - use S3Adapter
 
         # Create release file (but don't add any packages)
         release = release_module.Release(
@@ -219,7 +219,7 @@ class TestShowErrors:
             architectures=["amd64"],
             components=["main"],
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         setup_logger()
 
@@ -240,11 +240,11 @@ class TestShowQuietOutput:
     @pytest.fixture(autouse=True)
     def setup(self, s3_client, sample_deb_file):
         """Set up test fixtures with S3 bucket and configuration."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = mock_s3_adapter
+        
+        # s3_utils._s3_client removed - use S3Adapter
+        # s3_utils._bucket removed - use S3Adapter
+        # s3_utils._access_policy removed - use S3Adapter
         self.sample_deb_file = sample_deb_file
 
     def _create_release(self, codename="stable", architectures=None, components=None):
@@ -259,17 +259,17 @@ class TestShowQuietOutput:
             architectures=architectures,
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def _add_packages_to_manifest(self, release, deb_file, component="main", arch="amd64"):
         """Add packages to manifest and update release."""
         pkg = package_module.Package.parse_file(deb_file)
-        manifest = manifest_module.Manifest.retrieve("stable", component, arch)
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", component, arch)
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return pkg
 
     def test_show_outputs_to_stdout_not_stderr(self, capfd):
@@ -351,13 +351,13 @@ class TestShowMultiplePackages:
     """Tests for show with multiple packages."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client):
+    def setup(self, mock_s3_adapter):
         """Set up test fixtures with S3 bucket."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = mock_s3_adapter
+        
+        # s3_utils._s3_client removed - use S3Adapter
+        # s3_utils._bucket removed - use S3Adapter
+        # s3_utils._access_policy removed - use S3Adapter
 
     def _create_release(self, codename="stable", architectures=None, components=None):
         """Create and upload a Release file."""
@@ -371,7 +371,7 @@ class TestShowMultiplePackages:
             architectures=architectures,
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def test_show_with_hello_package(self, capfd):
@@ -380,11 +380,11 @@ class TestShowMultiplePackages:
 
         release = self._create_release()
         pkg = package_module.Package.parse_file("tests/fixtures/hello_2.10-5_amd64.deb")
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         show_command(
             package="hello",
@@ -405,11 +405,11 @@ class TestShowMultiplePackages:
 
         release = self._create_release()
         pkg = package_module.Package.parse_file("tests/fixtures/hello_2.10-5_amd64.deb")
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         show_command(
             package="hello",

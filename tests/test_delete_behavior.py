@@ -8,7 +8,7 @@ import typer
 from pydeb_s3 import manifest as manifest_module
 from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
-from pydeb_s3 import s3_utils
+from pydeb_s3.s3_adapter import S3Adapter
 from pydeb_s3.cli import delete_command
 
 
@@ -30,11 +30,11 @@ class TestDeleteManifest:
     @pytest.fixture(autouse=True)
     def setup(self, s3_client, sample_deb_file):
         """Set up test fixtures with S3 bucket and configuration."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = mock_s3_adapter
+        
+        # s3_utils._s3_client removed - use S3Adapter
+        # s3_utils._bucket removed - use S3Adapter
+        # s3_utils._access_policy removed - use S3Adapter
         self.sample_deb_file = sample_deb_file
 
     def _create_release(self, codename="stable", architectures=None, components=None):
@@ -49,17 +49,17 @@ class TestDeleteManifest:
             architectures=architectures,
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def _add_packages_to_manifest(self, release, deb_file, component="main", arch="amd64"):
         """Add packages to manifest and update release."""
         pkg = package_module.Package.parse_file(deb_file)
-        manifest = manifest_module.Manifest.retrieve("stable", component, arch)
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", component, arch)
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return pkg
 
     def test_delete_package_removes_from_manifest(self):
@@ -74,7 +74,7 @@ class TestDeleteManifest:
         )
 
         # Get manifest and verify package exists
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         assert package_exists(manifest, "test-pkg")
 
         # Delete the package directly using manifest
@@ -95,7 +95,7 @@ class TestDeleteManifest:
         )
 
         # Get manifest
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         assert package_exists(manifest, "test-pkg")
 
         # Delete specific version
@@ -118,14 +118,14 @@ class TestDeleteManifest:
         )
 
         # Get manifest and delete the package
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.delete_package("test-pkg", None)
 
         # Write back to S3
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
 
         # Retrieve fresh manifest and verify package is gone
-        new_manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        new_manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         assert not package_exists(new_manifest, "test-pkg")
 
     def test_delete_nonexistent_package_returns_empty(self):
@@ -136,7 +136,7 @@ class TestDeleteManifest:
         release = self._create_release()
 
         # Get manifest (empty)
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
 
         # Delete non-existent package
         deleted = manifest.delete_package("nonexistent", None)
@@ -160,13 +160,13 @@ class TestDeleteManifest:
         files_before = dict(release.files)
 
         # Delete package from manifest
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.delete_package("test-pkg", None)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
 
         # Update release after delete
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         # Verify Release file has updated hashes
         files_after = dict(release.files)
@@ -184,29 +184,29 @@ class TestDeleteManifest:
 
         # Add amd64 package
         pkg_amd64 = package_module.Package.parse_file(self.sample_deb_file)
-        manifest_amd64 = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest_amd64 = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest_amd64.add(pkg_amd64)
-        manifest_amd64.write_to_s3()
+        manifest_amd64.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest_amd64)
 
         # Add arm64 package
         arm64_file = "tests/fixtures/test-pkg_1.0.0_arm64.deb"
         pkg_arm64 = package_module.Package.parse_file(arm64_file)
-        manifest_arm64 = manifest_module.Manifest.retrieve("stable", "main", "arm64")
+        manifest_arm64 = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "arm64")
         manifest_arm64.add(pkg_arm64)
-        manifest_arm64.write_to_s3()
+        manifest_arm64.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest_arm64)
 
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         # Delete from only amd64
-        manifest_amd64 = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest_amd64 = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest_amd64.delete_package("test-pkg", None)
-        manifest_amd64.write_to_s3()
+        manifest_amd64.write_to_s3(self.s3_adapter)
 
         # Verify amd64 is gone but arm64 remains
-        new_amd64 = manifest_module.Manifest.retrieve("stable", "main", "amd64")
-        new_arm64 = manifest_module.Manifest.retrieve("stable", "main", "arm64")
+        new_amd64 = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
+        new_arm64 = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "arm64")
 
         assert not package_exists(new_amd64, "test-pkg")
         assert package_exists(new_arm64, "test-pkg")
@@ -218,11 +218,11 @@ class TestDeleteCommand:
     @pytest.fixture(autouse=True)
     def setup(self, s3_client, sample_deb_file):
         """Set up test fixtures with S3 bucket and configuration."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = mock_s3_adapter
+        
+        # s3_utils._s3_client removed - use S3Adapter
+        # s3_utils._bucket removed - use S3Adapter
+        # s3_utils._access_policy removed - use S3Adapter
         self.sample_deb_file = sample_deb_file
 
     def _create_release(self, codename="stable", architectures=None, components=None):
@@ -237,7 +237,7 @@ class TestDeleteCommand:
             architectures=architectures,
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def test_delete_requires_bucket(self):
@@ -262,7 +262,7 @@ class TestDeleteCommand:
             architectures=["amd64"],
             components=["main"],
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         # Attempt to delete non-existent package
         # The command checks using 'in' operator which has a bug

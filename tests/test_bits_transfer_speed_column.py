@@ -169,16 +169,16 @@ class TestS3StoreWithSharedProgress:
         """Reset S3 configuration."""
         from pydeb_s3 import s3_utils
         s3_utils._s3_client = None
-        s3_utils._bucket = None
-        s3_utils._prefix = None
-        s3_utils._access_policy = None
+        
+        
+        
         s3_utils._encryption = False
 
     def teardown_method(self):
         """Clean up after each test."""
         from pydeb_s3 import s3_utils
         s3_utils._s3_client = None
-        s3_utils._bucket = None
+        
 
     def test_s3_store_accepts_progress_parameter(self):
         """s3_store() accepts optional progress parameter."""
@@ -196,7 +196,7 @@ class TestS3StoreWithSharedProgress:
             from pydeb_s3 import s3_utils
 
             s3_utils._s3_client = client
-            s3_utils._bucket = "test-bucket"
+            
 
             # Create temp file
             with tempfile.NamedTemporaryFile(delete=False, mode='w') as f:

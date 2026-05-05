@@ -42,14 +42,14 @@ class TestListCodenames:
     """
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client):
+    def setup(self, mock_s3_adapter):
         """Set up test fixtures with S3 bucket."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._prefix = None
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = mock_s3_adapter
+        
+        
+        
+        
+        
 
     def test_list_codenames_returns_all_codenames(self):
         """list_codenames() should return all codenames from S3 dists/ directory.
@@ -189,14 +189,14 @@ class TestCleanChecksAllCodenames:
     """
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client):
+    def setup(self, mock_s3_adapter):
         """Set up test fixtures with S3 bucket."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._prefix = None
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = mock_s3_adapter
+        
+        
+        
+        
+        
 
     def _create_release(self, codename="stable", architectures=None, components=None):
         """Create and upload a Release file."""
@@ -443,14 +443,14 @@ class TestCleanCodenamesMocked:
     """
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client):
+    def setup(self, mock_s3_adapter):
         """Set up test fixtures."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._prefix = None
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = mock_s3_adapter
+        
+        
+        
+        
+        
 
     def _create_release(self, codename="stable", components=None):
         """Create release."""
@@ -570,14 +570,14 @@ class TestCleanCodenamesEdgeCases:
     """Edge case tests for codename filtering in clean command."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client):
+    def setup(self, mock_s3_adapter):
         """Set up test fixtures."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._prefix = None
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = mock_s3_adapter
+        
+        
+        
+        
+        
 
     def _create_release(self, codename="stable", components=None):
         """Create release."""

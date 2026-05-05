@@ -253,16 +253,16 @@ class TestS3StoreUseBytes:
         """Reset S3 configuration."""
         from pydeb_s3 import s3_utils
         s3_utils._s3_client = None
-        s3_utils._bucket = None
-        s3_utils._prefix = None
-        s3_utils._access_policy = None
+        
+        
+        
         s3_utils._encryption = False
 
     def teardown_method(self):
         """Clean up after each test."""
         from pydeb_s3 import s3_utils
         s3_utils._s3_client = None
-        s3_utils._bucket = None
+        
 
     def test_s3_store_passes_use_bytes_false(self):
         """s3_store() passes use_bytes=False to UploadProgress (default bits)."""
@@ -280,7 +280,7 @@ class TestS3StoreUseBytes:
             from pydeb_s3 import s3_utils
 
             s3_utils._s3_client = client
-            s3_utils._bucket = "test-bucket"
+            
 
             # Create temp file
             with tempfile.NamedTemporaryFile(delete=False, mode='w') as f:
@@ -318,7 +318,7 @@ class TestS3StoreUseBytes:
             from pydeb_s3 import s3_utils
 
             s3_utils._s3_client = client
-            s3_utils._bucket = "test-bucket"
+            
 
             # Create temp file
             with tempfile.NamedTemporaryFile(delete=False, mode='w') as f:

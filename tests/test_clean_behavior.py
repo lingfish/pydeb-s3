@@ -9,7 +9,7 @@ import pytest
 from pydeb_s3 import manifest as manifest_module
 from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
-from pydeb_s3 import s3_utils
+from pydeb_s3.s3_adapter import S3Adapter
 from pydeb_s3.cli import clean_command
 
 
@@ -24,13 +24,9 @@ class TestCleanIntegration:
     """Integration tests for clean command using mocked S3."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client):
+    def setup(self, mock_s3_adapter):
         """Set up test fixtures with S3 bucket and configuration."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = mock_s3_adapter
 
     def _create_release(self, codename="stable", architectures=None, components=None):
         """Create and upload a Release file."""
@@ -44,17 +40,17 @@ class TestCleanIntegration:
             architectures=architectures,
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def _add_packages_to_manifest(self, release, deb_file, component="main", arch="amd64"):
         """Add packages to manifest and update release."""
         pkg = package_module.Package.parse_file(deb_file)
-        manifest = manifest_module.Manifest.retrieve("stable", component, arch)
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", component, arch)
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return pkg
 
     def _upload_deb_to_pool(self, deb_file_path, component="main"):
@@ -381,9 +377,9 @@ class TestCleanErrors:
         """Set up test fixtures with S3 bucket."""
         self.s3_client = s3_client
         self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+        # s3_utils._s3_client removed - use S3Adapter
+        # s3_utils._bucket removed - use S3Adapter
+        # s3_utils._access_policy removed - use S3Adapter
 
     def test_clean_requires_bucket(self):
         """Clean command requires bucket option."""
@@ -405,15 +401,15 @@ class TestCleanWithPrefix:
         """Set up test fixtures with S3 bucket and prefix configuration."""
         self.s3_client = s3_client
         self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+        # s3_utils._s3_client removed - use S3Adapter
+        # s3_utils._bucket removed - use S3Adapter
+        # s3_utils._access_policy removed - use S3Adapter
         # Set the prefix that causes the double-prefix bug
-        s3_utils._prefix = "apt"
+        # s3_utils._prefix removed - use S3Adapter
 
     def teardown_method(self):
         """Reset prefix after each test."""
-        s3_utils._prefix = None
+        # s3_utils._prefix removed - use S3Adapter
 
     def _create_release(self, codename="stable", architectures=None, components=None):
         """Create and upload a Release file."""
@@ -427,17 +423,17 @@ class TestCleanWithPrefix:
             architectures=architectures,
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def _add_packages_to_manifest(self, release, deb_file, component="main", arch="amd64"):
         """Add packages to manifest and update release."""
         pkg = package_module.Package.parse_file(deb_file)
-        manifest = manifest_module.Manifest.retrieve("stable", component, arch)
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", component, arch)
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return pkg
 
     def _upload_deb_to_pool(self, deb_file_path, component="main"):

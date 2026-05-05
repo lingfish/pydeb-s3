@@ -1,10 +1,11 @@
 """Pytest configuration and fixtures for pydeb-s3 tests."""
 
 import boto3
+import hashlib
 import pytest
 from moto import mock_aws
 
-from pydeb_s3 import s3_utils
+from pydeb_s3.s3_adapter import S3Adapter, MockS3Adapter
 from pydeb_s3.release import SigningAdapter
 
 
@@ -48,13 +49,9 @@ def aws_credentials(monkeypatch):
 
 
 @pytest.fixture
-def s3_client():
-    """Create a mocked S3 client."""
-    with mock_aws():
-        client = boto3.client("s3", region_name="us-east-1")
-        yield client
-        s3_utils._s3_client = None
-        s3_utils._bucket = None
+def mock_s3_adapter():
+    """Provide a MockS3Adapter for tests that need S3 without real S3."""
+    return MockS3Adapter(bucket="test-bucket", prefix="repo")
 
 
 @pytest.fixture

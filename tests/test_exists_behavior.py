@@ -7,7 +7,7 @@ import pytest
 from pydeb_s3 import manifest as manifest_module
 from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
-from pydeb_s3 import s3_utils
+from pydeb_s3.s3_adapter import S3Adapter
 from pydeb_s3.cli import exists_command
 
 
@@ -24,11 +24,11 @@ class TestExistsIntegration:
     @pytest.fixture(autouse=True)
     def setup(self, s3_client, sample_deb_file):
         """Set up test fixtures with S3 bucket and configuration."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = mock_s3_adapter
+        
+        # s3_utils._s3_client removed - use S3Adapter
+        # s3_utils._bucket removed - use S3Adapter
+        # s3_utils._access_policy removed - use S3Adapter
         self.sample_deb_file = sample_deb_file
 
     def _create_release(self, codename="stable", architectures=None, components=None):
@@ -43,17 +43,17 @@ class TestExistsIntegration:
             architectures=architectures,
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def _add_packages_to_manifest(self, release, deb_file, component="main", arch="amd64"):
         """Add packages to manifest and update release."""
         pkg = package_module.Package.parse_file(deb_file)
-        manifest = manifest_module.Manifest.retrieve("stable", component, arch)
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", component, arch)
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return pkg
 
     def test_exists_returns_true_for_existing_package(self, capfd):
@@ -153,9 +153,9 @@ class TestExistsIntegration:
         # Add arm64 package
         arm64_deb = "tests/fixtures/test-pkg_1.0.0_arm64.deb"
         arm64_pkg = package_module.Package.parse_file(arm64_deb)
-        manifest_arm64 = manifest_module.Manifest.retrieve("stable", "main", "arm64")
+        manifest_arm64 = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "arm64")
         manifest_arm64.add(arm64_pkg)
-        manifest_arm64.write_to_s3()
+        manifest_arm64.write_to_s3(self.s3_adapter)
 
         # Check amd64 arch against arm64 package
         exists_command(
@@ -199,13 +199,13 @@ class TestExistsMultiplePackages:
     """Tests for exists with multiple packages."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client):
+    def setup(self, mock_s3_adapter):
         """Set up test fixtures with S3 bucket."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = mock_s3_adapter
+        
+        # s3_utils._s3_client removed - use S3Adapter
+        # s3_utils._bucket removed - use S3Adapter
+        # s3_utils._access_policy removed - use S3Adapter
 
     def _create_release(self, codename="stable", architectures=None, components=None):
         """Create and upload a Release file."""
@@ -219,7 +219,7 @@ class TestExistsMultiplePackages:
             architectures=architectures,
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def test_exists_with_hello_package(self, capfd):
@@ -228,11 +228,11 @@ class TestExistsMultiplePackages:
 
         release = self._create_release()
         pkg = package_module.Package.parse_file("tests/fixtures/hello_2.10-5_amd64.deb")
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         exists_command(
             package="hello",
@@ -255,11 +255,11 @@ class TestExistsMultiplePackages:
 
         # Add test-pkg
         pkg = package_module.Package.parse_file("tests/fixtures/test-pkg_1.0.0_amd64.deb")
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         # Check existing package
         exists_command(
@@ -294,13 +294,13 @@ class TestExistsErrors:
     """Tests for error handling in exists command."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client):
+    def setup(self, mock_s3_adapter):
         """Set up test fixtures with S3 bucket."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = mock_s3_adapter
+        
+        # s3_utils._s3_client removed - use S3Adapter
+        # s3_utils._bucket removed - use S3Adapter
+        # s3_utils._access_policy removed - use S3Adapter
 
     def test_exists_requires_bucket(self):
         """exists command requires bucket option."""
@@ -330,11 +330,11 @@ class TestExistsQuietOutput:
     @pytest.fixture(autouse=True)
     def setup(self, s3_client, sample_deb_file):
         """Set up test fixtures with S3 bucket and configuration."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = mock_s3_adapter
+        
+        # s3_utils._s3_client removed - use S3Adapter
+        # s3_utils._bucket removed - use S3Adapter
+        # s3_utils._access_policy removed - use S3Adapter
         self.sample_deb_file = sample_deb_file
 
     def _create_release(self, codename="stable", architectures=None, components=None):
@@ -349,17 +349,17 @@ class TestExistsQuietOutput:
             architectures=architectures,
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def _add_packages_to_manifest(self, release, deb_file, component="main", arch="amd64"):
         """Add packages to manifest and update release."""
         pkg = package_module.Package.parse_file(deb_file)
-        manifest = manifest_module.Manifest.retrieve("stable", component, arch)
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", component, arch)
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return pkg
 
     def test_exists_outputs_to_stdout_not_stderr(self, capfd):

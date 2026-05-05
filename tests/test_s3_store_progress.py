@@ -18,15 +18,15 @@ class TestS3StoreWithProgress:
         """Set up test fixtures."""
         # Reset global state
         s3_utils._s3_client = None
-        s3_utils._bucket = None
-        s3_utils._prefix = None
-        s3_utils._access_policy = None
+        
+        
+        
         s3_utils._encryption = False
 
     def teardown_method(self):
         """Clean up after each test."""
         s3_utils._s3_client = None
-        s3_utils._bucket = None
+        
 
     @pytest.fixture
     def temp_file(self):
@@ -52,7 +52,7 @@ class TestS3StoreWithProgress:
     def test_s3_store_uses_upload_file(self, temp_file, mock_s3_client):
         """s3_store() uses upload_file instead of put_object."""
         s3_utils._s3_client = mock_s3_client
-        s3_utils._bucket = "test-bucket"
+        
 
         with patch.object(mock_s3_client, "upload_file") as mock_upload:
             s3_utils.s3_store(temp_file, "test/key")
@@ -67,7 +67,7 @@ class TestS3StoreWithProgress:
     def test_s3_store_with_progress_callback(self, temp_file, mock_s3_client):
         """s3_store() invokes progress callback during upload."""
         s3_utils._s3_client = mock_s3_client
-        s3_utils._bucket = "test-bucket"
+        
 
         callback_invoked = []
 
@@ -86,7 +86,7 @@ class TestS3StoreWithProgress:
     def test_s3_store_stores_file_correctly(self, temp_file, mock_s3_client):
         """s3_store() actually stores the file in S3."""
         s3_utils._s3_client = mock_s3_client
-        s3_utils._bucket = "test-bucket"
+        
 
         s3_utils.s3_store(temp_file, "test/key")
 
@@ -98,7 +98,7 @@ class TestS3StoreWithProgress:
     def test_s3_store_with_custom_content_type(self, temp_file, mock_s3_client):
         """s3_store() respects custom content type."""
         s3_utils._s3_client = mock_s3_client
-        s3_utils._bucket = "test-bucket"
+        
 
         s3_utils.s3_store(temp_file, "test/key", content_type="application/x-deb")
 
@@ -108,7 +108,7 @@ class TestS3StoreWithProgress:
     def test_s3_store_with_cache_control(self, temp_file, mock_s3_client):
         """s3_store() respects cache control."""
         s3_utils._s3_client = mock_s3_client
-        s3_utils._bucket = "test-bucket"
+        
 
         s3_utils.s3_store(temp_file, "test/key", cache_control="max-age=3600")
 
@@ -118,8 +118,8 @@ class TestS3StoreWithProgress:
     def test_s3_store_with_prefix(self, temp_file, mock_s3_client):
         """s3_store() applies prefix to key."""
         s3_utils._s3_client = mock_s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._prefix = "myrepo"
+        
+        
 
         s3_utils.s3_store(temp_file, "pool/test.deb")
 
@@ -130,8 +130,8 @@ class TestS3StoreWithProgress:
     def test_s3_store_with_public_acl(self, temp_file, mock_s3_client):
         """s3_store() applies public-read ACL when configured."""
         s3_utils._s3_client = mock_s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+        
+        
 
         with patch.object(mock_s3_client, "upload_file") as mock_upload:
             s3_utils.s3_store(temp_file, "test/key")
@@ -143,7 +143,7 @@ class TestS3StoreWithProgress:
     def test_s3_store_with_server_side_encryption(self, temp_file, mock_s3_client):
         """s3_store() applies server-side encryption when configured."""
         s3_utils._s3_client = mock_s3_client
-        s3_utils._bucket = "test-bucket"
+        
         s3_utils._encryption = True
 
         s3_utils.s3_store(temp_file, "test/key")
@@ -154,7 +154,7 @@ class TestS3StoreWithProgress:
     def test_s3_store_calculates_md5_streaming(self, temp_file, mock_s3_client):
         """s3_store() calculates MD5 using streaming (not loading entire file)."""
         s3_utils._s3_client = mock_s3_client
-        s3_utils._bucket = "test-bucket"
+        
 
         s3_utils.s3_store(temp_file, "test/key")
 
@@ -168,7 +168,7 @@ class TestS3StoreWithProgress:
     def test_s3_store_fail_if_exists_same_content(self, temp_file, mock_s3_client):
         """s3_store() with fail_if_exists skips upload if content is same."""
         s3_utils._s3_client = mock_s3_client
-        s3_utils._bucket = "test-bucket"
+        
 
         # First upload
         s3_utils.s3_store(temp_file, "test/key")
@@ -188,15 +188,15 @@ class TestS3StoreProgressIntegration:
     def setup_method(self):
         """Set up test fixtures."""
         s3_utils._s3_client = None
-        s3_utils._bucket = None
-        s3_utils._prefix = None
-        s3_utils._access_policy = None
+        
+        
+        
         s3_utils._encryption = False
 
     def teardown_method(self):
         """Clean up after each test."""
         s3_utils._s3_client = None
-        s3_utils._bucket = None
+        
 
     @pytest.fixture
     def large_temp_file(self):
@@ -223,7 +223,7 @@ class TestS3StoreProgressIntegration:
     def test_progress_callback_receives_bytes(self, large_temp_file, mock_s3_client):
         """Progress callback receives byte count updates."""
         s3_utils._s3_client = mock_s3_client
-        s3_utils._bucket = "test-bucket"
+        
 
         received_bytes = []
 
