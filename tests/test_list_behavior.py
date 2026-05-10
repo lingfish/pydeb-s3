@@ -7,7 +7,7 @@ import pytest
 from pydeb_s3 import manifest as manifest_module
 from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
-from pydeb_s3 import s3_utils
+from pydeb_s3.s3_adapter import S3Adapter
 from pydeb_s3.cli import list_command
 
 
@@ -22,13 +22,13 @@ class TestListIntegration:
     """Integration tests for list command using mocked S3."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client, sample_deb_file):
-        """Set up test fixtures with S3 bucket and configuration."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+    def setup(self, moto_s3_adapter, sample_deb_file):
+        """Set up test fixtures with S3 bucket and configuration.
+
+        Uses moto_s3_adapter since these tests call list_command()
+        which internally creates Boto3S3Adapter via cli._configure_s3().
+        """
+        self.s3_adapter = moto_s3_adapter
         self.sample_deb_file = sample_deb_file
 
     def _create_release(self, codename="stable", architectures=None, components=None):
@@ -43,17 +43,17 @@ class TestListIntegration:
             architectures=architectures,
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def _add_packages_to_manifest(self, release, deb_file, component="main", arch="amd64"):
         """Add packages to manifest and update release."""
         pkg = package_module.Package.parse_file(deb_file)
-        manifest = manifest_module.Manifest.retrieve("stable", component, arch)
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", component, arch)
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return pkg
 
     def test_list_packages_default(self, capfd):
@@ -114,22 +114,22 @@ class TestListIntegration:
 
         # Add amd64 package
         amd64_pkg = package_module.Package.parse_file(self.sample_deb_file)
-        manifest_amd64 = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest_amd64 = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest_amd64.add(amd64_pkg)
-        manifest_amd64.write_to_s3()
+        manifest_amd64.write_to_s3(self.s3_adapter)
 
         # Add arm64 package using different deb file
         arm64_deb_file = "tests/fixtures/test-pkg_1.0.0_arm64.deb"
         arm64_pkg = package_module.Package.parse_file(arm64_deb_file)
-        manifest_arm64 = manifest_module.Manifest.retrieve("stable", "main", "arm64")
+        manifest_arm64 = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "arm64")
         manifest_arm64.add(arm64_pkg)
-        manifest_arm64.write_to_s3()
+        manifest_arm64.write_to_s3(self.s3_adapter)
 
         # Update release
-        release = release_module.Release.retrieve("stable")
+        release = release_module.Release.retrieve(self.s3_adapter, "stable")
         release.update_manifest(manifest_amd64)
         release.update_manifest(manifest_arm64)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         # List only amd64 packages
         list_command(
@@ -177,21 +177,21 @@ class TestListIntegration:
 
         # Add packages for different architectures
         amd64_pkg = package_module.Package.parse_file(self.sample_deb_file)
-        manifest_amd64 = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest_amd64 = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest_amd64.add(amd64_pkg)
-        manifest_amd64.write_to_s3()
+        manifest_amd64.write_to_s3(self.s3_adapter)
 
         arm64_deb = "tests/fixtures/test-pkg_1.0.0_arm64.deb"
         arm64_pkg = package_module.Package.parse_file(arm64_deb)
-        manifest_arm64 = manifest_module.Manifest.retrieve("stable", "main", "arm64")
+        manifest_arm64 = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "arm64")
         manifest_arm64.add(arm64_pkg)
-        manifest_arm64.write_to_s3()
+        manifest_arm64.write_to_s3(self.s3_adapter)
 
         # Update release
-        release = release_module.Release.retrieve("stable")
+        release = release_module.Release.retrieve(self.s3_adapter, "stable")
         release.update_manifest(manifest_amd64)
         release.update_manifest(manifest_arm64)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         # List all packages (no arch filter)
         list_command(
@@ -240,18 +240,18 @@ class TestListIntegration:
         release = self._create_release()
 
         pkg1 = package_module.Package.parse_file("tests/fixtures/test-pkg_1.0.0_amd64.deb")
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.add(pkg1)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         pkg2 = package_module.Package.parse_file("tests/fixtures/hello_2.10-5_amd64.deb")
-        manifest2 = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest2 = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest2.add(pkg2)
-        manifest2.write_to_s3()
+        manifest2.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest2)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         list_command(
             bucket="test-bucket",
@@ -299,19 +299,19 @@ class TestListIntegration:
 
         # Add two versions of the same package
         pkg1 = package_module.Package.parse_file("tests/fixtures/test-pkg_1.0.0_amd64.deb")
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.add(pkg1)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         # Parse test-pkg-full as a different package (same base name)
         pkg2 = package_module.Package.parse_file("tests/fixtures/test-pkg-full_1.0.0_all.deb")
-        manifest2 = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest2 = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest2.add(pkg2)
-        manifest2.write_to_s3()
+        manifest2.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest2)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         list_command(
             bucket="test-bucket",
@@ -332,13 +332,12 @@ class TestListErrors:
     """Tests for error handling in list command."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client):
-        """Set up test fixtures with S3 bucket."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+    def setup(self, moto_s3_adapter):
+        """Set up test fixtures with S3 bucket.
+
+        Uses moto_s3_adapter since these tests call list_command().
+        """
+        self.s3_adapter = moto_s3_adapter
 
     def test_list_requires_bucket(self):
         """List command requires bucket option."""
@@ -358,13 +357,12 @@ class TestListQuietOutput:
     """Tests for list command output to stdout with --quiet flag."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client, sample_deb_file):
-        """Set up test fixtures with S3 bucket and configuration."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+    def setup(self, moto_s3_adapter, sample_deb_file):
+        """Set up test fixtures with S3 bucket and configuration.
+
+        Uses moto_s3_adapter since these tests call list_command().
+        """
+        self.s3_adapter = moto_s3_adapter
         self.sample_deb_file = sample_deb_file
 
     def _create_release(self, codename="stable", architectures=None, components=None):
@@ -379,17 +377,17 @@ class TestListQuietOutput:
             architectures=architectures,
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def _add_packages_to_manifest(self, release, deb_file, component="main", arch="amd64"):
         """Add packages to manifest and update release."""
         pkg = package_module.Package.parse_file(deb_file)
-        manifest = manifest_module.Manifest.retrieve("stable", component, arch)
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", component, arch)
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return pkg
 
     def test_list_outputs_to_stdout_not_stderr(self, capfd):

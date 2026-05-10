@@ -7,7 +7,7 @@ import pytest
 from pydeb_s3 import manifest as manifest_module
 from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
-from pydeb_s3 import s3_utils
+from pydeb_s3.s3_adapter import S3Adapter
 from pydeb_s3.cli import copy_command
 
 
@@ -32,13 +32,13 @@ class TestCopyIntegration:
     """Integration tests for copy command using mocked S3."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client, sample_deb_file):
-        """Set up test fixtures with S3 bucket and configuration."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+    def setup(self, moto_s3_adapter, sample_deb_file):
+        """Set up test fixtures with S3 bucket and configuration.
+
+        Uses moto_s3_adapter since these tests call copy_command()
+        which internally creates Boto3S3Adapter via cli._configure_s3().
+        """
+        self.s3_adapter = moto_s3_adapter
         self.sample_deb_file = sample_deb_file
 
     def _create_release(self, codename="stable", architectures=None, components=None):
@@ -53,17 +53,17 @@ class TestCopyIntegration:
             architectures=architectures,
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def _add_packages_to_manifest(self, release, deb_file, component="main", arch="amd64"):
         """Add packages to manifest and update release."""
         pkg = package_module.Package.parse_file(deb_file)
-        manifest = manifest_module.Manifest.retrieve("stable", component, arch)
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", component, arch)
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return pkg
 
     def test_copy_package_to_different_component(self, capfd):
@@ -106,14 +106,14 @@ class TestCopyIntegration:
         assert "Copy complete" in output or "Copy" in output
 
         # Verify package exists in target manifest (packages is a list, not dict)
-        target_manifest = manifest_module.Manifest.retrieve("stable", "non-free", "amd64")
+        target_manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "non-free", "amd64")
         assert package_exists(target_manifest, "test-pkg")
         copied_pkg = find_package(target_manifest, "test-pkg")
         assert copied_pkg is not None
         assert copied_pkg.version == "1.0.0"
 
         # Verify package still exists in source manifest (not moved, just copied)
-        source_manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        source_manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         assert package_exists(source_manifest, "test-pkg")
 
     def test_copy_package_preserves_package_data(self, capfd):
@@ -150,7 +150,7 @@ class TestCopyIntegration:
         )
 
         # Verify package data is preserved in target
-        target_manifest = manifest_module.Manifest.retrieve("stable", "extra", "amd64")
+        target_manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "extra", "amd64")
         copied_pkg = find_package(target_manifest, "test-pkg")
 
         # Check key metadata is preserved
@@ -175,17 +175,17 @@ class TestCopyIntegration:
 
         # Add amd64 package
         amd64_pkg = package_module.Package.parse_file(self.sample_deb_file)
-        manifest_amd64 = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest_amd64 = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest_amd64.add(amd64_pkg)
-        manifest_amd64.write_to_s3()
+        manifest_amd64.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest_amd64)
 
         # Also need to create empty arm64 manifest so the architecture is recognized
-        manifest_arm64 = manifest_module.Manifest.retrieve("stable", "main", "arm64")
-        manifest_arm64.write_to_s3()
+        manifest_arm64 = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "arm64")
+        manifest_arm64.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest_arm64)
 
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         # Copy FROM amd64 TO a different component (not different arch)
         copy_command(
@@ -207,7 +207,7 @@ class TestCopyIntegration:
         )
 
         # Verify package exists in extra component (amd64)
-        target_manifest = manifest_module.Manifest.retrieve("stable", "extra", "amd64")
+        target_manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "extra", "amd64")
         assert package_exists(target_manifest, "test-pkg")
 
     def test_copy_specific_version(self, capfd):
@@ -244,7 +244,7 @@ class TestCopyIntegration:
         )
 
         # Verify only the specified version was copied
-        target_manifest = manifest_module.Manifest.retrieve("stable", "archive", "amd64")
+        target_manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "archive", "amd64")
         copied_pkg = find_package(target_manifest, "test-pkg")
         assert copied_pkg is not None
         assert copied_pkg.version == "1.0.0"
@@ -283,7 +283,7 @@ class TestCopyIntegration:
         )
 
         # Verify target Release file was updated (has the new manifest reference)
-        release_updated = release_module.Release.retrieve("stable")
+        release_updated = release_module.Release.retrieve(self.s3_adapter, "stable")
         # The release should have updated hashes for the non-free component
         assert "non-free" in release_updated.components
 
@@ -292,13 +292,12 @@ class TestCopyErrors:
     """Tests for error handling in copy command."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client):
-        """Set up test fixtures with S3 bucket."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+    def setup(self, moto_s3_adapter):
+        """Set up test fixtures with S3 bucket.
+
+        Uses moto_s3_adapter since these tests call copy_command().
+        """
+        self.s3_adapter = moto_s3_adapter
 
     def test_copy_nonexistent_package(self, capfd):
         """Error when copying a package that doesn't exist."""
@@ -313,7 +312,7 @@ class TestCopyErrors:
             architectures=["amd64"],
             components=["main", "non-free"],
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         # Try to copy a non-existent package
         with pytest.raises(typer.Exit):
@@ -377,15 +376,15 @@ class TestCopyErrors:
             architectures=["amd64"],
             components=["main"],
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         # Add package
         pkg = package_module.Package.parse_file("tests/fixtures/test-pkg_1.0.0_amd64.deb")
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         # Try to copy to non-existent codename
         with pytest.raises(typer.Exit):
@@ -420,15 +419,15 @@ class TestCopyErrors:
             architectures=["amd64"],
             components=["main"],
         )
-        source_release.write_to_s3()
+        source_release.write_to_s3(self.s3_adapter)
 
         # Add package
         pkg = package_module.Package.parse_file("tests/fixtures/test-pkg_1.0.0_amd64.deb")
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         source_release.update_manifest(manifest)
-        source_release.write_to_s3()
+        source_release.write_to_s3(self.s3_adapter)
 
         # Create target release with only arm64 (no amd64)
         target_release = release_module.Release(
@@ -437,7 +436,7 @@ class TestCopyErrors:
             architectures=["arm64"],  # Different architecture
             components=["main", "secondary"],
         )
-        target_release.write_to_s3()
+        target_release.write_to_s3(self.s3_adapter)
 
         # Try to copy amd64 package to target that doesn't have amd64
         with pytest.raises(typer.Exit):

@@ -10,7 +10,7 @@ from typing import Optional
 from debian.deb822 import Packages
 
 from pydeb_s3 import package as pkg_module
-from pydeb_s3.s3_utils import S3NotFoundError, s3_exists, s3_read, s3_store
+from pydeb_s3.s3_adapter import S3Adapter, S3NotFoundError
 
 
 class AlreadyExistsError(Exception):
@@ -35,6 +35,7 @@ class Manifest:
     @classmethod
     def retrieve(
         cls,
+        s3_adapter: S3Adapter,
         codename: str,
         component: str,
         architecture: str,
@@ -45,7 +46,7 @@ class Manifest:
         """Retrieve an existing manifest from S3 or create a new one."""
         path = f"dists/{codename}/{component}/binary-{architecture}/Packages"
         try:
-            s = s3_read(path)
+            s = s3_adapter.read(path)
         except S3NotFoundError:
             s = None
 
@@ -167,6 +168,7 @@ class Manifest:
 
     def write_to_s3(
         self,
+        s3_adapter: S3Adapter,
         callback: Optional[callable] = None,
         use_bytes: bool = False,
         progress: Optional["Progress"] = None,
@@ -174,6 +176,7 @@ class Manifest:
         """Write the manifest to S3.
 
         Args:
+            s3_adapter: Adapter for S3 storage operations
             callback: Optional callback function for progress updates.
             use_bytes: If True, display speed in bytes/s. If False, display in bits/s.
             progress: Optional shared Progress instance for multiple uploads.
@@ -189,15 +192,15 @@ class Manifest:
             for pkg in self.packages_to_be_upload:
                 new_path = pkg.url_filename_for(self.component)
 
-                if not s3_exists(new_path):
+                if not s3_adapter.exists(new_path):
                     if callback:
                         callback(new_path)
-                    s3_store(
+                    s3_adapter.store_file(
                         pkg.filename,
                         new_path,
-                        "application/octet-stream; charset=binary",
-                        self.cache_control,
-                        self.fail_if_exists,
+                        content_type="application/octet-stream; charset=binary",
+                        cache_control=self.cache_control,
+                        fail_if_exists=self.fail_if_exists,
                         use_bytes=use_bytes,
                         progress=progress,
                     )
@@ -215,11 +218,11 @@ class Manifest:
             path = f"dists/{self.codename}/{self.component}/binary-{self.architecture}/Packages"
             if callback:
                 callback(path)
-            s3_store(
+            s3_adapter.store_file(
                 packages_temp.name,
                 path,
-                "text/plain; charset=utf-8",
-                self.cache_control,
+                content_type="text/plain; charset=utf-8",
+                cache_control=self.cache_control,
                 use_bytes=use_bytes,
                 progress=progress,
             )
@@ -239,11 +242,11 @@ class Manifest:
             path = f"dists/{self.codename}/{self.component}/binary-{self.architecture}/Packages.gz"
             if callback:
                 callback(path)
-            s3_store(
+            s3_adapter.store_file(
                 gztemp.name,
                 path,
-                "application/x-gzip; charset=binary",
-                self.cache_control,
+                content_type="application/x-gzip; charset=binary",
+                cache_control=self.cache_control,
                 use_bytes=use_bytes,
                 progress=progress,
             )

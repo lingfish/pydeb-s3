@@ -5,20 +5,16 @@ import pytest
 from pydeb_s3 import manifest as manifest_module
 from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
-from pydeb_s3 import s3_utils
+from pydeb_s3.s3_adapter import S3Adapter
 
 
 class TestUploadIntegration:
     """Integration tests for upload command using real upload flow."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client, sample_deb_file):
+    def setup(self, mock_s3_adapter, sample_deb_file):
         """Set up test fixtures with S3 bucket and configuration."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = mock_s3_adapter
         self.sample_deb_file = sample_deb_file
 
     def _create_initial_release(self):
@@ -29,7 +25,7 @@ class TestUploadIntegration:
             architectures=["amd64"],
             components=["main"],
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def _get_pool_path(self, pkg: package_module.Package, component: str = "main") -> str:
@@ -38,7 +34,7 @@ class TestUploadIntegration:
         return f"pool/{component}/{pkg.name[0]}/{pkg.name[0:2]}/{basename}"
 
     def test_uploads_package_file_to_s3(self):
-        """Upload creates .deb file in S3 pool and updates Release file hashes.
+        """Upload creates .deb file in S3 pool and updates Release file.
 
         This test simulates the real upload flow:
         1. Retrieve existing Release (or create new)
@@ -49,37 +45,37 @@ class TestUploadIntegration:
         self._create_initial_release()
 
         # Simulate real upload flow: retrieve release, then manifest, add package, write back
-        release = release_module.Release.retrieve("stable")
+        release = release_module.Release.retrieve(self.s3_adapter, "stable")
 
         pkg = package_module.Package.parse_file(self.sample_deb_file)
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
 
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         # Verify .deb file exists in S3 pool
         pool_path = self._get_pool_path(pkg)
-        exists = s3_utils.s3_exists(pool_path)
+        exists = self.s3_adapter.exists(pool_path)
         assert exists, f"Package file {pool_path} should exist in S3 pool"
 
     def test_creates_packages_manifest(self):
         """Upload creates the Packages manifest file in S3."""
         self._create_initial_release()
 
-        release = release_module.Release.retrieve("stable")
+        release = release_module.Release.retrieve(self.s3_adapter, "stable")
         pkg = package_module.Package.parse_file(self.sample_deb_file)
 
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
 
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         # Verify Packages file exists and contains package info
-        packages_content = s3_utils.s3_read("dists/stable/main/binary-amd64/Packages")
+        packages_content = self.s3_adapter.read("dists/stable/main/binary-amd64/Packages")
         assert packages_content is not None
         assert "test-pkg" in packages_content
 
@@ -87,18 +83,18 @@ class TestUploadIntegration:
         """Upload creates the gzipped Packages file in S3."""
         self._create_initial_release()
 
-        release = release_module.Release.retrieve("stable")
+        release = release_module.Release.retrieve(self.s3_adapter, "stable")
         pkg = package_module.Package.parse_file(self.sample_deb_file)
 
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
 
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         # Verify gzipped Packages file exists
-        gz_exists = s3_utils.s3_exists("dists/stable/main/binary-amd64/Packages.gz")
+        gz_exists = self.s3_adapter.exists("dists/stable/main/binary-amd64/Packages.gz")
         assert gz_exists, "Packages.gz should exist in S3"
 
     def test_updates_release_file_hash(self):
@@ -111,18 +107,18 @@ class TestUploadIntegration:
         """
         self._create_initial_release()
 
-        release = release_module.Release.retrieve("stable")
+        release = release_module.Release.retrieve(self.s3_adapter, "stable")
         pkg = package_module.Package.parse_file(self.sample_deb_file)
 
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
 
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         # Read Release file and verify structure
-        release_content = s3_utils.s3_read("dists/stable/Release")
+        release_content = self.s3_adapter.read("dists/stable/Release")
         assert release_content is not None
 
         # Verify Packages path is referenced (relative to dists/<codename>/)
@@ -147,13 +143,13 @@ class TestUploadPreserveVersions:
     """Tests for preserve-versions flag with S3 state verification."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client, sample_deb_file):
-        """Set up test fixtures with S3 bucket and configuration."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+    def setup(self, moto_s3_adapter, sample_deb_file):
+        """Set up test fixtures with S3 bucket and configuration.
+
+        Uses moto_s3_adapter since these tests need real boto3 behavior
+        for S3 state verification.
+        """
+        self.s3_adapter = moto_s3_adapter
         self.sample_deb_file = sample_deb_file
 
     def _create_initial_release(self):
@@ -164,7 +160,7 @@ class TestUploadPreserveVersions:
             architectures=["amd64"],
             components=["main"],
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def _get_pool_path(self, pkg: package_module.Package, component: str = "main") -> str:
@@ -176,12 +172,12 @@ class TestUploadPreserveVersions:
                                preserve_versions: bool,
                                component: str = "main"):
         """Write package to manifest and update release."""
-        release = release_module.Release.retrieve("stable")
-        manifest = manifest_module.Manifest.retrieve("stable", component, "amd64")
+        release = release_module.Release.retrieve(self.s3_adapter, "stable")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", component, "amd64")
         manifest.add(pkg, preserve_versions=preserve_versions)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return manifest
 
     def test_preserve_versions_false_removes_old(self):
@@ -202,7 +198,7 @@ class TestUploadPreserveVersions:
         self._write_package_and_release(pkg1, preserve_versions=True)
 
         pool_path = self._get_pool_path(pkg1)
-        assert s3_utils.s3_exists(pool_path), f"Version 1.0.0 should exist: {pool_path}"
+        assert self.s3_adapter.exists(pool_path), f"Version 1.0.0 should exist: {pool_path}"
 
         # Upload second version without preserving
         pkg2 = package_module.Package.parse_file(self.sample_deb_file)
@@ -211,12 +207,12 @@ class TestUploadPreserveVersions:
         self._write_package_and_release(pkg2, preserve_versions=False)
 
         # Verify manifest contains only the new version
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         assert len(manifest.packages) == 1, "Manifest should have only 1 package"
         assert manifest.packages[0].full_version == "2.0.0-1", "Manifest should contain only version 2.0.0-1"
 
         # Verify Packages file in S3 contains only new version
-        packages_content = s3_utils.s3_read("dists/stable/main/binary-amd64/Packages")
+        packages_content = self.s3_adapter.read("dists/stable/main/binary-amd64/Packages")
         assert "2.0.0-1" in packages_content, "Packages should reference version 2.0.0-1"
 
     def test_preserve_versions_true_keeps_old(self):
@@ -237,7 +233,7 @@ class TestUploadPreserveVersions:
         self._write_package_and_release(pkg1, preserve_versions=True)
 
         pool_path = self._get_pool_path(pkg1)
-        assert s3_utils.s3_exists(pool_path), f"Version 1.0.0 should exist: {pool_path}"
+        assert self.s3_adapter.exists(pool_path), f"Version 1.0.0 should exist: {pool_path}"
 
         # Upload second version preserving old one
         pkg2 = package_module.Package.parse_file(self.sample_deb_file)
@@ -247,10 +243,10 @@ class TestUploadPreserveVersions:
 
         # Verify .deb file still exists in S3 pool
         pool_path = self._get_pool_path(pkg2)
-        assert s3_utils.s3_exists(pool_path), f"Version 2.0.0 should exist: {pool_path}"
+        assert self.s3_adapter.exists(pool_path), f"Version 2.0.0 should exist: {pool_path}"
 
         # Verify manifest contains both versions
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         assert len(manifest.packages) == 2, "Manifest should have 2 packages"
 
         versions = sorted([p.full_version for p in manifest.packages])
@@ -258,6 +254,6 @@ class TestUploadPreserveVersions:
         assert "2.0.0-1" in versions, "Manifest should contain version 2.0.0-1"
 
         # Verify Packages file in S3 contains both versions
-        packages_content = s3_utils.s3_read("dists/stable/main/binary-amd64/Packages")
+        packages_content = self.s3_adapter.read("dists/stable/main/binary-amd64/Packages")
         assert "1.0.0-1" in packages_content, "Packages should reference version 1.0.0-1"
         assert "2.0.0-1" in packages_content, "Packages should reference version 2.0.0-1"

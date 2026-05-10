@@ -131,8 +131,7 @@ class TestGpgSigningAdapter:
 class TestMockSigningAdapter:
     """Tests using MockSigningAdapter for integration testing."""
 
-    @patch("pydeb_s3.release.s3_store")
-    def test_mock_adapter_works_with_release(self, mock_s3_store):
+    def test_mock_adapter_works_with_release(self):
         """Release.sign() works with mock adapter."""
 
         class MockSigningAdapter:
@@ -154,28 +153,42 @@ class TestMockSigningAdapter:
             def get_key_info(self) -> dict:
                 return {"keys": ["test-key"]}
 
+        class MockS3Adapter:
+            def store_file(self, *args, **kwargs):
+                pass
+
         from pydeb_s3.release import Release
 
         release = Release(codename="stable")
-        adapter = MockSigningAdapter()
+        signing_adapter = MockSigningAdapter()
+        s3_adapter = MockS3Adapter()
 
         # sign() should not raise with mock adapter
-        release.sign(adapter, visibility="public", use_bytes=False)
+        release.sign(s3_adapter, signing_adapter, use_bytes=False)
 
-        assert adapter.clearsign_called
-        assert adapter.detach_sign_called
+        assert signing_adapter.clearsign_called
+        assert signing_adapter.detach_sign_called
 
     def test_sign_with_no_adapter(self):
         """Release.sign() should handle None adapter gracefully."""
         from pydeb_s3.release import Release
 
+        class MockS3Adapter:
+            def store_file(self, *args, **kwargs):
+                pass
+
         release = Release(codename="stable")
+        s3_adapter = MockS3Adapter()
         # Should not raise
-        release.sign(None, visibility="public", use_bytes=False)
+        release.sign(s3_adapter, None, use_bytes=False)
 
     def test_sign_with_empty_key_info(self):
         """Release.sign() should handle adapter with no keys."""
         from pydeb_s3.release import Release
+
+        class MockS3Adapter:
+            def store_file(self, *args, **kwargs):
+                pass
 
         class EmptyAdapter:
             def clearsign(self, input_path, output_path):
@@ -188,5 +201,6 @@ class TestMockSigningAdapter:
                 return {}  # No keys
 
         release = Release(codename="stable")
+        s3_adapter = MockS3Adapter()
         # Should not raise
-        release.sign(EmptyAdapter(), visibility="public", use_bytes=False)
+        release.sign(s3_adapter, EmptyAdapter(), use_bytes=False)

@@ -35,7 +35,7 @@ class TestUploadProgress:
             from pydeb_s3.s3_utils import UploadProgress
 
             # Mock time to control the timing
-            with patch("pydeb_s3.s3_utils.time") as mock_time:
+            with patch("pydeb_s3.progress.time") as mock_time:
                 mock_time.time.return_value = 0  # Start at time 0
 
                 progress = UploadProgress(
@@ -44,7 +44,7 @@ class TestUploadProgress:
                     interactive=False
                 )
 
-                with patch("pydeb_s3.s3_utils.logger") as mock_logger:
+                with patch("pydeb_s3.progress.logger") as mock_logger:
                     # First call: 100 bytes transferred at time 0
                     progress(100)
                     # Should not log on first call (only logs every 5 seconds)
@@ -73,7 +73,7 @@ class TestUploadProgress:
                 interactive=False
             )
 
-            with patch("pydeb_s3.s3_utils.logger") as mock_logger:
+            with patch("pydeb_s3.progress.logger") as mock_logger:
                 # Simulate upload completion
                 progress(1000)
 

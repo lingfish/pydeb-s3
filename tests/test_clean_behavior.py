@@ -9,7 +9,7 @@ import pytest
 from pydeb_s3 import manifest as manifest_module
 from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
-from pydeb_s3 import s3_utils
+from pydeb_s3.s3_adapter import S3Adapter
 from pydeb_s3.cli import clean_command
 
 
@@ -24,13 +24,13 @@ class TestCleanIntegration:
     """Integration tests for clean command using mocked S3."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client):
-        """Set up test fixtures with S3 bucket and configuration."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+    def setup(self, moto_s3_adapter):
+        """Set up test fixtures with S3 bucket and configuration.
+
+        Uses moto_s3_adapter since these tests call clean_command()
+        which internally creates Boto3S3Adapter via cli._configure_s3().
+        """
+        self.s3_adapter = moto_s3_adapter
 
     def _create_release(self, codename="stable", architectures=None, components=None):
         """Create and upload a Release file."""
@@ -44,21 +44,21 @@ class TestCleanIntegration:
             architectures=architectures,
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def _add_packages_to_manifest(self, release, deb_file, component="main", arch="amd64"):
         """Add packages to manifest and update release."""
         pkg = package_module.Package.parse_file(deb_file)
-        manifest = manifest_module.Manifest.retrieve("stable", component, arch)
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", component, arch)
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return pkg
 
     def _upload_deb_to_pool(self, deb_file_path, component="main"):
-        """Upload a .deb file directly to the pool in S3 using s3_store."""
+        """Upload a .deb file directly to the pool in S3."""
         # Create a temp file to use with s3_store
         with tempfile.NamedTemporaryFile(delete=False) as tmp:
             tmp.write(open(deb_file_path, "rb").read())
@@ -71,14 +71,13 @@ class TestCleanIntegration:
             first_letter = name[0]
             # Store in pool with component path
             key = f"pool/{component}/{first_letter}/{name}/{filename}"
-            s3_utils.s3_store(tmp_path, key, "application/x-debian-package")
+            self.s3_adapter.store_file(tmp_path, key, "application/x-debian-package")
         finally:
             os.unlink(tmp_path)
 
     def _get_pool_files(self):
         """Get list of .deb files in pool from S3."""
-        result = s3_utils.s3_list_objects("pool/")
-        objects = result[0] if isinstance(result, tuple) else result
+        objects, _ = self.s3_adapter.list_objects("pool/")
         return [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
 
     def test_clean_removes_orphaned_files(self, capfd):
@@ -377,13 +376,9 @@ class TestCleanErrors:
     """Tests for error handling in clean command."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client):
-        """Set up test fixtures with S3 bucket."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+    def setup(self):
+        """Set up test fixtures - no S3 needed for bucket validation."""
+        pass
 
     def test_clean_requires_bucket(self):
         """Clean command requires bucket option."""
@@ -401,19 +396,13 @@ class TestCleanWithPrefix:
     """Tests for clean command when S3 prefix is configured."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client):
-        """Set up test fixtures with S3 bucket and prefix configuration."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
-        # Set the prefix that causes the double-prefix bug
-        s3_utils._prefix = "apt"
+    def setup(self, moto_s3_adapter_with_prefix):
+        """Set up test fixtures with S3 bucket and prefix configuration.
 
-    def teardown_method(self):
-        """Reset prefix after each test."""
-        s3_utils._prefix = None
+        Uses moto_s3_adapter_with_prefix since these tests call clean_command()
+        with prefix and need real boto3 mocking.
+        """
+        self.s3_adapter = moto_s3_adapter_with_prefix
 
     def _create_release(self, codename="stable", architectures=None, components=None):
         """Create and upload a Release file."""
@@ -427,21 +416,21 @@ class TestCleanWithPrefix:
             architectures=architectures,
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def _add_packages_to_manifest(self, release, deb_file, component="main", arch="amd64"):
         """Add packages to manifest and update release."""
         pkg = package_module.Package.parse_file(deb_file)
-        manifest = manifest_module.Manifest.retrieve("stable", component, arch)
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", component, arch)
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return pkg
 
     def _upload_deb_to_pool(self, deb_file_path, component="main"):
-        """Upload a .deb file directly to the pool in S3 using s3_store."""
+        """Upload a .deb file directly to the pool in S3."""
         with tempfile.NamedTemporaryFile(delete=False) as tmp:
             tmp.write(open(deb_file_path, "rb").read())
             tmp_path = tmp.name
@@ -452,15 +441,14 @@ class TestCleanWithPrefix:
             first_letter = name[0]
             # Store in pool with prefix - key should be "apt/pool/..."
             key = f"pool/{component}/{first_letter}/{name}/{filename}"
-            s3_utils.s3_store(tmp_path, key, "application/x-debian-package")
+            self.s3_adapter.store_file(tmp_path, key, "application/x-debian-package")
         finally:
             os.unlink(tmp_path)
 
     def _get_pool_files(self):
         """Get list of .deb files in pool from S3."""
         # With prefix "apt", we need to list "apt/pool/" to find files
-        result = s3_utils.s3_list_objects("pool/")
-        objects = result[0] if isinstance(result, tuple) else result
+        objects, _ = self.s3_adapter.list_objects("pool/")
         return [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
 
     def test_clean_with_prefix_finds_pool_files(self, capfd):

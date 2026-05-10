@@ -10,11 +10,7 @@ from typing import Optional, Protocol
 from loguru import logger
 
 from pydeb_s3 import manifest as man_module
-from pydeb_s3.s3_utils import (
-    S3NotFoundError,
-    s3_read,
-    s3_store,
-)
+from pydeb_s3.s3_adapter import S3Adapter, S3NotFoundError
 
 
 class SigningAdapter(Protocol):
@@ -143,15 +139,15 @@ class Release:
     @classmethod
     def retrieve(
         cls,
+        s3_adapter: S3Adapter,
         codename: str,
         origin: Optional[str] = None,
         suite: Optional[str] = None,
-        cache_control: str = "",
     ) -> "Release":
-        """Retrieve or create a Release object."""
+        """Retrieve an existing Release file from S3 or create a new one."""
         path = f"dists/{codename}/Release"
         try:
-            s = s3_read(path)
+            s = s3_adapter.read(path)
         except S3NotFoundError:
             s = None
 
@@ -160,11 +156,8 @@ class Release:
             r._parse(s)
 
         r.codename = codename
-        if origin is not None:
-            r.origin = origin
-        if suite is not None:
-            r.suite = suite
-        r.cache_control = cache_control
+        r.origin = origin
+        r.suite = suite
         return r
 
     def _parse(self, content: str) -> None:
@@ -278,15 +271,15 @@ class Release:
 
     def sign(
         self,
+        s3_adapter: S3Adapter,
         signing_adapter: SigningAdapter,
-        visibility: str = "public",
         use_bytes: bool = False,
     ) -> None:
         """Sign the Release file with GPG and upload it to S3.
 
         Args:
+            s3_adapter: Adapter for S3 storage operations
             signing_adapter: Adapter handling GPG signing operations
-            visibility: Access policy for uploaded files
             use_bytes: If True, display speed in bytes/s
         """
         if not signing_adapter or not signing_adapter.get_key_info():
@@ -302,11 +295,11 @@ class Release:
             release_temp.close()
 
             # Upload unsigned Release to S3
-            s3_store(
+            s3_adapter.store_file(
                 release_temp.name,
                 self.filename,
-                "text/plain; charset=utf-8",
-                self.cache_control,
+                content_type="text/plain; charset=utf-8",
+                cache_control=self.cache_control,
                 use_bytes=use_bytes,
             )
 
@@ -318,31 +311,33 @@ class Release:
 
             # Upload signed files to S3
             inrelease_path = f"dists/{self.codename}/InRelease"
-            s3_store(
+            s3_adapter.store_file(
                 clearsigned_path,
                 inrelease_path,
-                "application/pgp-signature; charset=us-ascii",
-                self.cache_control,
+                content_type="application/pgp-signature; charset=us-ascii",
+                cache_control=self.cache_control,
                 use_bytes=use_bytes,
             )
 
             gpg_path = self.filename + ".gpg"
-            s3_store(
+            s3_adapter.store_file(
                 detached_path,
                 gpg_path,
-                "application/pgp-signature; charset=us-ascii",
-                self.cache_control,
+                content_type="application/pgp-signature; charset=us-ascii",
+                cache_control=self.cache_control,
                 use_bytes=use_bytes,
             )
         finally:
             os.unlink(release_temp.name)
 
-    def upload(self, visibility: str = "public", use_bytes: bool = False) -> None:
+    def upload(
+        self,
+        s3_adapter: S3Adapter,
+        visibility: str = "public",
+        use_bytes: bool = False,
+    ) -> None:
         """Upload the Release file to S3."""
-        from pydeb_s3 import s3_utils
-
         release_content = self.generate()
-        s3_utils._access_policy = self._get_policy(visibility)
 
         release_temp = tempfile.NamedTemporaryFile(
             mode="w", suffix=".Release", delete=False
@@ -350,11 +345,11 @@ class Release:
         try:
             release_temp.write(release_content)
             release_temp.close()
-            s3_store(
+            s3_adapter.store_file(
                 release_temp.name,
                 self.filename,
-                "text/plain; charset=utf-8",
-                self.cache_control,
+                content_type="text/plain; charset=utf-8",
+                cache_control=self.cache_control,
                 use_bytes=use_bytes,
             )
         finally:
@@ -374,6 +369,7 @@ class Release:
 
     def write_to_s3(
         self,
+        s3_adapter: S3Adapter,
         callback: Optional[callable] = None,
         use_bytes: bool = False,
         progress: Optional["Progress"] = None,
@@ -381,6 +377,7 @@ class Release:
         """Write the Release file to S3.
 
         Args:
+            s3_adapter: Adapter for S3 storage operations
             callback: Optional callback function for progress updates.
             use_bytes: If True, display speed in bytes/s. If False, display in bits/s.
             progress: Optional shared Progress instance for multiple uploads.
@@ -397,11 +394,11 @@ class Release:
 
             if callback:
                 callback(self.filename)
-            s3_store(
+            s3_adapter.store_file(
                 release_temp.name,
                 self.filename,
-                "text/plain; charset=utf-8",
-                self.cache_control,
+                content_type="text/plain; charset=utf-8",
+                cache_control=self.cache_control,
                 use_bytes=use_bytes,
                 progress=progress,
             )

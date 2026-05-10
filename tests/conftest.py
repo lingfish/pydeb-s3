@@ -1,10 +1,11 @@
 """Pytest configuration and fixtures for pydeb-s3 tests."""
 
 import boto3
+import hashlib
 import pytest
 from moto import mock_aws
 
-from pydeb_s3 import s3_utils
+from pydeb_s3.s3_adapter import S3Adapter, MockS3Adapter, Boto3S3Adapter
 from pydeb_s3.release import SigningAdapter
 
 
@@ -37,6 +38,42 @@ class MockSigningAdapter:
         return {"keys": self.keys, "provider": "mock"}
 
 
+class MotoS3AdapterFixture:
+    """Context manager for moto-backed S3 testing.
+
+    Creates a real Boto3S3Adapter backed by moto mock.
+    Use this for tests that call CLI commands (which create their own adapters)
+    or tests that use s3_utils module-level functions.
+    """
+
+    def __init__(self, bucket="test-bucket", prefix="", access_policy="public-read"):
+        self.bucket = bucket
+        self.prefix = prefix
+        self.access_policy = access_policy
+        self._mock = None
+        self._adapter = None
+
+    def __enter__(self):
+        self._mock = mock_aws()
+        self._mock.start()
+        client = boto3.client("s3", region_name="us-east-1")
+        client.create_bucket(Bucket=self.bucket)
+        self._adapter = Boto3S3Adapter(
+            client=client,
+            bucket=self.bucket,
+            prefix=self.prefix,
+            access_policy=self.access_policy,
+        )
+        return self
+
+    def __exit__(self, *args):
+        self._mock.stop()
+
+    @property
+    def adapter(self):
+        return self._adapter
+
+
 @pytest.fixture(autouse=True)
 def aws_credentials(monkeypatch):
     """Patch environment variables for moto AWS mocking."""
@@ -49,12 +86,52 @@ def aws_credentials(monkeypatch):
 
 @pytest.fixture
 def s3_client():
-    """Create a mocked S3 client."""
+    """Create a mocked S3 client with moto."""
+    from moto import mock_aws
     with mock_aws():
         client = boto3.client("s3", region_name="us-east-1")
         yield client
-        s3_utils._s3_client = None
-        s3_utils._bucket = None
+
+
+@pytest.fixture
+def moto_s3_adapter():
+    """Moto-backed Boto3S3Adapter for tests that need real boto3 mocking.
+
+    Use this for tests that:
+    - Call CLI commands (delete_command, list_command, etc.)
+    - Use s3_utils module-level functions
+    - Need real boto3 mocking behavior
+    """
+    from pydeb_s3 import s3_utils
+    with MotoS3AdapterFixture() as f:
+        # Set the global adapter so functions use it
+        s3_utils._s3_adapter = f.adapter
+        yield f.adapter
+        # Clean up global adapter after test
+        s3_utils._s3_adapter = None
+
+
+@pytest.fixture
+def moto_s3_adapter_with_prefix():
+    """Moto-backed adapter with prefix for testing prefix handling."""
+    from pydeb_s3 import s3_utils
+    with MotoS3AdapterFixture(bucket="test-bucket", prefix="apt") as f:
+        # Set the global adapter so clean_command uses it
+        s3_utils._s3_adapter = f.adapter
+        yield f.adapter
+        # Clean up global adapter after test
+        s3_utils._s3_adapter = None
+
+
+@pytest.fixture
+def mock_s3_adapter():
+    """Provide a MockS3Adapter for tests that need S3 without real S3.
+
+    This is a fast in-memory adapter. Use for tests that directly call
+    module methods with S3Adapter parameters (e.g., release.write_to_s3(adapter)).
+    Do NOT use for tests that call CLI commands - those need moto_s3_adapter.
+    """
+    return MockS3Adapter(bucket="test-bucket", prefix="repo")
 
 
 @pytest.fixture
