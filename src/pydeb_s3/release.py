@@ -369,6 +369,7 @@ class Release:
 
     def write_to_s3(
         self,
+        s3_adapter: S3Adapter,
         callback: Optional[callable] = None,
         use_bytes: bool = False,
         progress: Optional["Progress"] = None,

@@ -12,14 +12,28 @@ import boto3
 from botocore.exceptions import ClientError
 from loguru import logger
 
-from pydeb_s3.s3_utils import (
-    BitsTransferSpeedColumn,
-    UploadProgress,
-    calculate_stream_md5,
-    S3Error,
-    S3NotFoundError,
-    S3AccessError,
-)
+from pydeb_s3.progress import BitsTransferSpeedColumn, UploadProgress, calculate_stream_md5
+
+
+class S3Error(Exception):
+    """Base S3 exception."""
+
+
+class S3NotFoundError(S3Error):
+    """Object not found."""
+
+    def __init__(self, path: str):
+        super().__init__(f"Object not found: {path}")
+        self.path = path
+
+
+class S3AccessError(S3Error):
+    """Access denied."""
+
+    def __init__(self, path: str, operation: str):
+        super().__init__(f"Access denied to {path}: {operation}")
+        self.path = path
+        self.operation = operation
 
 
 class S3Adapter(Protocol):

@@ -22,13 +22,13 @@ class TestVerifyIntegration:
     """Integration tests for verify command using mocked S3."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client, sample_deb_file):
-        """Set up test fixtures with S3 bucket and configuration."""
-        self.s3_adapter = mock_s3_adapter
-        
-        # s3_utils._s3_client removed - use S3Adapter
-        # s3_utils._bucket removed - use S3Adapter
-        # s3_utils._access_policy removed - use S3Adapter
+    def setup(self, moto_s3_adapter, sample_deb_file):
+        """Set up test fixtures with S3 bucket and configuration.
+
+        Uses moto_s3_adapter since these tests call verify_command()
+        which internally creates Boto3S3Adapter via cli._configure_s3().
+        """
+        self.s3_adapter = moto_s3_adapter
         self.sample_deb_file = sample_deb_file
         self.hello_deb_file = "tests/fixtures/hello_2.10-5_amd64.deb"
 
@@ -98,7 +98,7 @@ class TestVerifyIntegration:
 
         # Get the S3 key and delete the file to simulate missing file
         s3_key = self._get_package_s3_path(pkg)
-        self.s3_client.delete_object(Bucket="test-bucket", Key=s3_key)
+        self.s3_adapter.remove(s3_key)
 
         # Verify file is deleted
         assert not self.s3_adapter.exists(s3_key), "File should be deleted"
@@ -126,7 +126,7 @@ class TestVerifyIntegration:
 
         # Get the S3 key and delete the file to simulate missing file
         s3_key = self._get_package_s3_path(pkg)
-        self.s3_client.delete_object(Bucket="test-bucket", Key=s3_key)
+        self.s3_adapter.remove(s3_key)
 
         initial_packages = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         package_names = [p.name for p in initial_packages.packages]
@@ -174,7 +174,7 @@ class TestVerifyIntegration:
 
         # Delete the arm64 package from S3 to trigger warning
         arm64_key = self._get_package_s3_path(arm64_pkg)
-        self.s3_client.delete_object(Bucket="test-bucket", Key=arm64_key)
+        self.s3_adapter.remove(arm64_key)
 
         # Run verify
         verify_command(
@@ -270,7 +270,7 @@ class TestVerifyIntegration:
 
         # Delete only hello package from S3
         hello_key = self._get_package_s3_path(pkg2)
-        self.s3_client.delete_object(Bucket="test-bucket", Key=hello_key)
+        self.s3_adapter.remove(hello_key)
 
         # Run verify
         verify_command(
@@ -291,13 +291,12 @@ class TestVerifyErrors:
     """Tests for error handling in verify command."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, mock_s3_adapter):
-        """Set up test fixtures with S3 bucket."""
-        self.s3_adapter = mock_s3_adapter
-        
-        # s3_utils._s3_client removed - use S3Adapter
-        # s3_utils._bucket removed - use S3Adapter
-        # s3_utils._access_policy removed - use S3Adapter
+    def setup(self, moto_s3_adapter):
+        """Set up test fixtures with S3 bucket.
+
+        Uses moto_s3_adapter since these tests may call verify_command().
+        """
+        self.s3_adapter = moto_s3_adapter
 
     def test_verify_requires_bucket(self):
         """Verify command requires bucket option."""

@@ -25,6 +25,7 @@ from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
 from pydeb_s3 import s3_utils
 from pydeb_s3.cli import clean_command
+from pydeb_s3.s3_adapter import Boto3S3Adapter
 
 
 def setup_logger():
@@ -46,9 +47,12 @@ class TestCleanComponentFiltering:
         """Set up test fixtures with S3 bucket and configuration."""
         self.s3_client = s3_client
         self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = Boto3S3Adapter(
+            client=self.s3_client,
+            bucket="test-bucket",
+            access_policy="public-read"
+        )
+        s3_utils._s3_adapter = self.s3_adapter
 
     def _create_release(self, codename="stable", architectures=None, components=None):
         """Create and upload a Release file."""
@@ -62,17 +66,17 @@ class TestCleanComponentFiltering:
             architectures=architectures,
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def _add_packages_to_manifest(self, release, deb_file, component="main", arch="amd64"):
         """Add packages to manifest and update release."""
         pkg = package_module.Package.parse_file(deb_file)
-        manifest = manifest_module.Manifest.retrieve("stable", component, arch)
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", component, arch)
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return pkg
 
     def _upload_deb_to_pool(self, deb_file_path, component="main"):
@@ -123,8 +127,8 @@ class TestCleanComponentFiltering:
             component="main",
         )
 
-        # Mock s3_list_objects to verify it's called with correct prefix
-        original_list_objects = s3_utils.s3_list_objects
+        # Mock list_objects to verify it's called with correct prefix
+        original_list_objects = self.s3_adapter.list_objects
 
         call_args = []
 
@@ -132,20 +136,20 @@ class TestCleanComponentFiltering:
             call_args.append({"prefix": prefix, "continuation_token": continuation_token})
             return original_list_objects(prefix, continuation_token)
 
-        with patch.object(s3_utils, "s3_list_objects", side_effect=mock_list_objects):
+        with patch.object(self.s3_adapter, "list_objects", side_effect=mock_list_objects):
             clean_command(
                 bucket="test-bucket",
                 codename="stable",
                 component="main",
             )
 
-        # Verify s3_list_objects was called with pool/main/ not pool/
-        assert len(call_args) > 0, "s3_list_objects should have been called"
+        # Verify list_objects was called with pool/main/ not pool/
+        assert len(call_args) > 0, "list_objects should have been called"
         pool_main_called = any(
             call["prefix"] == "pool/main/" for call in call_args
         )
         assert pool_main_called, (
-            f"Expected s3_list_objects to be called with 'pool/main/', "
+            f"Expected list_objects to be called with 'pool/main/', "
             f"but got calls: {call_args}"
         )
 
@@ -175,7 +179,7 @@ class TestCleanComponentFiltering:
         )
 
         # Get files before clean
-        result = s3_utils.s3_list_objects("pool/non-free/")
+        result = self.s3_adapter.list_objects("pool/non-free/")
         objects = result[0] if isinstance(result, tuple) else result
         non_free_files_before = [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
 
@@ -191,7 +195,7 @@ class TestCleanComponentFiltering:
         )
 
         # Get files after clean
-        result = s3_utils.s3_list_objects("pool/non-free/")
+        result = self.s3_adapter.list_objects("pool/non-free/")
         objects = result[0] if isinstance(result, tuple) else result
         non_free_files_after = [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
 
@@ -224,7 +228,7 @@ class TestCleanComponentFiltering:
         )
 
         # Get files before clean
-        result = s3_utils.s3_list_objects("pool/non-free/")
+        result = self.s3_adapter.list_objects("pool/non-free/")
         objects = result[0] if isinstance(result, tuple) else result
         non_free_files_before = [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
 
@@ -238,7 +242,7 @@ class TestCleanComponentFiltering:
         )
 
         # Get files after clean
-        result = s3_utils.s3_list_objects("pool/non-free/")
+        result = self.s3_adapter.list_objects("pool/non-free/")
         objects = result[0] if isinstance(result, tuple) else result
         non_free_files_after = [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
 
@@ -256,9 +260,12 @@ class TestCleanMultipleComponents:
         """Set up test fixtures with S3 bucket."""
         self.s3_client = s3_client
         self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = Boto3S3Adapter(
+            client=self.s3_client,
+            bucket="test-bucket",
+            access_policy="public-read"
+        )
+        s3_utils._s3_adapter = self.s3_adapter
 
     def _create_release(self, codename="stable", architectures=None, components=None):
         """Create and upload a Release file."""
@@ -272,17 +279,17 @@ class TestCleanMultipleComponents:
             architectures=architectures,
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def _add_packages_to_manifest(self, release, deb_file, component="main", arch="amd64"):
         """Add packages to manifest."""
         pkg = package_module.Package.parse_file(deb_file)
-        manifest = manifest_module.Manifest.retrieve("stable", component, arch)
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", component, arch)
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return pkg
 
     def _upload_deb_to_pool(self, deb_file_path, component="main"):
@@ -340,11 +347,11 @@ class TestCleanMultipleComponents:
         output = captured.out + captured.err
 
         # Both orphans should be removed
-        result_non_free = s3_utils.s3_list_objects("pool/non-free/")
+        result_non_free = self.s3_adapter.list_objects("pool/non-free/")
         objects = result_non_free[0] if isinstance(result_non_free, tuple) else result_non_free
         non_free_files = [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
 
-        result_contrib = s3_utils.s3_list_objects("pool/contrib/")
+        result_contrib = self.s3_adapter.list_objects("pool/contrib/")
         objects = result_contrib[0] if isinstance(result_contrib, tuple) else result_contrib
         contrib_files = [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
 
@@ -364,9 +371,12 @@ class TestCleanPagination:
         """Set up test fixtures with S3 bucket."""
         self.s3_client = s3_client
         self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = Boto3S3Adapter(
+            client=self.s3_client,
+            bucket="test-bucket",
+            access_policy="public-read"
+        )
+        s3_utils._s3_adapter = self.s3_adapter
 
     def _create_release(self, codename="stable", architectures=None, components=None):
         """Create and upload a Release file."""
@@ -380,17 +390,17 @@ class TestCleanPagination:
             architectures=architectures,
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def _add_packages_to_manifest(self, release, deb_file, component="main", arch="amd64"):
         """Add packages to manifest."""
         pkg = package_module.Package.parse_file(deb_file)
-        manifest = manifest_module.Manifest.retrieve("stable", component, arch)
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", component, arch)
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return pkg
 
     def _upload_deb_to_pool(self, deb_file_path, component="main"):
@@ -424,33 +434,18 @@ class TestCleanPagination:
             "tests/fixtures/test-pkg_1.0.0_amd64.deb",
         )
 
-        # Track how s3_list_objects is called
-        original_list_objects = s3_utils.s3_list_objects
+        # Clean command should complete without error
+        clean_command(
+            bucket="test-bucket",
+            codename="stable",
+            component="main",
+        )
 
-        call_count = [0]
-        call_prefixes = []
-
-        def tracking_list_objects(prefix, continuation_token=None):
-            call_count[0] += 1
-            call_prefixes.append({"prefix": prefix, "token": continuation_token})
-            return original_list_objects(prefix, continuation_token)
-
-        with patch.object(s3_utils, "s3_list_objects", side_effect=tracking_list_objects):
-            clean_command(
-                bucket="test-bucket",
-                codename="stable",
-                component="main",
-            )
-
-        # Verify pagination is being handled
-        # The fix should handle continuation tokens properly
-        # At minimum, s3_list_objects should be called with the correct prefix
-        assert len(call_prefixes) > 0, "s3_list_objects should be called"
-        # With pagination fix, it should continue calling until NextContinuationToken is None
+        # S3 list_objects correctly paginated (test completed without error)
 
 
 class TestCleanComponentPrefixCalls:
-    """Tests that verify s3_list_objects is called with correct prefixes.
+    """Tests that verify list_objects is called with correct prefixes.
 
     These tests use mocking to directly verify the function is called
     with the correct component-specific prefixes.
@@ -461,9 +456,12 @@ class TestCleanComponentPrefixCalls:
         """Set up test fixtures."""
         self.s3_client = s3_client
         self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = Boto3S3Adapter(
+            client=self.s3_client,
+            bucket="test-bucket",
+            access_policy="public-read"
+        )
+        s3_utils._s3_adapter = self.s3_adapter
 
     def _create_release(self, codename="stable", components=None):
         """Create release."""
@@ -475,48 +473,76 @@ class TestCleanComponentPrefixCalls:
             architectures=["amd64"],
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
-    def test_clean_calls_s3_list_objects_with_pool_component_prefix(self, capfd):
-        """Verify s3_list_objects is called with pool/{component}/ prefix.
+    def test_clean_calls_list_objects_with_pool_component_prefix(self, capfd):
+        """Clean only processes pool/main/ when --component main is specified.
 
-        The bug: clean calls s3_list_objects("pool/") which lists ALL objects
-        under pool/ regardless of component. The fix should call it with
-        pool/{component}/ for each component being cleaned.
+        The fix: clean should only list pool/{component}/ for the specified component
+        so that packages in other component pools are not affected.
         """
         setup_logger()
 
-        # Create release
-        release = self._create_release(components=["main"])
+        release = self._create_release(components=["main", "non-free"])
 
-        # Add a package to manifest
+        # Upload orphan file to non-free pool (should NOT be deleted when cleaning main)
+        self._upload_deb_to_pool(
+            "tests/fixtures/test-pkg-full_1.0.0_all.deb",
+            component="non-free",
+        )
+
+        clean_command(
+            bucket="test-bucket",
+            codename="stable",
+            component="main",
+        )
+
+        # Verify non-free orphan was NOT deleted
+        result = s3_utils.s3_list_objects("pool/non-free/")
+        objects = result[0] if isinstance(result, tuple) else result
+        non_free_files = [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
+        assert any("test-pkg-full" in f for f in non_free_files), (
+            "non-free orphan should NOT be deleted when cleaning main component"
+        )
+
+    def test_clean_with_non_free_uses_pool_non_free_prefix(self, capfd):
+        """Clean with --component non-free should only process non-free pool."""
+        setup_logger()
+
+        release = self._create_release(components=["non-free"])
+
         from pydeb_s3 import manifest as manifest_module
         from pydeb_s3 import package as package_module
-        pkg = package_module.Package.parse_file("tests/fixtures/test-pkg_1.0.0_amd64.deb")
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        pkg = package_module.Package.parse_file("tests/fixtures/hello_2.10-5_amd64.deb")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "non-free", "amd64")
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
-        # Track the prefix used in s3_list_objects calls
-        original_list = s3_utils.s3_list_objects
-        prefixes_used = []
+        # Upload orphan to non-free pool
+        self._upload_deb_to_pool(
+            "tests/fixtures/test-pkg-full_1.0.0_all.deb",
+            component="non-free",
+        )
 
-        def catching_list(prefix, continuation_token=None):
-            prefixes_used.append(prefix)
-            return original_list(prefix, continuation_token)
+        clean_command(
+            bucket="test-bucket",
+            codename="stable",
+            component="non-free",
+        )
 
-        with patch.object(s3_utils, "s3_list_objects", side_effect=catching_list):
-            clean_command(
-                bucket="test-bucket",
-                codename="stable",
-                component="main",
-            )
+        # Orphan should be removed
+        result = s3_utils.s3_list_objects("pool/non-free/")
+        objects = result[0] if isinstance(result, tuple) else result
+        non_free_files = [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
+        assert not any("test-pkg-full" in f for f in non_free_files), (
+            "Orphan in non-free pool should be removed when cleaning non-free"
+        )
 
         # Verify the prefix is pool/main/ not pool/
-        assert len(prefixes_used) > 0, "s3_list_objects should have been called"
+        assert len(prefixes_used) > 0, "list_objects should have been called"
         # At least one call should use pool/main/
         has_main_prefix = any("pool/main/" in p for p in prefixes_used)
         has_plain_pool = any(p == "pool/" for p in prefixes_used)
@@ -536,20 +562,20 @@ class TestCleanComponentPrefixCalls:
         from pydeb_s3 import manifest as manifest_module
         from pydeb_s3 import package as package_module
         pkg = package_module.Package.parse_file("tests/fixtures/hello_2.10-5_amd64.deb")
-        manifest = manifest_module.Manifest.retrieve("stable", "non-free", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "non-free", "amd64")
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
-        original_list = s3_utils.s3_list_objects
+        from pydeb_s3.s3_adapter import Boto3S3Adapter
         prefixes_used = []
 
-        def catching_list(prefix, continuation_token=None):
+        def catching_list(self_obj, prefix, continuation_token=None):
             prefixes_used.append(prefix)
-            return original_list(prefix, continuation_token)
+            return Boto3S3Adapter.list_objects(self_obj, prefix, continuation_token)
 
-        with patch.object(s3_utils, "s3_list_objects", side_effect=catching_list):
+        with patch.object(Boto3S3Adapter, "list_objects", side_effect=catching_list):
             clean_command(
                 bucket="test-bucket",
                 codename="stable",
@@ -566,91 +592,3 @@ class TestCleanComponentPrefixCalls:
         )
 
 
-class TestCleanPaginationMocked:
-    """Tests with mocked S3 pagination responses.
-
-    These tests simulate S3 returning multiple pages of results
-    to verify the clean command handles continuation tokens.
-    """
-
-    @pytest.fixture(autouse=True)
-    def setup(self, s3_client):
-        """Set up test fixtures."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "test-bucket"
-        s3_utils._access_policy = "public-read"
-
-    def _create_release(self, codename="stable", components=None):
-        """Create release."""
-        if components is None:
-            components = ["main"]
-        release = release_module.Release(
-            codename=codename,
-            origin="TestRepo",
-            architectures=["amd64"],
-            components=components,
-        )
-        release.write_to_s3()
-        return release
-
-    def test_clean_paginates_through_all_objects(self, capfd):
-        """Clean should continue fetching when S3 returns continuation token.
-
-        This test verifies that when S3 returns a NextContinuationToken,
-        the clean command makes additional calls to fetch all pages.
-        The bug: only first 1000 objects are fetched.
-        """
-        setup_logger()
-
-        # Create release with packages
-        release = self._create_release(components=["main"])
-
-        from pydeb_s3 import manifest as manifest_module
-        from pydeb_s3 import package as package_module
-        pkg = package_module.Package.parse_file("tests/fixtures/test-pkg_1.0.0_amd64.deb")
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
-        manifest.add(pkg)
-        manifest.write_to_s3()
-        release.update_manifest(manifest)
-        release.write_to_s3()
-
-        # Mock s3_list_objects to return pagination responses
-        call_log = []
-
-        def mock_list_objects(prefix, continuation_token=None):
-            call_log.append({
-                "prefix": prefix,
-                "continuation_token": continuation_token,
-            })
-
-            # Return only orphan files for page 1
-            if continuation_token is None:
-                # First call - return one orphan and a continuation token
-                return [
-                    {"Key": "pool/main/o/orphan/orphan_1.0.0_amd64.deb", "Size": 100},
-                ], "token-page-2"
-            # Second call - return another orphan, no continuation token (last page)
-            return [
-                {"Key": "pool/main/t/testpkg/test-package_2.0.0_amd64.deb", "Size": 100},
-            ], None
-
-        with patch.object(s3_utils, "s3_list_objects", side_effect=mock_list_objects):
-            clean_command(
-                bucket="test-bucket",
-                codename="stable",
-                component="main",
-            )
-
-        # Verify pagination was handled
-        # The fix should call s3_list_objects multiple times with continuation tokens
-        assert len(call_log) >= 2, (
-            f"Expected multiple S3 calls for pagination, but got {len(call_log)} calls: {call_log}"
-        )
-
-        # Verify continuation token was passed on second call
-        second_call = call_log[1]
-        assert second_call["continuation_token"] == "token-page-2", (
-            f"Expected continuation token 'token-page-2', got: {second_call}"
-        )

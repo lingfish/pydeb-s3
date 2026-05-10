@@ -224,7 +224,7 @@ class TestUploadProgressUseBytes:
                 use_bytes=False
             )
 
-            with patch("pydeb_s3.s3_utils.time") as mock_time:
+            with patch("pydeb_s3.progress.time") as mock_time:
                 mock_time.time.return_value = 0
 
                 progress = UploadProgress(
@@ -234,7 +234,7 @@ class TestUploadProgressUseBytes:
                     use_bytes=False
                 )
 
-                with patch("pydeb_s3.s3_utils.logger") as mock_logger:
+                with patch("pydeb_s3.progress.logger") as mock_logger:
                     # Advance time beyond 5 seconds to trigger logging
                     mock_time.time.return_value = 5.1
                     progress(200)
@@ -252,17 +252,12 @@ class TestS3StoreUseBytes:
     def setup_method(self):
         """Reset S3 configuration."""
         from pydeb_s3 import s3_utils
-        s3_utils._s3_client = None
-        
-        
-        
-        s3_utils._encryption = False
+        s3_utils._s3_adapter = None
 
     def teardown_method(self):
         """Clean up after each test."""
         from pydeb_s3 import s3_utils
-        s3_utils._s3_client = None
-        
+        s3_utils._s3_adapter = None
 
     def test_s3_store_passes_use_bytes_false(self):
         """s3_store() passes use_bytes=False to UploadProgress (default bits)."""
@@ -273,14 +268,15 @@ class TestS3StoreUseBytes:
         import boto3
         from moto import mock_aws
 
+        from pydeb_s3.s3_adapter import Boto3S3Adapter
+
         with mock_aws():
             client = boto3.client("s3", region_name="us-east-1")
             client.create_bucket(Bucket="test-bucket")
 
             from pydeb_s3 import s3_utils
 
-            s3_utils._s3_client = client
-            
+            s3_utils._s3_adapter = Boto3S3Adapter(client=client, bucket="test-bucket")
 
             # Create temp file
             with tempfile.NamedTemporaryFile(delete=False, mode='w') as f:
@@ -288,7 +284,7 @@ class TestS3StoreUseBytes:
                 temp_path = f.name
 
             try:
-                with patch("pydeb_s3.s3_utils.UploadProgress") as mock_progress:
+                with patch("pydeb_s3.s3_adapter.UploadProgress") as mock_progress:
                     # Mock the progress class to capture what params are passed
                     mock_instance = MagicMock()
                     mock_progress.return_value = mock_instance
@@ -311,14 +307,15 @@ class TestS3StoreUseBytes:
         import boto3
         from moto import mock_aws
 
+        from pydeb_s3.s3_adapter import Boto3S3Adapter
+
         with mock_aws():
             client = boto3.client("s3", region_name="us-east-1")
             client.create_bucket(Bucket="test-bucket")
 
             from pydeb_s3 import s3_utils
 
-            s3_utils._s3_client = client
-            
+            s3_utils._s3_adapter = Boto3S3Adapter(client=client, bucket="test-bucket")
 
             # Create temp file
             with tempfile.NamedTemporaryFile(delete=False, mode='w') as f:
@@ -326,7 +323,7 @@ class TestS3StoreUseBytes:
                 temp_path = f.name
 
             try:
-                with patch("pydeb_s3.s3_utils.UploadProgress") as mock_progress:
+                with patch("pydeb_s3.s3_adapter.UploadProgress") as mock_progress:
                     mock_instance = MagicMock()
                     mock_progress.return_value = mock_instance
 

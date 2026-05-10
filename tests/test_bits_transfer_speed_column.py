@@ -168,17 +168,12 @@ class TestS3StoreWithSharedProgress:
     def setup_method(self):
         """Reset S3 configuration."""
         from pydeb_s3 import s3_utils
-        s3_utils._s3_client = None
-        
-        
-        
-        s3_utils._encryption = False
+        s3_utils._s3_adapter = None
 
     def teardown_method(self):
         """Clean up after each test."""
         from pydeb_s3 import s3_utils
-        s3_utils._s3_client = None
-        
+        s3_utils._s3_adapter = None
 
     def test_s3_store_accepts_progress_parameter(self):
         """s3_store() accepts optional progress parameter."""
@@ -189,14 +184,15 @@ class TestS3StoreWithSharedProgress:
         import boto3
         from moto import mock_aws
 
+        from pydeb_s3.s3_adapter import Boto3S3Adapter
+
         with mock_aws():
             client = boto3.client("s3", region_name="us-east-1")
             client.create_bucket(Bucket="test-bucket")
 
             from pydeb_s3 import s3_utils
 
-            s3_utils._s3_client = client
-            
+            s3_utils._s3_adapter = Boto3S3Adapter(client=client, bucket="test-bucket")
 
             # Create temp file
             with tempfile.NamedTemporaryFile(delete=False, mode='w') as f:
@@ -210,8 +206,6 @@ class TestS3StoreWithSharedProgress:
                 shared_progress = Progress()
 
                 # Should not raise when progress is passed
-                # Note: This will fail initially because s3_store doesn't accept progress yet
-                # After implementation, it should work
                 with patch.object(client, "upload_file"):
                     s3_utils.s3_store(temp_path, "test/key", progress=shared_progress)
             finally:
@@ -271,7 +265,7 @@ class TestProgressConsoleLogging:
                 interactive=False
             )
 
-            with patch("pydeb_s3.s3_utils.logger") as mock_logger:
+            with patch("pydeb_s3.progress.logger") as mock_logger:
                 progress._finish()
 
                 # Should have called logger.success

@@ -28,6 +28,7 @@ from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
 from pydeb_s3 import s3_utils
 from pydeb_s3.cli import clean_command
+from pydeb_s3.s3_adapter import Boto3S3Adapter
 
 
 def setup_logger():
@@ -39,12 +40,12 @@ def setup_logger():
 
 class TestCleanRealScenario:
     """Tests that reproduce the real S3 bucket scenario for clean command.
-    
+
     This simulates a real APT repository with:
     - Two codenames: rc (release candidate) and stable
     - Packages with version 0.21.3~rc0 in rc codename, 0.22.0 in stable codename
     - Old orphaned packages with versions 0.21.1, 0.21.2 that exist in pool but are not in any manifest
-    
+
     Expected behavior when cleaning stable:
     - 0.21.3~rc0 packages should NOT be removed (referenced by rc codename)
     - 0.22.0 packages should NOT be removed (referenced by stable codename)
@@ -56,14 +57,17 @@ class TestCleanRealScenario:
         """Set up test fixtures with S3 bucket and prefix."""
         self.s3_client = s3_client
         self.s3_client.create_bucket(Bucket="ollama-repo")
-        s3_utils._s3_client = self.s3_client
-        s3_utils._bucket = "ollama-repo"
-        s3_utils._prefix = "apt"
-        s3_utils._access_policy = "public-read"
+        self.s3_adapter = Boto3S3Adapter(
+            client=self.s3_client,
+            bucket="ollama-repo",
+            prefix="apt",
+            access_policy="public-read"
+        )
+        s3_utils._s3_adapter = self.s3_adapter
 
     def teardown_method(self):
         """Reset prefix after each test."""
-        s3_utils._prefix = None
+        s3_utils._s3_adapter = None
 
     def _create_release(self, codename="stable", architectures=None, components=None):
         """Create and upload a Release file."""
@@ -77,7 +81,7 @@ class TestCleanRealScenario:
             architectures=architectures,
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def _add_packages_to_manifest(self, release, codename, component, packages_content):
@@ -90,14 +94,14 @@ class TestCleanRealScenario:
                 pkg_list.append(pkg)
 
         arch = "amd64"
-        manifest = manifest_module.Manifest.retrieve(codename, component, arch)
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, codename, component, arch)
         for pkg in pkg_list:
             # needs_uploading=False because we're testing clean, not upload
             # The .deb files should already exist in the pool
             manifest.add(pkg, preserve_versions=True, needs_uploading=False)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return pkg_list
 
     def _upload_deb_to_pool(self, filename, content):
@@ -110,13 +114,13 @@ class TestCleanRealScenario:
         try:
             # The key should include prefix if set
             key = filename  # e.g., "pool/non-free/l/li/libollama-amd_0.21.3~rc0_amd64.deb"
-            s3_utils.s3_store(tmp_path, key, "application/x-debian-package")
+            self.s3_adapter.store_file(tmp_path, key, "application/x-debian-package")
         finally:
             os.unlink(tmp_path)
 
     def _get_pool_files(self, component="non-free"):
         """Get list of .deb files in pool for a component."""
-        result = s3_utils.s3_list_objects(f"pool/{component}/")
+        result = self.s3_adapter.list_objects(f"pool/{component}/")
         objects = result[0] if isinstance(result, tuple) else result
         return [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
 
@@ -124,7 +128,7 @@ class TestCleanRealScenario:
         """Get list of .deb files in pool with prefix stripped."""
         files = self._get_pool_files(component)
         # Strip S3 prefix if set
-        prefix_stripped = s3_utils._prefix.rstrip("/") + "/" if s3_utils._prefix else ""
+        prefix_stripped = self.s3_adapter.prefix.rstrip("/") + "/" if self.s3_adapter.prefix else ""
         result = []
         for f in files:
             if prefix_stripped and f.startswith(prefix_stripped):
@@ -135,7 +139,7 @@ class TestCleanRealScenario:
 
 class TestOldVersionsOrphanedButRCPackagesKept(TestCleanRealScenario):
     """Test that clean --codename stable works correctly with multiple codenames.
-    
+
     This is the main test: when cleaning stable codename, packages that are referenced
     by other codenames (like rc) should NOT be removed. Only truly orphaned
     packages (0.21.x that aren't in any manifest) should be removed.
@@ -143,12 +147,12 @@ class TestOldVersionsOrphanedButRCPackagesKept(TestCleanRealScenario):
 
     def test_old_versions_orphaned_but_rc_packages_kept(self, capfd):
         """Test that clean --codename stable --component non-free works correctly.
-        
+
         Scenario:
         - rc codename has packages: 0.21.3~rc0 versions
         - stable codename has packages: 0.22.0 versions
         - pool has: both 0.21.3~rc0, 0.22.0, and OLD 0.21.x versions
-        
+
         Expected:
         - 0.21.3~rc0 packages should NOT be removed (referenced by rc codename)
         - 0.22.0 packages should NOT be removed (referenced by stable codename)
@@ -356,12 +360,12 @@ class TestCleanRealScenarioWithArm64(TestCleanRealScenario):
 
     def test_clean_with_arm64_versions(self, capfd):
         """Test clean with both amd64 and arm64 pool files.
-        
+
         This test should reproduce the exact scenario described by the user:
         - rc codename: 0.21.3~rc0 packages (amd64 + arm64)
         - stable codename: 0.22.0 packages (amd64 + arm64)
         - pool has both amd64 and arm64 versions including old 0.21.x versions
-        
+
         Expected: Only truly orphaned packages (0.21.x) should be removed.
         """
         setup_logger()

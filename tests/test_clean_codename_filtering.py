@@ -42,14 +42,14 @@ class TestListCodenames:
     """
 
     @pytest.fixture(autouse=True)
-    def setup(self, mock_s3_adapter):
-        """Set up test fixtures with S3 bucket."""
-        self.s3_adapter = mock_s3_adapter
-        
-        
-        
-        
-        
+    def setup(self, moto_s3_adapter):
+        """Set up test fixtures with S3 bucket.
+
+        Uses moto_s3_adapter since these tests call s3_utils.list_codenames()
+        which requires real boto3 mocking.
+        """
+        self.s3_adapter = moto_s3_adapter
+        s3_utils._s3_adapter = self.s3_adapter
 
     def test_list_codenames_returns_all_codenames(self):
         """list_codenames() should return all codenames from S3 dists/ directory.
@@ -64,7 +64,7 @@ class TestListCodenames:
             architectures=["amd64"],
             components=["main"],
         )
-        stable_release.write_to_s3()
+        stable_release.write_to_s3(self.s3_adapter)
 
         rc_release = release_module.Release(
             codename="rc",
@@ -72,7 +72,7 @@ class TestListCodenames:
             architectures=["amd64"],
             components=["main"],
         )
-        rc_release.write_to_s3()
+        rc_release.write_to_s3(self.s3_adapter)
 
         testing_release = release_module.Release(
             codename="testing",
@@ -80,7 +80,7 @@ class TestListCodenames:
             architectures=["amd64"],
             components=["main"],
         )
-        testing_release.write_to_s3()
+        testing_release.write_to_s3(self.s3_adapter)
 
         # Call list_codenames and verify it returns all codenames
         codenames = s3_utils.list_codenames()
@@ -115,10 +115,10 @@ class TestListCodenames:
                 architectures=["amd64"],
                 components=["main"],
             )
-            release.write_to_s3()
+            release.write_to_s3(self.s3_adapter)
 
-        # Mock s3_list_objects to simulate pagination
-        original_list = s3_utils.s3_list_objects
+        # Mock list_objects to simulate pagination
+        original_list = self.s3_adapter.list_objects
 
         call_count = [0]
 
@@ -138,7 +138,7 @@ class TestListCodenames:
                 {"Key": "dists/experimental/Release"},
             ], None
 
-        with patch.object(s3_utils, "s3_list_objects", side_effect=paginated_list):
+        with patch.object(self.s3_adapter, "list_objects", side_effect=paginated_list):
             codenames = s3_utils.list_codenames()
 
         # Should have made multiple calls for pagination
@@ -161,18 +161,18 @@ class TestListCodenames:
                 architectures=["amd64"],
                 components=["main"],
             )
-            release.write_to_s3()
+            release.write_to_s3(self.s3_adapter)
 
         # Also add some nested objects (like Packages files)
-        self.s3_client.put_object(
-            Bucket="test-bucket",
-            Key="dists/rc/main/binary-amd64/Packages",
-            Body=b"Package: test\nVersion: 1.0\n",
+        self.s3_adapter.store_content(
+            "Package: test\nVersion: 1.0\n",
+            "dists/rc/main/binary-amd64/Packages",
+            "text/plain"
         )
-        self.s3_client.put_object(
-            Bucket="test-bucket",
-            Key="dists/stable/main/binary-amd64/Packages",
-            Body=b"Package: test\nVersion: 1.0\n",
+        self.s3_adapter.store_content(
+            "Package: test\nVersion: 1.0\n",
+            "dists/stable/main/binary-amd64/Packages",
+            "text/plain"
         )
 
         codenames = s3_utils.list_codenames()
@@ -189,14 +189,14 @@ class TestCleanChecksAllCodenames:
     """
 
     @pytest.fixture(autouse=True)
-    def setup(self, mock_s3_adapter):
-        """Set up test fixtures with S3 bucket."""
-        self.s3_adapter = mock_s3_adapter
-        
-        
-        
-        
-        
+    def setup(self, moto_s3_adapter):
+        """Set up test fixtures with S3 bucket.
+
+        Uses moto_s3_adapter since these tests call s3_utils functions
+        and clean_command.
+        """
+        self.s3_adapter = moto_s3_adapter
+        s3_utils._s3_adapter = self.s3_adapter
 
     def _create_release(self, codename="stable", architectures=None, components=None):
         """Create and upload a Release file."""
@@ -210,17 +210,17 @@ class TestCleanChecksAllCodenames:
             architectures=architectures,
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def _add_packages_to_manifest(self, release, deb_file, component="main", arch="amd64", codename="stable"):
         """Add packages to manifest and update release."""
         pkg = package_module.Package.parse_file(deb_file)
-        manifest = manifest_module.Manifest.retrieve(codename, component, arch)
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, codename, component, arch)
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return pkg
 
     def _upload_deb_to_pool(self, deb_file_path, component="main"):
@@ -236,7 +236,7 @@ class TestCleanChecksAllCodenames:
             first_letter = name[0]
             first_two = name[0:2] if len(name) >= 2 else first_letter
             key = f"pool/{component}/{first_letter}/{first_two}/{filename}"
-            s3_utils.s3_store(tmp_path, key, "application/x-debian-package")
+            self.s3_adapter.store_file(tmp_path, key, "application/x-debian-package")
         finally:
             os.unlink(tmp_path)
 
@@ -270,7 +270,7 @@ class TestCleanChecksAllCodenames:
 
         # Verify package exists in pool before clean
         # The path format is pool/main/t/te/test-pkg_1.0.0_amd64.deb
-        result = s3_utils.s3_list_objects("pool/main/t/")
+        result = self.s3_adapter.list_objects("pool/main/t/")
         objects = result[0] if isinstance(result, tuple) else result
         files_before = [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
 
@@ -288,7 +288,7 @@ class TestCleanChecksAllCodenames:
         )
 
         # Get files after clean
-        result = s3_utils.s3_list_objects("pool/main/t/")
+        result = self.s3_adapter.list_objects("pool/main/t/")
         objects = result[0] if isinstance(result, tuple) else result
         files_after = [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
 
@@ -345,12 +345,12 @@ class TestCleanChecksAllCodenames:
 
         # Both packages should still exist because they're referenced by some codename
         # Path format: pool/main/t/te/test-pkg_1.0.0_amd64.deb
-        result_test_pkg = s3_utils.s3_list_objects("pool/main/t/")
+        result_test_pkg = self.s3_adapter.list_objects("pool/main/t/")
         objects = result_test_pkg[0] if isinstance(result_test_pkg, tuple) else result_test_pkg
         test_pkg_files = [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
 
         # Path format: pool/main/h/he/hello_2.10-5_amd64.deb
-        result_hello = s3_utils.s3_list_objects("pool/main/h/")
+        result_hello = self.s3_adapter.list_objects("pool/main/h/")
         objects = result_hello[0] if isinstance(result_hello, tuple) else result_hello
         hello_files = [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
 
@@ -395,12 +395,12 @@ class TestCleanChecksAllCodenames:
 
         # Verify both packages exist before clean
         # Path format: pool/main/t/te/test-pkg-full_1.0.0_all.deb
-        result_orphan = s3_utils.s3_list_objects("pool/main/t/")
+        result_orphan = self.s3_adapter.list_objects("pool/main/t/")
         objects = result_orphan[0] if isinstance(result_orphan, tuple) else result_orphan
         orphan_files_before = [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
 
         # Path format: pool/main/h/he/hello_2.10-5_amd64.deb
-        result_referenced = s3_utils.s3_list_objects("pool/main/h/")
+        result_referenced = self.s3_adapter.list_objects("pool/main/h/")
         objects = result_referenced[0] if isinstance(result_referenced, tuple) else result_referenced
         referenced_files_before = [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
 
@@ -415,11 +415,11 @@ class TestCleanChecksAllCodenames:
         )
 
         # Get files after clean
-        result_orphan = s3_utils.s3_list_objects("pool/main/t/")
+        result_orphan = self.s3_adapter.list_objects("pool/main/t/")
         objects = result_orphan[0] if isinstance(result_orphan, tuple) else result_orphan
         orphan_files_after = [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
 
-        result_referenced = s3_utils.s3_list_objects("pool/main/h/")
+        result_referenced = self.s3_adapter.list_objects("pool/main/h/")
         objects = result_referenced[0] if isinstance(result_referenced, tuple) else result_referenced
         referenced_files_after = [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
 
@@ -443,14 +443,13 @@ class TestCleanCodenamesMocked:
     """
 
     @pytest.fixture(autouse=True)
-    def setup(self, mock_s3_adapter):
-        """Set up test fixtures."""
-        self.s3_adapter = mock_s3_adapter
-        
-        
-        
-        
-        
+    def setup(self, moto_s3_adapter):
+        """Set up test fixtures with S3 bucket.
+
+        Uses moto_s3_adapter since these tests call clean_command.
+        """
+        self.s3_adapter = moto_s3_adapter
+        s3_utils._s3_adapter = self.s3_adapter
 
     def _create_release(self, codename="stable", components=None):
         """Create release."""
@@ -462,7 +461,7 @@ class TestCleanCodenamesMocked:
             architectures=["amd64"],
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def test_clean_uses_list_codenames_function(self, capfd):
@@ -483,11 +482,11 @@ class TestCleanCodenamesMocked:
         from pydeb_s3 import manifest as manifest_module
         from pydeb_s3 import package as package_module
         pkg = package_module.Package.parse_file("tests/fixtures/test-pkg_1.0.0_amd64.deb")
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         # Track if list_codenames is called
         list_codenames_called = []
@@ -531,19 +530,19 @@ class TestCleanCodenamesMocked:
         from pydeb_s3 import manifest as manifest_module
         from pydeb_s3 import package as package_module
         pkg = package_module.Package.parse_file("tests/fixtures/test-pkg_1.0.0_amd64.deb")
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         stable_release.update_manifest(manifest)
-        stable_release.write_to_s3()
+        stable_release.write_to_s3(self.s3_adapter)
 
         # Track manifest retrieval calls
         manifest_retrieval_calls = []
         original_retrieve = manifest_module.Manifest.retrieve
 
-        def tracking_retrieve(codename, component, arch, cache_control=None, use_cache=True):
+        def tracking_retrieve(adapter, codename, component, arch, cache_control=None, use_cache=True):
             manifest_retrieval_calls.append(codename)
-            return original_retrieve(codename, component, arch, cache_control, use_cache)
+            return original_retrieve(adapter, codename, component, arch, cache_control, use_cache)
 
         with patch.object(manifest_module.Manifest, "retrieve", side_effect=tracking_retrieve):
             with patch.object(s3_utils, "list_codenames", return_value=["stable", "rc"]):
@@ -570,14 +569,13 @@ class TestCleanCodenamesEdgeCases:
     """Edge case tests for codename filtering in clean command."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, mock_s3_adapter):
-        """Set up test fixtures."""
-        self.s3_adapter = mock_s3_adapter
-        
-        
-        
-        
-        
+    def setup(self, moto_s3_adapter):
+        """Set up test fixtures with S3 bucket.
+
+        Uses moto_s3_adapter since these tests call clean_command.
+        """
+        self.s3_adapter = moto_s3_adapter
+        s3_utils._s3_adapter = self.s3_adapter
 
     def _create_release(self, codename="stable", components=None):
         """Create release."""
@@ -589,7 +587,7 @@ class TestCleanCodenamesEdgeCases:
             architectures=["amd64"],
             components=components,
         )
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
         return release
 
     def test_clean_handles_single_codename(self, capfd):
@@ -606,11 +604,11 @@ class TestCleanCodenamesEdgeCases:
         from pydeb_s3 import manifest as manifest_module
         from pydeb_s3 import package as package_module
         pkg = package_module.Package.parse_file("tests/fixtures/test-pkg_1.0.0_amd64.deb")
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         # Upload orphan package
         with tempfile.NamedTemporaryFile(delete=False) as tmp:
@@ -618,7 +616,7 @@ class TestCleanCodenamesEdgeCases:
             tmp_path = tmp.name
 
         try:
-            s3_utils.s3_store(tmp_path, "pool/main/t/test-pkg-full/test-pkg-full_1.0.0_all.deb",
+            self.s3_adapter.store_file(tmp_path, "pool/main/t/test-pkg-full/test-pkg-full_1.0.0_all.deb",
                             "application/x-debian-package")
         finally:
             os.unlink(tmp_path)
@@ -631,7 +629,7 @@ class TestCleanCodenamesEdgeCases:
         )
 
         # Orphan should be deleted
-        result = s3_utils.s3_list_objects("pool/main/t/test-pkg-full/")
+        result = self.s3_adapter.list_objects("pool/main/t/test-pkg-full/")
         objects = result[0] if isinstance(result, tuple) else result
         files = [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
 
@@ -653,11 +651,11 @@ class TestCleanCodenamesEdgeCases:
         from pydeb_s3 import manifest as manifest_module
         from pydeb_s3 import package as package_module
         pkg = package_module.Package.parse_file("tests/fixtures/test-pkg_1.0.0_amd64.deb")
-        manifest = manifest_module.Manifest.retrieve("stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.add(pkg)
-        manifest.write_to_s3()
+        manifest.write_to_s3(self.s3_adapter)
         release.update_manifest(manifest)
-        release.write_to_s3()
+        release.write_to_s3(self.s3_adapter)
 
         # This should not crash - it should use stable's manifest
         clean_command(

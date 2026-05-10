@@ -22,13 +22,13 @@ class TestShowIntegration:
     """Integration tests for show command using mocked S3."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client, sample_deb_file):
-        """Set up test fixtures with S3 bucket and configuration."""
-        self.s3_adapter = mock_s3_adapter
-        
-        # s3_utils._s3_client removed - use S3Adapter
-        # s3_utils._bucket removed - use S3Adapter
-        # s3_utils._access_policy removed - use S3Adapter
+    def setup(self, moto_s3_adapter, sample_deb_file):
+        """Set up test fixtures with S3 bucket and configuration.
+
+        Uses moto_s3_adapter since these tests call show_command()
+        which internally creates Boto3S3Adapter via cli._configure_s3().
+        """
+        self.s3_adapter = moto_s3_adapter
         self.sample_deb_file = sample_deb_file
 
     def _create_release(self, codename="stable", architectures=None, components=None):
@@ -182,13 +182,12 @@ class TestShowErrors:
     """Tests for error handling in show command."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, mock_s3_adapter):
-        """Set up test fixtures with S3 bucket."""
-        self.s3_adapter = mock_s3_adapter
-        
-        # s3_utils._s3_client removed - use S3Adapter
-        # s3_utils._bucket removed - use S3Adapter
-        # s3_utils._access_policy removed - use S3Adapter
+    def setup(self, moto_s3_adapter):
+        """Set up test fixtures with S3 bucket.
+
+        Uses moto_s3_adapter since these tests may call show_command().
+        """
+        self.s3_adapter = moto_s3_adapter
 
     def test_show_requires_bucket(self):
         """show command requires bucket option."""
@@ -207,10 +206,6 @@ class TestShowErrors:
     def test_show_returns_error_for_nonexistent_package(self, capfd):
         """show returns error when package not found."""
         import typer
-
-        
-        # s3_utils._s3_client removed - use S3Adapter
-        # s3_utils._bucket removed - use S3Adapter
 
         # Create release file (but don't add any packages)
         release = release_module.Release(
@@ -238,13 +233,12 @@ class TestShowQuietOutput:
     """Tests for show command output to stdout with --quiet flag."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client, sample_deb_file):
-        """Set up test fixtures with S3 bucket and configuration."""
-        self.s3_adapter = mock_s3_adapter
-        
-        # s3_utils._s3_client removed - use S3Adapter
-        # s3_utils._bucket removed - use S3Adapter
-        # s3_utils._access_policy removed - use S3Adapter
+    def setup(self, moto_s3_adapter, sample_deb_file):
+        """Set up test fixtures with S3 bucket and configuration.
+
+        Uses moto_s3_adapter since these tests call show_command().
+        """
+        self.s3_adapter = moto_s3_adapter
         self.sample_deb_file = sample_deb_file
 
     def _create_release(self, codename="stable", architectures=None, components=None):
@@ -351,13 +345,12 @@ class TestShowMultiplePackages:
     """Tests for show with multiple packages."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, mock_s3_adapter):
-        """Set up test fixtures with S3 bucket."""
-        self.s3_adapter = mock_s3_adapter
-        
-        # s3_utils._s3_client removed - use S3Adapter
-        # s3_utils._bucket removed - use S3Adapter
-        # s3_utils._access_policy removed - use S3Adapter
+    def setup(self, moto_s3_adapter):
+        """Set up test fixtures with S3 bucket.
+
+        Uses moto_s3_adapter since these tests call show_command().
+        """
+        self.s3_adapter = moto_s3_adapter
 
     def _create_release(self, codename="stable", architectures=None, components=None):
         """Create and upload a Release file."""

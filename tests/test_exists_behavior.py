@@ -22,13 +22,13 @@ class TestExistsIntegration:
     """Integration tests for exists command using mocked S3."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client, sample_deb_file):
-        """Set up test fixtures with S3 bucket and configuration."""
-        self.s3_adapter = mock_s3_adapter
-        
-        # s3_utils._s3_client removed - use S3Adapter
-        # s3_utils._bucket removed - use S3Adapter
-        # s3_utils._access_policy removed - use S3Adapter
+    def setup(self, moto_s3_adapter, sample_deb_file):
+        """Set up test fixtures with S3 bucket and configuration.
+
+        Uses moto_s3_adapter since these tests call exists_command()
+        which internally creates Boto3S3Adapter via cli._configure_s3().
+        """
+        self.s3_adapter = moto_s3_adapter
         self.sample_deb_file = sample_deb_file
 
     def _create_release(self, codename="stable", architectures=None, components=None):
@@ -199,13 +199,12 @@ class TestExistsMultiplePackages:
     """Tests for exists with multiple packages."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, mock_s3_adapter):
-        """Set up test fixtures with S3 bucket."""
-        self.s3_adapter = mock_s3_adapter
-        
-        # s3_utils._s3_client removed - use S3Adapter
-        # s3_utils._bucket removed - use S3Adapter
-        # s3_utils._access_policy removed - use S3Adapter
+    def setup(self, moto_s3_adapter):
+        """Set up test fixtures with S3 bucket.
+
+        Uses moto_s3_adapter since these tests call exists_command().
+        """
+        self.s3_adapter = moto_s3_adapter
 
     def _create_release(self, codename="stable", architectures=None, components=None):
         """Create and upload a Release file."""
@@ -294,13 +293,12 @@ class TestExistsErrors:
     """Tests for error handling in exists command."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, mock_s3_adapter):
-        """Set up test fixtures with S3 bucket."""
-        self.s3_adapter = mock_s3_adapter
-        
-        # s3_utils._s3_client removed - use S3Adapter
-        # s3_utils._bucket removed - use S3Adapter
-        # s3_utils._access_policy removed - use S3Adapter
+    def setup(self, moto_s3_adapter):
+        """Set up test fixtures with S3 bucket.
+
+        Uses moto_s3_adapter since these tests call exists_command().
+        """
+        self.s3_adapter = moto_s3_adapter
 
     def test_exists_requires_bucket(self):
         """exists command requires bucket option."""
@@ -328,13 +326,12 @@ class TestExistsQuietOutput:
     """Tests for exists command output to stdout with --quiet flag."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client, sample_deb_file):
-        """Set up test fixtures with S3 bucket and configuration."""
-        self.s3_adapter = mock_s3_adapter
-        
-        # s3_utils._s3_client removed - use S3Adapter
-        # s3_utils._bucket removed - use S3Adapter
-        # s3_utils._access_policy removed - use S3Adapter
+    def setup(self, moto_s3_adapter, sample_deb_file):
+        """Set up test fixtures with S3 bucket and configuration.
+
+        Uses moto_s3_adapter since these tests call exists_command().
+        """
+        self.s3_adapter = moto_s3_adapter
         self.sample_deb_file = sample_deb_file
 
     def _create_release(self, codename="stable", architectures=None, components=None):

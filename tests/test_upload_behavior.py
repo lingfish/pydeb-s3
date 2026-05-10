@@ -45,10 +45,10 @@ class TestUploadIntegration:
         self._create_initial_release()
 
         # Simulate real upload flow: retrieve release, then manifest, add package, write back
-        release = release_module.Release.retrieve(self.s3_adapter, self.s3_adapter, "stable")
+        release = release_module.Release.retrieve(self.s3_adapter, "stable")
 
         pkg = package_module.Package.parse_file(self.sample_deb_file)
-        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, self.s3_adapter, "stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.add(pkg)
         manifest.write_to_s3(self.s3_adapter)
 
@@ -64,10 +64,10 @@ class TestUploadIntegration:
         """Upload creates the Packages manifest file in S3."""
         self._create_initial_release()
 
-        release = release_module.Release.retrieve(self.s3_adapter, self.s3_adapter, "stable")
+        release = release_module.Release.retrieve(self.s3_adapter, "stable")
         pkg = package_module.Package.parse_file(self.sample_deb_file)
 
-        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, self.s3_adapter, "stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.add(pkg)
         manifest.write_to_s3(self.s3_adapter)
 
@@ -83,10 +83,10 @@ class TestUploadIntegration:
         """Upload creates the gzipped Packages file in S3."""
         self._create_initial_release()
 
-        release = release_module.Release.retrieve(self.s3_adapter, self.s3_adapter, "stable")
+        release = release_module.Release.retrieve(self.s3_adapter, "stable")
         pkg = package_module.Package.parse_file(self.sample_deb_file)
 
-        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, self.s3_adapter, "stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.add(pkg)
         manifest.write_to_s3(self.s3_adapter)
 
@@ -107,10 +107,10 @@ class TestUploadIntegration:
         """
         self._create_initial_release()
 
-        release = release_module.Release.retrieve(self.s3_adapter, self.s3_adapter, "stable")
+        release = release_module.Release.retrieve(self.s3_adapter, "stable")
         pkg = package_module.Package.parse_file(self.sample_deb_file)
 
-        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, self.s3_adapter, "stable", "main", "amd64")
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
         manifest.add(pkg)
         manifest.write_to_s3(self.s3_adapter)
 
@@ -143,13 +143,13 @@ class TestUploadPreserveVersions:
     """Tests for preserve-versions flag with S3 state verification."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client, sample_deb_file):
-        """Set up test fixtures with S3 bucket and configuration."""
-        self.s3_client = s3_client
-        self.s3_client.create_bucket(Bucket="test-bucket")
-        # s3_utils._s3_client removed - use S3Adapter
-        # s3_utils._bucket removed - use S3Adapter
-        # s3_utils._access_policy removed - use S3Adapter
+    def setup(self, moto_s3_adapter, sample_deb_file):
+        """Set up test fixtures with S3 bucket and configuration.
+
+        Uses moto_s3_adapter since these tests need real boto3 behavior
+        for S3 state verification.
+        """
+        self.s3_adapter = moto_s3_adapter
         self.sample_deb_file = sample_deb_file
 
     def _create_initial_release(self):

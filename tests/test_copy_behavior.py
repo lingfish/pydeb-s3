@@ -32,13 +32,13 @@ class TestCopyIntegration:
     """Integration tests for copy command using mocked S3."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, s3_client, sample_deb_file):
-        """Set up test fixtures with S3 bucket and configuration."""
-        self.s3_adapter = mock_s3_adapter
-        
-        # s3_utils._s3_client removed - use S3Adapter
-        # s3_utils._bucket removed - use S3Adapter
-        # s3_utils._access_policy removed - use S3Adapter
+    def setup(self, moto_s3_adapter, sample_deb_file):
+        """Set up test fixtures with S3 bucket and configuration.
+
+        Uses moto_s3_adapter since these tests call copy_command()
+        which internally creates Boto3S3Adapter via cli._configure_s3().
+        """
+        self.s3_adapter = moto_s3_adapter
         self.sample_deb_file = sample_deb_file
 
     def _create_release(self, codename="stable", architectures=None, components=None):
@@ -292,13 +292,12 @@ class TestCopyErrors:
     """Tests for error handling in copy command."""
 
     @pytest.fixture(autouse=True)
-    def setup(self, mock_s3_adapter):
-        """Set up test fixtures with S3 bucket."""
-        self.s3_adapter = mock_s3_adapter
-        
-        # s3_utils._s3_client removed - use S3Adapter
-        # s3_utils._bucket removed - use S3Adapter
-        # s3_utils._access_policy removed - use S3Adapter
+    def setup(self, moto_s3_adapter):
+        """Set up test fixtures with S3 bucket.
+
+        Uses moto_s3_adapter since these tests call copy_command().
+        """
+        self.s3_adapter = moto_s3_adapter
 
     def test_copy_nonexistent_package(self, capfd):
         """Error when copying a package that doesn't exist."""

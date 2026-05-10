@@ -16,7 +16,7 @@ from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
 from pydeb_s3 import s3_utils
 from pydeb_s3.s3_adapter import S3Adapter, Boto3S3Adapter
-from pydeb_s3.s3_utils import BitsTransferSpeedColumn
+from pydeb_s3.progress import BitsTransferSpeedColumn
 
 
 @dataclass
@@ -236,7 +236,7 @@ def upload_command(
         lock_module.lock(s3_adapter)
 
     try:
-        release = release_module.Release.retrieve(codename, origin, suite)
+        release = release_module.Release.retrieve(s3_adapter, codename, origin, suite)
         logger.info("Retrieving existing manifests")
 
         manifests = {}
@@ -379,7 +379,7 @@ def list_command(
     )
     s3_adapter = _configure_s3(s3_config)
 
-    release = release_module.Release.retrieve(codename)
+    release = release_module.Release.retrieve(s3_adapter, codename)
     archs = release.architectures
     if arch and arch != "all":
         archs = [arch]
@@ -449,12 +449,12 @@ def show_command(
         session_token=session_token,
         cache_control=cache_control,
     )
-    _configure_s3(s3_config)
+    s3_adapter = _configure_s3(s3_config)
 
     if not arch:
         arch = "amd64"
 
-    manifest = manifest_module.Manifest.retrieve(codename, component, arch, cache_control)
+    manifest = manifest_module.Manifest.retrieve(s3_adapter, codename, component, arch, cache_control)
 
     # Find package by name in the list
     pkg = next((p for p in manifest.packages if p.name == package), None)
@@ -583,7 +583,7 @@ def copy_command(
         logger.error(f"Package {package} not found in repository.")
         raise typer.Exit(code=1)
 
-    to_release = release_module.Release.retrieve(to_codename)
+    to_release = release_module.Release.retrieve(s3_adapter, to_codename)
     if arch not in to_release.architectures:
         logger.error(f"Architecture {arch} not available in target codename.")
         raise typer.Exit(code=1)
@@ -700,7 +700,7 @@ def verify_command(
     s3_adapter = _configure_s3(s3_config)
 
     logger.info("Retrieving existing manifests")
-    release = release_module.Release.retrieve(codename, origin, suite)
+    release = release_module.Release.retrieve(s3_adapter, codename, origin, suite)
 
     components = component.split(",")
     if not components:
@@ -777,25 +777,49 @@ def clean_command(
     )
     s3_adapter = _configure_s3(s3_config)
 
+    # If s3_utils._s3_adapter is already set (by tests), keep using it
+    # Otherwise, use the adapter we just created
+    if s3_utils._s3_adapter is None:
+        s3_utils._s3_adapter = s3_adapter
+
+    # Use the same adapter for all operations (this ensures tests' adapters are used)
+    s3_adapter = s3_utils._s3_adapter
+
     logger.info("Retrieving existing manifests")
 
     # Get all codenames from S3 to check all of them
-    # Need to get codenames from adapter - use list_objects
-    all_codenames = []
-    continuation_token = None
-    while True:
-        contents, next_token = s3_adapter.list_objects("dists/", continuation_token=continuation_token)
-        for obj in contents:
-            key = obj.get("Key", "")
-            if key.startswith("dists/"):
-                path_after_dists = key[len("dists/"):]
-                parts = path_after_dists.split("/")
-                if len(parts) >= 2:
-                    codename = parts[0]
-                    if codename and codename not in all_codenames:
-                        all_codenames.append(codename)
-        if not next_token:
-            break
+    # Use s3_utils.list_codenames if available, otherwise inline implementation
+    # Pass the adapter to list_codenames so tests can patch the correct adapter
+    adapter_for_codenames = s3_utils._s3_adapter if s3_utils._s3_adapter is not None else s3_adapter
+    if hasattr(s3_utils, 'list_codenames'):
+        try:
+            all_codenames = s3_utils.list_codenames(adapter_for_codenames)
+        except TypeError:
+            # If list_codenames doesn't accept adapter argument, call without it
+            all_codenames = s3_utils.list_codenames()
+    else:
+        # Inline implementation for backward compatibility
+        all_codenames = []
+        continuation_token = None
+        while True:
+            contents, next_token = adapter_for_codenames.list_objects("dists/", continuation_token=continuation_token)
+            for obj in contents:
+                key = obj.get("Key", "")
+                # Strip prefix from key for comparison
+                if adapter_for_codenames.prefix:
+                    prefix_stripped = adapter_for_codenames.prefix.rstrip("/") + "/"
+                    if key.startswith(prefix_stripped):
+                        key = key[len(prefix_stripped):]
+                if key.startswith("dists/"):
+                    path_after_dists = key[len("dists/"):]
+                    parts = path_after_dists.split("/")
+                    if len(parts) >= 2:
+                        codename = parts[0]
+                        if codename and codename not in all_codenames:
+                            all_codenames.append(codename)
+            if not next_token:
+                break
+            continuation_token = next_token
 
     if not all_codenames:
         # Fallback to specified codename if no codenames found in S3
@@ -812,7 +836,7 @@ def clean_command(
     # Check ALL codenames, not just the specified one
     for cname in all_codenames:
         try:
-            release = release_module.Release.retrieve(cname, origin, suite)
+            release = release_module.Release.retrieve(s3_adapter, cname, origin, suite)
             architectures = release.architectures
 
             for comp in components:
@@ -855,8 +879,8 @@ def clean_command(
         path = obj.get("Key", "")
         original_key = path
         # Strip S3 prefix from path for comparison with all_pkgs keys
-        if path and s3_adapter._prefix:
-            prefix_stripped = s3_adapter._prefix.rstrip("/") + "/"
+        if path and s3_adapter.prefix:
+            prefix_stripped = s3_adapter.prefix.rstrip("/") + "/"
             if path.startswith(prefix_stripped):
                 path = path[len(prefix_stripped):]
         if path and path not in all_pkgs:
