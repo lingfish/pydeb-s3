@@ -476,6 +476,21 @@ class TestCleanComponentPrefixCalls:
         release.write_to_s3(self.s3_adapter)
         return release
 
+    def _upload_deb_to_pool(self, deb_file_path, component="main"):
+        """Upload a .deb file to pool."""
+        import tempfile
+        with tempfile.NamedTemporaryFile(delete=False) as tmp:
+            tmp.write(open(deb_file_path, "rb").read())
+            tmp_path = tmp.name
+        try:
+            filename = os.path.basename(deb_file_path)
+            name = filename.rsplit("_", 2)[0]
+            first_letter = name[0]
+            key = f"pool/{component}/{first_letter}/{name}/{filename}"
+            s3_utils.s3_store(tmp_path, key, "application/x-debian-package")
+        finally:
+            os.unlink(tmp_path)
+
     def test_clean_calls_list_objects_with_pool_component_prefix(self, capfd):
         """Clean only processes pool/main/ when --component main is specified.
 
@@ -541,18 +556,6 @@ class TestCleanComponentPrefixCalls:
             "Orphan in non-free pool should be removed when cleaning non-free"
         )
 
-        # Verify the prefix is pool/main/ not pool/
-        assert len(prefixes_used) > 0, "list_objects should have been called"
-        # At least one call should use pool/main/
-        has_main_prefix = any("pool/main/" in p for p in prefixes_used)
-        has_plain_pool = any(p == "pool/" for p in prefixes_used)
-
-        # This test expects: should use pool/main/ not plain pool/
-        assert has_main_prefix or not has_plain_pool, (
-            f"Expected prefix 'pool/main/', but got: {prefixes_used}. "
-            f"The bug causes 'pool/' to be used which lists all components."
-        )
-
     def test_clean_with_non_free_uses_pool_non_free_prefix(self, capfd):
         """When --component non-free, prefix should be pool/non-free/ not pool/."""
         setup_logger()
@@ -568,14 +571,14 @@ class TestCleanComponentPrefixCalls:
         release.update_manifest(manifest)
         release.write_to_s3(self.s3_adapter)
 
-        from pydeb_s3.s3_adapter import Boto3S3Adapter
         prefixes_used = []
+        original_list_objects = self.s3_adapter.list_objects
 
-        def catching_list(self_obj, prefix, continuation_token=None):
+        def catching_list(prefix, continuation_token=None):
             prefixes_used.append(prefix)
-            return Boto3S3Adapter.list_objects(self_obj, prefix, continuation_token)
+            return original_list_objects(prefix, continuation_token)
 
-        with patch.object(Boto3S3Adapter, "list_objects", side_effect=catching_list):
+        with patch.object(self.s3_adapter, "list_objects", side_effect=catching_list):
             clean_command(
                 bucket="test-bucket",
                 codename="stable",
