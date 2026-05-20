@@ -310,7 +310,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L215",
       "id": "pydeb_s3_release_release_get_signature_files",
-      "community": 64,
+      "community": 40,
       "norm_label": "._get_signature_files()"
     },
     {
@@ -319,7 +319,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L219",
       "id": "pydeb_s3_release_release_generate",
-      "community": 64,
+      "community": 40,
       "norm_label": ".generate()"
     },
     {
@@ -337,7 +337,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L333",
       "id": "pydeb_s3_release_release_upload",
-      "community": 64,
+      "community": 40,
       "norm_label": ".upload()"
     },
     {
@@ -355,7 +355,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L370",
       "id": "pydeb_s3_release_release_write_to_s3",
-      "community": 65,
+      "community": 40,
       "norm_label": ".write_to_s3()"
     },
     {
@@ -364,7 +364,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L410",
       "id": "pydeb_s3_release_release_validate_others",
-      "community": 65,
+      "community": 40,
       "norm_label": "._validate_others()"
     },
     {
@@ -373,7 +373,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L423",
       "id": "pydeb_s3_release_release_update_manifest",
-      "community": 65,
+      "community": 40,
       "norm_label": ".update_manifest()"
     },
     {
@@ -517,7 +517,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L216",
       "id": "pydeb_s3_release_rationale_216",
-      "community": 64,
+      "community": 40,
       "norm_label": "get the set of signature file paths that should be excluded fromrelease hash sec"
     },
     {
@@ -526,7 +526,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L220",
       "id": "pydeb_s3_release_rationale_220",
-      "community": 64,
+      "community": 40,
       "norm_label": "generate release file content."
     },
     {
@@ -544,7 +544,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L339",
       "id": "pydeb_s3_release_rationale_339",
-      "community": 64,
+      "community": 40,
       "norm_label": "upload the release file to s3."
     },
     {
@@ -562,7 +562,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L377",
       "id": "pydeb_s3_release_rationale_377",
-      "community": 65,
+      "community": 40,
       "norm_label": "write the release file to s3.          args:             s3_adapter: adapter for"
     },
     {
@@ -571,7 +571,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L411",
       "id": "pydeb_s3_release_rationale_411",
-      "community": 65,
+      "community": 40,
       "norm_label": "validate other architectures are present."
     },
     {
@@ -580,7 +580,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L424",
       "id": "pydeb_s3_release_rationale_424",
-      "community": 65,
+      "community": 40,
       "norm_label": "update release with manifest information."
     },
     {
@@ -1876,7 +1876,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L1",
       "id": "src_pydeb_s3_cli_py",
-      "community": 4,
+      "community": 13,
       "norm_label": "cli.py"
     },
     {
@@ -1885,7 +1885,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L25",
       "id": "pydeb_s3_cli_s3config",
-      "community": 4,
+      "community": 13,
       "norm_label": "s3config"
     },
     {
@@ -1894,7 +1894,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L46",
       "id": "pydeb_s3_cli_build_s3_config",
-      "community": 4,
+      "community": 13,
       "norm_label": "build_s3_config()"
     },
     {
@@ -1903,7 +1903,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L93",
       "id": "pydeb_s3_cli_configure_s3",
-      "community": 4,
+      "community": 13,
       "norm_label": "_configure_s3()"
     },
     {
@@ -1912,7 +1912,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L136",
       "id": "pydeb_s3_cli_cli_callback",
-      "community": 4,
+      "community": 13,
       "norm_label": "cli_callback()"
     },
     {
@@ -1921,7 +1921,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L168",
       "id": "pydeb_s3_cli_upload_command",
-      "community": 4,
+      "community": 13,
       "norm_label": "upload_command()"
     },
     {
@@ -1966,14 +1966,14 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L616",
       "id": "pydeb_s3_cli_delete_command",
-      "community": 4,
+      "community": 13,
       "norm_label": "delete_command()"
     },
     {
       "label": "verify_command()",
       "file_type": "code",
       "source_file": "src/pydeb_s3/cli.py",
-      "source_location": "L669",
+      "source_location": "L670",
       "id": "pydeb_s3_cli_verify_command",
       "community": 4,
       "norm_label": "verify_command()"
@@ -1982,7 +1982,7 @@
       "label": "clean_command()",
       "file_type": "code",
       "source_file": "src/pydeb_s3/cli.py",
-      "source_location": "L748",
+      "source_location": "L749",
       "id": "pydeb_s3_cli_clean_command",
       "community": 150,
       "norm_label": "clean_command()"
@@ -1993,7 +1993,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L26",
       "id": "pydeb_s3_cli_rationale_26",
-      "community": 4,
+      "community": 13,
       "norm_label": "s3 configuration grouping all s3-related options."
     },
     {
@@ -2002,7 +2002,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L65",
       "id": "pydeb_s3_cli_rationale_65",
-      "community": 4,
+      "community": 13,
       "norm_label": "build s3config from cli command kwargs.      maps cli parameter names to s3confi"
     },
     {
@@ -2011,7 +2011,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L94",
       "id": "pydeb_s3_cli_rationale_94",
-      "community": 4,
+      "community": 13,
       "norm_label": "configure s3 connection using s3config object. returns s3adapter."
     },
     {
@@ -2020,7 +2020,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L198",
       "id": "pydeb_s3_cli_rationale_198",
-      "community": 4,
+      "community": 13,
       "norm_label": "upload the given files to a s3 bucket as an apt repository."
     },
     {
@@ -2065,15 +2065,15 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L631",
       "id": "pydeb_s3_cli_rationale_631",
-      "community": 4,
+      "community": 13,
       "norm_label": "remove a package from the repository."
     },
     {
       "label": "Verify that the files in the package manifests exist.",
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/cli.py",
-      "source_location": "L687",
-      "id": "pydeb_s3_cli_rationale_687",
+      "source_location": "L688",
+      "id": "pydeb_s3_cli_rationale_688",
       "community": 4,
       "norm_label": "verify that the files in the package manifests exist."
     },
@@ -2081,8 +2081,8 @@
       "label": "Remove orphaned package files.",
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/cli.py",
-      "source_location": "L765",
-      "id": "pydeb_s3_cli_rationale_765",
+      "source_location": "L766",
+      "id": "pydeb_s3_cli_rationale_766",
       "community": 150,
       "norm_label": "remove orphaned package files."
     },
@@ -6934,7 +6934,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L121",
       "id": "tests_test_clean_behavior_testcleanintegration_test_clean_does_not_remove_referenced_files",
-      "community": 150,
+      "community": 32,
       "norm_label": ".test_clean_does_not_remove_referenced_files()"
     },
     {
@@ -6943,7 +6943,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L155",
       "id": "tests_test_clean_behavior_testcleanintegration_test_clean_no_orphans_no_op",
-      "community": 32,
+      "community": 150,
       "norm_label": ".test_clean_no_orphans_no_op()"
     },
     {
@@ -7204,7 +7204,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L122",
       "id": "tests_test_clean_behavior_rationale_122",
-      "community": 150,
+      "community": 32,
       "norm_label": "clean command keeps .deb files that are referenced by packages files."
     },
     {
@@ -7213,7 +7213,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L156",
       "id": "tests_test_clean_behavior_rationale_156",
-      "community": 32,
+      "community": 150,
       "norm_label": "clean command handles case with no orphaned packages."
     },
     {
@@ -9112,7 +9112,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L12",
       "id": "tests_conftest_mocksigningadapter",
-      "community": 42,
+      "community": 35,
       "norm_label": "mocksigningadapter"
     },
     {
@@ -9121,7 +9121,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L15",
       "id": "tests_conftest_mocksigningadapter_init",
-      "community": 42,
+      "community": 35,
       "norm_label": ".__init__()"
     },
     {
@@ -9130,7 +9130,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L20",
       "id": "tests_conftest_mocksigningadapter_clearsign",
-      "community": 42,
+      "community": 35,
       "norm_label": ".clearsign()"
     },
     {
@@ -9139,7 +9139,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L28",
       "id": "tests_conftest_mocksigningadapter_detach_sign",
-      "community": 42,
+      "community": 35,
       "norm_label": ".detach_sign()"
     },
     {
@@ -9148,7 +9148,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L36",
       "id": "tests_conftest_mocksigningadapter_get_key_info",
-      "community": 42,
+      "community": 35,
       "norm_label": ".get_key_info()"
     },
     {
@@ -9157,7 +9157,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L41",
       "id": "tests_conftest_motos3adapterfixture",
-      "community": 52,
+      "community": 35,
       "norm_label": "motos3adapterfixture"
     },
     {
@@ -9166,7 +9166,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L49",
       "id": "tests_conftest_motos3adapterfixture_init",
-      "community": 52,
+      "community": 35,
       "norm_label": ".__init__()"
     },
     {
@@ -9175,7 +9175,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L56",
       "id": "tests_conftest_motos3adapterfixture_enter",
-      "community": 52,
+      "community": 35,
       "norm_label": ".__enter__()"
     },
     {
@@ -9184,7 +9184,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L69",
       "id": "tests_conftest_motos3adapterfixture_exit",
-      "community": 52,
+      "community": 35,
       "norm_label": ".__exit__()"
     },
     {
@@ -9220,7 +9220,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L97",
       "id": "tests_conftest_moto_s3_adapter",
-      "community": 52,
+      "community": 35,
       "norm_label": "moto_s3_adapter()"
     },
     {
@@ -9229,7 +9229,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L115",
       "id": "tests_conftest_moto_s3_adapter_with_prefix",
-      "community": 52,
+      "community": 35,
       "norm_label": "moto_s3_adapter_with_prefix()"
     },
     {
@@ -9274,7 +9274,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L169",
       "id": "tests_conftest_mock_signing_adapter",
-      "community": 42,
+      "community": 35,
       "norm_label": "mock_signing_adapter()"
     },
     {
@@ -9292,7 +9292,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L13",
       "id": "tests_conftest_rationale_13",
-      "community": 42,
+      "community": 35,
       "norm_label": "mock signingadapter for testing without gpg."
     },
     {
@@ -9301,7 +9301,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L21",
       "id": "tests_conftest_rationale_21",
-      "community": 42,
+      "community": 35,
       "norm_label": "simulate clearsigning by writing a mock signed file."
     },
     {
@@ -9310,7 +9310,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L29",
       "id": "tests_conftest_rationale_29",
-      "community": 42,
+      "community": 35,
       "norm_label": "simulate detached signing by writing a mock signature file."
     },
     {
@@ -9319,7 +9319,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L37",
       "id": "tests_conftest_rationale_37",
-      "community": 42,
+      "community": 35,
       "norm_label": "return mock key info."
     },
     {
@@ -9328,7 +9328,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L42",
       "id": "tests_conftest_rationale_42",
-      "community": 52,
+      "community": 35,
       "norm_label": "context manager for moto-backed s3 testing.      creates a real boto3s3adapter b"
     },
     {
@@ -9355,7 +9355,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L98",
       "id": "tests_conftest_rationale_98",
-      "community": 52,
+      "community": 35,
       "norm_label": "moto-backed boto3s3adapter for tests that need real boto3 mocking.      use this"
     },
     {
@@ -9364,7 +9364,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L116",
       "id": "tests_conftest_rationale_116",
-      "community": 52,
+      "community": 35,
       "norm_label": "moto-backed adapter with prefix for testing prefix handling."
     },
     {
@@ -9409,7 +9409,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L170",
       "id": "tests_conftest_rationale_170",
-      "community": 42,
+      "community": 35,
       "norm_label": "provide a mocksigningadapter for tests that need signing without gpg."
     },
     {
@@ -10151,10 +10151,19 @@
       "norm_label": "._create_release()"
     },
     {
-      "label": ".test_delete_requires_bucket()",
+      "label": "._add_packages_to_manifest()",
       "file_type": "code",
       "source_file": "tests/test_delete_behavior.py",
       "source_location": "L243",
+      "id": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest",
+      "community": 13,
+      "norm_label": "._add_packages_to_manifest()"
+    },
+    {
+      "label": ".test_delete_requires_bucket()",
+      "file_type": "code",
+      "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L253",
       "id": "tests_test_delete_behavior_testdeletecommand_test_delete_requires_bucket",
       "community": 13,
       "norm_label": ".test_delete_requires_bucket()"
@@ -10163,10 +10172,19 @@
       "label": ".test_delete_nonexistent_package_errors()",
       "file_type": "code",
       "source_file": "tests/test_delete_behavior.py",
-      "source_location": "L254",
+      "source_location": "L264",
       "id": "tests_test_delete_behavior_testdeletecommand_test_delete_nonexistent_package_errors",
       "community": 13,
       "norm_label": ".test_delete_nonexistent_package_errors()"
+    },
+    {
+      "label": ".test_delete_existing_package_succeeds()",
+      "file_type": "code",
+      "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L289",
+      "id": "tests_test_delete_behavior_testdeletecommand_test_delete_existing_package_succeeds",
+      "community": 13,
+      "norm_label": ".test_delete_existing_package_succeeds()"
     },
     {
       "label": "Integration tests for the delete command.",
@@ -10313,11 +10331,20 @@
       "norm_label": "create and upload a release file."
     },
     {
-      "label": "Delete command requires bucket option.",
+      "label": "Add packages to manifest and update release.",
       "file_type": "rationale",
       "source_file": "tests/test_delete_behavior.py",
       "source_location": "L244",
       "id": "tests_test_delete_behavior_rationale_244",
+      "community": 13,
+      "norm_label": "add packages to manifest and update release."
+    },
+    {
+      "label": "Delete command requires bucket option.",
+      "file_type": "rationale",
+      "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L254",
+      "id": "tests_test_delete_behavior_rationale_254",
       "community": 13,
       "norm_label": "delete command requires bucket option."
     },
@@ -10325,10 +10352,19 @@
       "label": "Deleting a package that doesn't exist should raise error.",
       "file_type": "rationale",
       "source_file": "tests/test_delete_behavior.py",
-      "source_location": "L255",
-      "id": "tests_test_delete_behavior_rationale_255",
+      "source_location": "L265",
+      "id": "tests_test_delete_behavior_rationale_265",
       "community": 13,
       "norm_label": "deleting a package that doesn't exist should raise error."
+    },
+    {
+      "label": "Deleting a package that exists should succeed.          This test reproduces the",
+      "file_type": "rationale",
+      "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L290",
+      "id": "tests_test_delete_behavior_rationale_290",
+      "community": 13,
+      "norm_label": "deleting a package that exists should succeed.          this test reproduces the"
     },
     {
       "label": "test_clean_codename_filtering.py",
@@ -13517,11 +13553,38 @@
       "norm_label": "credits"
     },
     {
+      "label": "Verify that the files in the package manifests exist.",
+      "file_type": "rationale",
+      "source_file": "src/pydeb_s3/cli.py",
+      "source_location": "L687",
+      "community": 4,
+      "norm_label": "verify that the files in the package manifests exist.",
+      "id": "pydeb_s3_cli_rationale_687"
+    },
+    {
+      "label": "Remove orphaned package files.",
+      "file_type": "rationale",
+      "source_file": "src/pydeb_s3/cli.py",
+      "source_location": "L765",
+      "community": 150,
+      "norm_label": "remove orphaned package files.",
+      "id": "pydeb_s3_cli_rationale_765"
+    },
+    {
+      "label": "Deleting a package that doesn't exist should raise error.",
+      "file_type": "rationale",
+      "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L255",
+      "community": 13,
+      "norm_label": "deleting a package that doesn't exist should raise error.",
+      "id": "tests_test_delete_behavior_rationale_255"
+    },
+    {
       "label": "S3 configuration grouping all S3-related options.",
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L24",
-      "community": 4,
+      "community": 13,
       "norm_label": "s3 configuration grouping all s3-related options.",
       "id": "pydeb_s3_cli_rationale_24"
     },
@@ -13530,7 +13593,7 @@
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L63",
-      "community": 4,
+      "community": 13,
       "norm_label": "build s3config from cli command kwargs.      maps cli parameter names to s3confi",
       "id": "pydeb_s3_cli_rationale_63"
     },
@@ -13539,7 +13602,7 @@
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L92",
-      "community": 4,
+      "community": 13,
       "norm_label": "configure s3 connection using s3config object. returns s3adapter.",
       "id": "pydeb_s3_cli_rationale_92"
     },
@@ -13548,7 +13611,7 @@
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L196",
-      "community": 4,
+      "community": 13,
       "norm_label": "upload the given files to a s3 bucket as an apt repository.",
       "id": "pydeb_s3_cli_rationale_196"
     },
@@ -13593,7 +13656,7 @@
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L627",
-      "community": 4,
+      "community": 13,
       "norm_label": "remove a package from the repository.",
       "id": "pydeb_s3_cli_rationale_627"
     },
@@ -14438,9 +14501,9 @@
       "source_file": ".opencode/opencode.json",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "opencode_opencode_json",
-      "target": "opencode_opencode_schema",
-      "confidence_score": 1.0
+      "target": "opencode_opencode_schema"
     },
     {
       "relation": "contains",
@@ -14448,9 +14511,9 @@
       "source_file": ".opencode/opencode.json",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "opencode_opencode_json",
-      "target": "opencode_opencode_plugin",
-      "confidence_score": 1.0
+      "target": "opencode_opencode_plugin"
     },
     {
       "relation": "contains",
@@ -14458,9 +14521,9 @@
       "source_file": ".opencode/package.json",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "opencode_package_json",
-      "target": "opencode_package_dependencies",
-      "confidence_score": 1.0
+      "target": "opencode_package_dependencies"
     },
     {
       "relation": "contains",
@@ -14468,9 +14531,9 @@
       "source_file": ".opencode/package.json",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "opencode_package_dependencies",
-      "target": "opencode_package_dependencies_opencode_ai_plugin",
-      "confidence_score": 1.0
+      "target": "opencode_package_dependencies_opencode_ai_plugin"
     },
     {
       "relation": "contains",
@@ -14478,9 +14541,9 @@
       "source_file": ".opencode/plugins/graphify.js",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "opencode_plugins_graphify_js",
-      "target": "plugins_graphify_graphifyplugin",
-      "confidence_score": 1.0
+      "target": "plugins_graphify_graphifyplugin"
     },
     {
       "relation": "contains",
@@ -19383,9 +19446,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L26",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_26",
-      "target": "pydeb_s3_cli_s3config",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_s3config"
     },
     {
       "relation": "uses",
@@ -19501,9 +19564,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L65",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_65",
-      "target": "pydeb_s3_cli_build_s3_config",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_build_s3_config"
     },
     {
       "relation": "rationale_for",
@@ -19609,9 +19672,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L94",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_94",
-      "target": "pydeb_s3_cli_configure_s3",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_configure_s3"
     },
     {
       "relation": "rationale_for",
@@ -19629,9 +19692,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L198",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_198",
-      "target": "pydeb_s3_cli_upload_command",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_upload_command"
     },
     {
       "relation": "calls",
@@ -19660,9 +19723,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L367",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_367",
-      "target": "pydeb_s3_cli_list_command",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_list_command"
     },
     {
       "relation": "calls",
@@ -19823,9 +19886,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L441",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_441",
-      "target": "pydeb_s3_cli_show_command",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_show_command"
     },
     {
       "relation": "calls",
@@ -19986,9 +20049,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L502",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_502",
-      "target": "pydeb_s3_cli_exists_command",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_exists_command"
     },
     {
       "relation": "calls",
@@ -20138,9 +20201,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L559",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_559",
-      "target": "pydeb_s3_cli_copy_command",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_copy_command"
     },
     {
       "relation": "calls",
@@ -20257,9 +20320,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L631",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_631",
-      "target": "pydeb_s3_cli_delete_command",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_delete_command"
     },
     {
       "relation": "calls",
@@ -20284,6 +20347,17 @@
       "target": "pydeb_s3_cli_delete_command"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L313",
+      "weight": 1.0,
+      "source": "tests_test_delete_behavior_testdeletecommand_test_delete_existing_package_succeeds",
+      "target": "pydeb_s3_cli_delete_command"
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "src/pydeb_s3/cli.py",
@@ -20297,9 +20371,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "src/pydeb_s3/cli.py",
-      "source_location": "L687",
+      "source_location": "L688",
       "weight": 1.0,
-      "source": "pydeb_s3_cli_rationale_687",
+      "source": "pydeb_s3_cli_rationale_688",
       "target": "pydeb_s3_cli_verify_command",
       "confidence_score": 1.0
     },
@@ -20406,6 +20480,16 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "src/pydeb_s3/cli.py",
+      "source_location": "L687",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "pydeb_s3_cli_rationale_687",
+      "target": "pydeb_s3_cli_verify_command"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L683",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -20416,9 +20500,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "src/pydeb_s3/cli.py",
-      "source_location": "L765",
+      "source_location": "L766",
       "weight": 1.0,
-      "source": "pydeb_s3_cli_rationale_765",
+      "source": "pydeb_s3_cli_rationale_766",
       "target": "pydeb_s3_cli_clean_command",
       "confidence_score": 1.0
     },
@@ -20761,6 +20845,16 @@
       "source_location": "L470",
       "weight": 1.0,
       "source": "tests_test_clean_real_scenario_testcleanrealscenariowitharm64_test_clean_with_arm64_versions",
+      "target": "pydeb_s3_cli_clean_command"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pydeb_s3/cli.py",
+      "source_location": "L765",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "pydeb_s3_cli_rationale_765",
       "target": "pydeb_s3_cli_clean_command"
     },
     {
@@ -32142,6 +32236,17 @@
       "target": "tests_test_delete_behavior_setup_logger"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L298",
+      "weight": 1.0,
+      "source": "tests_test_delete_behavior_testdeletecommand_test_delete_existing_package_succeeds",
+      "target": "tests_test_delete_behavior_setup_logger",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_delete_behavior.py",
@@ -32194,6 +32299,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_testdeletemanifest_test_delete_multiple_versions_different_architectures",
       "target": "tests_test_delete_behavior_package_exists"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L309",
+      "weight": 1.0,
+      "source": "tests_test_delete_behavior_testdeletecommand_test_delete_existing_package_succeeds",
+      "target": "tests_test_delete_behavior_package_exists",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -32306,6 +32422,16 @@
       "target": "tests_test_delete_behavior_testdeletemanifest_create_release"
     },
     {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L56",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_delete_behavior_rationale_56",
+      "target": "tests_test_delete_behavior_testdeletemanifest_add_packages_to_manifest"
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -32350,16 +32476,6 @@
       "target": "tests_test_delete_behavior_testdeletemanifest_add_packages_to_manifest"
     },
     {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_delete_behavior.py",
-      "source_location": "L56",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_delete_behavior_rationale_56",
-      "target": "tests_test_delete_behavior_testdeletemanifest_add_packages_to_manifest"
-    },
-    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -32369,6 +32485,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_testdeletemanifest_test_delete_package_removes_from_manifest",
       "target": "tests_test_delete_behavior_testdeletecommand_create_release"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L71",
+      "weight": 1.0,
+      "source": "tests_test_delete_behavior_testdeletemanifest_test_delete_package_removes_from_manifest",
+      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -32392,6 +32519,17 @@
       "target": "tests_test_delete_behavior_testdeletecommand_create_release"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L92",
+      "weight": 1.0,
+      "source": "tests_test_delete_behavior_testdeletemanifest_test_delete_package_with_versions",
+      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_delete_behavior.py",
@@ -32411,6 +32549,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_testdeletemanifest_test_delete_package_writes_to_s3",
       "target": "tests_test_delete_behavior_testdeletecommand_create_release"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L115",
+      "weight": 1.0,
+      "source": "tests_test_delete_behavior_testdeletemanifest_test_delete_package_writes_to_s3",
+      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -32453,6 +32602,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_testdeletemanifest_test_delete_package_updates_release",
       "target": "tests_test_delete_behavior_testdeletecommand_create_release"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L154",
+      "weight": 1.0,
+      "source": "tests_test_delete_behavior_testdeletemanifest_test_delete_package_updates_release",
+      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -32501,6 +32661,16 @@
       "source_file": "tests/test_delete_behavior.py",
       "source_location": "L243",
       "weight": 1.0,
+      "source": "tests_test_delete_behavior_testdeletecommand",
+      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L243",
+      "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_testdeletecommand",
       "target": "tests_test_delete_behavior_testdeletecommand_test_delete_requires_bucket"
@@ -32516,6 +32686,16 @@
       "target": "tests_test_delete_behavior_testdeletecommand_test_delete_nonexistent_package_errors"
     },
     {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L289",
+      "weight": 1.0,
+      "source": "tests_test_delete_behavior_testdeletecommand",
+      "target": "tests_test_delete_behavior_testdeletecommand_test_delete_existing_package_succeeds",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_delete_behavior.py",
@@ -32526,6 +32706,17 @@
       "target": "tests_test_delete_behavior_testdeletecommand"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L301",
+      "weight": 1.0,
+      "source": "tests_test_delete_behavior_testdeletecommand_test_delete_existing_package_succeeds",
+      "target": "tests_test_delete_behavior_testdeletecommand_create_release",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_delete_behavior.py",
@@ -32534,6 +32725,37 @@
       "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_rationale_229",
       "target": "tests_test_delete_behavior_testdeletecommand_create_release"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L302",
+      "weight": 1.0,
+      "source": "tests_test_delete_behavior_testdeletecommand_test_delete_existing_package_succeeds",
+      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L244",
+      "weight": 1.0,
+      "source": "tests_test_delete_behavior_rationale_244",
+      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L254",
+      "weight": 1.0,
+      "source": "tests_test_delete_behavior_rationale_254",
+      "target": "tests_test_delete_behavior_testdeletecommand_test_delete_requires_bucket",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -32549,11 +32771,31 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L265",
+      "weight": 1.0,
+      "source": "tests_test_delete_behavior_rationale_265",
+      "target": "tests_test_delete_behavior_testdeletecommand_test_delete_nonexistent_package_errors",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_delete_behavior.py",
       "source_location": "L255",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_rationale_255",
       "target": "tests_test_delete_behavior_testdeletecommand_test_delete_nonexistent_package_errors"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_delete_behavior.py",
+      "source_location": "L290",
+      "weight": 1.0,
+      "source": "tests_test_delete_behavior_rationale_290",
+      "target": "tests_test_delete_behavior_testdeletecommand_test_delete_existing_package_succeeds",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -34105,9 +34347,9 @@
       "source_file": "tests/test_list_behavior.py",
       "source_location": "L453",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_list_behavior_testlistquietoutput_test_list_output_contains_package_name",
-      "target": "tests_test_list_behavior_setup_logger",
-      "confidence_score": 1.0
+      "target": "tests_test_list_behavior_setup_logger"
     },
     {
       "relation": "rationale_for",
@@ -34537,9 +34779,9 @@
       "source_file": "tests/test_list_behavior.py",
       "source_location": "L451",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_list_behavior_testlistquietoutput",
-      "target": "tests_test_list_behavior_testlistquietoutput_test_list_output_contains_package_name",
-      "confidence_score": 1.0
+      "target": "tests_test_list_behavior_testlistquietoutput_test_list_output_contains_package_name"
     },
     {
       "relation": "rationale_for",
@@ -34590,9 +34832,9 @@
       "source_file": "tests/test_list_behavior.py",
       "source_location": "L455",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_list_behavior_testlistquietoutput_test_list_output_contains_package_name",
-      "target": "tests_test_list_behavior_testlistquietoutput_create_release",
-      "confidence_score": 1.0
+      "target": "tests_test_list_behavior_testlistquietoutput_create_release"
     },
     {
       "relation": "rationale_for",
@@ -34644,9 +34886,9 @@
       "source_file": "tests/test_list_behavior.py",
       "source_location": "L456",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_list_behavior_testlistquietoutput_test_list_output_contains_package_name",
-      "target": "tests_test_list_behavior_testlistquietoutput_add_packages_to_manifest",
-      "confidence_score": 1.0
+      "target": "tests_test_list_behavior_testlistquietoutput_add_packages_to_manifest"
     },
     {
       "relation": "rationale_for",
@@ -34695,9 +34937,9 @@
       "source_file": "tests/test_list_behavior.py",
       "source_location": "L452",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_list_behavior_rationale_452",
-      "target": "tests_test_list_behavior_testlistquietoutput_test_list_output_contains_package_name",
-      "confidence_score": 1.0
+      "target": "tests_test_list_behavior_testlistquietoutput_test_list_output_contains_package_name"
     },
     {
       "relation": "rationale_for",
@@ -36146,9 +36388,9 @@
       "source_file": "AGENTS.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "agents_md",
-      "target": "pydeb_s3_agents_pydeb_s3_agent_guide",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_agents_pydeb_s3_agent_guide"
     },
     {
       "relation": "contains",
@@ -36156,9 +36398,9 @@
       "source_file": "AGENTS.md",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_agents_pydeb_s3_agent_guide",
-      "target": "pydeb_s3_agents_project_setup",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_agents_project_setup"
     },
     {
       "relation": "contains",
@@ -36166,9 +36408,9 @@
       "source_file": "AGENTS.md",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_agents_pydeb_s3_agent_guide",
-      "target": "pydeb_s3_agents_key_commands",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_agents_key_commands"
     },
     {
       "relation": "contains",
@@ -36176,9 +36418,9 @@
       "source_file": "AGENTS.md",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_agents_pydeb_s3_agent_guide",
-      "target": "pydeb_s3_agents_key_conventions",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_agents_key_conventions"
     },
     {
       "relation": "contains",
@@ -36186,9 +36428,9 @@
       "source_file": "AGENTS.md",
       "source_location": "L28",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_agents_pydeb_s3_agent_guide",
-      "target": "pydeb_s3_agents_project_structure",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_agents_project_structure"
     },
     {
       "relation": "contains",
@@ -36196,9 +36438,9 @@
       "source_file": "AGENTS.md",
       "source_location": "L41",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_agents_pydeb_s3_agent_guide",
-      "target": "pydeb_s3_agents_dependencies",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_agents_dependencies"
     },
     {
       "relation": "contains",
@@ -36206,9 +36448,9 @@
       "source_file": "AGENTS.md",
       "source_location": "L50",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_agents_pydeb_s3_agent_guide",
-      "target": "pydeb_s3_agents_cli_entry_point",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_agents_cli_entry_point"
     },
     {
       "relation": "contains",
@@ -36216,9 +36458,9 @@
       "source_file": "AGENTS.md",
       "source_location": "L54",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_agents_pydeb_s3_agent_guide",
-      "target": "pydeb_s3_agents_important_notes",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_agents_important_notes"
     },
     {
       "relation": "contains",
@@ -36226,9 +36468,9 @@
       "source_file": "AGENTS.md",
       "source_location": "L60",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_agents_pydeb_s3_agent_guide",
-      "target": "pydeb_s3_agents_graphify",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_agents_graphify"
     },
     {
       "relation": "contains",
@@ -36236,9 +36478,9 @@
       "source_file": "AGENTS.md",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_agents_key_commands",
-      "target": "pydeb_s3_agents_codeblock_1",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_agents_codeblock_1"
     },
     {
       "relation": "contains",
@@ -36246,9 +36488,9 @@
       "source_file": "README.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_md",
-      "target": "pydeb_s3_readme_pydeb_s3",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_pydeb_s3"
     },
     {
       "relation": "contains",
@@ -36256,9 +36498,9 @@
       "source_file": "README.md",
       "source_location": "L21",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_pydeb_s3",
-      "target": "pydeb_s3_readme_updated_features",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_updated_features"
     },
     {
       "relation": "contains",
@@ -36266,9 +36508,9 @@
       "source_file": "README.md",
       "source_location": "L36",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_pydeb_s3",
-      "target": "pydeb_s3_readme_installation",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_installation"
     },
     {
       "relation": "contains",
@@ -36276,9 +36518,9 @@
       "source_file": "README.md",
       "source_location": "L50",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_pydeb_s3",
-      "target": "pydeb_s3_readme_quick_start",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_quick_start"
     },
     {
       "relation": "contains",
@@ -36286,9 +36528,9 @@
       "source_file": "README.md",
       "source_location": "L68",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_pydeb_s3",
-      "target": "pydeb_s3_readme_usage",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_usage"
     },
     {
       "relation": "contains",
@@ -36296,9 +36538,9 @@
       "source_file": "README.md",
       "source_location": "L101",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_pydeb_s3",
-      "target": "pydeb_s3_readme_output_control",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_output_control"
     },
     {
       "relation": "contains",
@@ -36306,9 +36548,9 @@
       "source_file": "README.md",
       "source_location": "L109",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_pydeb_s3",
-      "target": "pydeb_s3_readme_common_command_examples",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_common_command_examples"
     },
     {
       "relation": "contains",
@@ -36316,9 +36558,9 @@
       "source_file": "README.md",
       "source_location": "L142",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_pydeb_s3",
-      "target": "pydeb_s3_readme_configuration",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_configuration"
     },
     {
       "relation": "contains",
@@ -36326,9 +36568,9 @@
       "source_file": "README.md",
       "source_location": "L168",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_pydeb_s3",
-      "target": "pydeb_s3_readme_development",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_development"
     },
     {
       "relation": "contains",
@@ -36336,9 +36578,9 @@
       "source_file": "README.md",
       "source_location": "L172",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_pydeb_s3",
-      "target": "pydeb_s3_readme_license",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_license"
     },
     {
       "relation": "contains",
@@ -36346,9 +36588,9 @@
       "source_file": "README.md",
       "source_location": "L176",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_pydeb_s3",
-      "target": "pydeb_s3_readme_credits",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_credits"
     },
     {
       "relation": "contains",
@@ -36356,9 +36598,9 @@
       "source_file": "README.md",
       "source_location": "L40",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_installation",
-      "target": "pydeb_s3_readme_codeblock_1",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_codeblock_1"
     },
     {
       "relation": "contains",
@@ -36366,9 +36608,9 @@
       "source_file": "README.md",
       "source_location": "L46",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_installation",
-      "target": "pydeb_s3_readme_codeblock_2",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_codeblock_2"
     },
     {
       "relation": "contains",
@@ -36376,9 +36618,9 @@
       "source_file": "README.md",
       "source_location": "L54",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_quick_start",
-      "target": "pydeb_s3_readme_codeblock_3",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_codeblock_3"
     },
     {
       "relation": "contains",
@@ -36386,9 +36628,9 @@
       "source_file": "README.md",
       "source_location": "L60",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_quick_start",
-      "target": "pydeb_s3_readme_codeblock_4",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_codeblock_4"
     },
     {
       "relation": "contains",
@@ -36396,9 +36638,9 @@
       "source_file": "README.md",
       "source_location": "L72",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_usage",
-      "target": "pydeb_s3_readme_codeblock_5",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_codeblock_5"
     },
     {
       "relation": "contains",
@@ -36406,9 +36648,9 @@
       "source_file": "README.md",
       "source_location": "L111",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_common_command_examples",
-      "target": "pydeb_s3_readme_list_packages",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_list_packages"
     },
     {
       "relation": "contains",
@@ -36416,9 +36658,9 @@
       "source_file": "README.md",
       "source_location": "L116",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_common_command_examples",
-      "target": "pydeb_s3_readme_show_package_info",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_show_package_info"
     },
     {
       "relation": "contains",
@@ -36426,9 +36668,9 @@
       "source_file": "README.md",
       "source_location": "L121",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_common_command_examples",
-      "target": "pydeb_s3_readme_check_if_package_exists",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_check_if_package_exists"
     },
     {
       "relation": "contains",
@@ -36436,9 +36678,9 @@
       "source_file": "README.md",
       "source_location": "L126",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_common_command_examples",
-      "target": "pydeb_s3_readme_copy_package_to_another_codename",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_copy_package_to_another_codename"
     },
     {
       "relation": "contains",
@@ -36446,9 +36688,9 @@
       "source_file": "README.md",
       "source_location": "L131",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_common_command_examples",
-      "target": "pydeb_s3_readme_verify_repository_integrity",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_verify_repository_integrity"
     },
     {
       "relation": "contains",
@@ -36456,9 +36698,9 @@
       "source_file": "README.md",
       "source_location": "L136",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_common_command_examples",
-      "target": "pydeb_s3_readme_clean_orphaned_packages_dry_run_first",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_clean_orphaned_packages_dry_run_first"
     },
     {
       "relation": "contains",
@@ -36466,9 +36708,9 @@
       "source_file": "README.md",
       "source_location": "L112",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_list_packages",
-      "target": "pydeb_s3_readme_codeblock_6",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_codeblock_6"
     },
     {
       "relation": "contains",
@@ -36476,9 +36718,9 @@
       "source_file": "README.md",
       "source_location": "L117",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_show_package_info",
-      "target": "pydeb_s3_readme_codeblock_7",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_codeblock_7"
     },
     {
       "relation": "contains",
@@ -36486,9 +36728,9 @@
       "source_file": "README.md",
       "source_location": "L122",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_check_if_package_exists",
-      "target": "pydeb_s3_readme_codeblock_8",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_codeblock_8"
     },
     {
       "relation": "contains",
@@ -36496,9 +36738,9 @@
       "source_file": "README.md",
       "source_location": "L127",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_copy_package_to_another_codename",
-      "target": "pydeb_s3_readme_codeblock_9",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_codeblock_9"
     },
     {
       "relation": "contains",
@@ -36506,9 +36748,9 @@
       "source_file": "README.md",
       "source_location": "L132",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_verify_repository_integrity",
-      "target": "pydeb_s3_readme_codeblock_10",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_codeblock_10"
     },
     {
       "relation": "contains",
@@ -36516,9 +36758,9 @@
       "source_file": "README.md",
       "source_location": "L137",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_clean_orphaned_packages_dry_run_first",
-      "target": "pydeb_s3_readme_codeblock_11",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_codeblock_11"
     },
     {
       "relation": "contains",
@@ -36526,9 +36768,9 @@
       "source_file": "README.md",
       "source_location": "L144",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_configuration",
-      "target": "pydeb_s3_readme_aws_credentials",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_aws_credentials"
     },
     {
       "relation": "contains",
@@ -36536,9 +36778,9 @@
       "source_file": "README.md",
       "source_location": "L152",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_configuration",
-      "target": "pydeb_s3_readme_s3_bucket",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_s3_bucket"
     },
     {
       "relation": "contains",
@@ -36546,9 +36788,9 @@
       "source_file": "README.md",
       "source_location": "L156",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_configuration",
-      "target": "pydeb_s3_readme_visibility_acl",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_visibility_acl"
     },
     {
       "relation": "contains",
@@ -36556,9 +36798,9 @@
       "source_file": "README.md",
       "source_location": "L164",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_readme_configuration",
-      "target": "pydeb_s3_readme_gpg_signing",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_readme_gpg_signing"
     },
     {
       "relation": "implements",
@@ -37495,5 +37737,5 @@
       "source_file": "tests/conftest.py"
     }
   ],
-  "built_at_commit": "ef1acc3aec1f95b2baa5813de4225b651a9e695d"
+  "built_at_commit": "25e5dbd96379f557f36e95c41ac3871eaa1aa9b9"
 }
