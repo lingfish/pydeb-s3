@@ -175,7 +175,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L16",
       "id": "pydeb_s3_release_signingadapter",
-      "community": 17,
+      "community": 64,
       "norm_label": "signingadapter"
     },
     {
@@ -184,7 +184,7 @@
       "source_file": "",
       "source_location": "",
       "id": "protocol",
-      "community": 17,
+      "community": 64,
       "norm_label": "protocol"
     },
     {
@@ -193,7 +193,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L23",
       "id": "pydeb_s3_release_signingadapter_clearsign",
-      "community": 17,
+      "community": 64,
       "norm_label": ".clearsign()"
     },
     {
@@ -202,7 +202,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L32",
       "id": "pydeb_s3_release_signingadapter_detach_sign",
-      "community": 17,
+      "community": 64,
       "norm_label": ".detach_sign()"
     },
     {
@@ -211,7 +211,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L41",
       "id": "pydeb_s3_release_signingadapter_get_key_info",
-      "community": 17,
+      "community": 64,
       "norm_label": ".get_key_info()"
     },
     {
@@ -310,7 +310,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L215",
       "id": "pydeb_s3_release_release_get_signature_files",
-      "community": 40,
+      "community": 160,
       "norm_label": "._get_signature_files()"
     },
     {
@@ -319,7 +319,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L219",
       "id": "pydeb_s3_release_release_generate",
-      "community": 40,
+      "community": 160,
       "norm_label": ".generate()"
     },
     {
@@ -337,7 +337,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L333",
       "id": "pydeb_s3_release_release_upload",
-      "community": 40,
+      "community": 160,
       "norm_label": ".upload()"
     },
     {
@@ -355,7 +355,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L370",
       "id": "pydeb_s3_release_release_write_to_s3",
-      "community": 40,
+      "community": 161,
       "norm_label": ".write_to_s3()"
     },
     {
@@ -364,7 +364,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L410",
       "id": "pydeb_s3_release_release_validate_others",
-      "community": 40,
+      "community": 161,
       "norm_label": "._validate_others()"
     },
     {
@@ -373,7 +373,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L423",
       "id": "pydeb_s3_release_release_update_manifest",
-      "community": 40,
+      "community": 161,
       "norm_label": ".update_manifest()"
     },
     {
@@ -400,7 +400,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L17",
       "id": "pydeb_s3_release_rationale_17",
-      "community": 17,
+      "community": 64,
       "norm_label": "interface for gpg signing operations.      a signingadapter provides a seam betw"
     },
     {
@@ -409,7 +409,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L24",
       "id": "pydeb_s3_release_rationale_24",
-      "community": 17,
+      "community": 64,
       "norm_label": "create clearsigned file (inrelease).          args:             input_path: path"
     },
     {
@@ -418,7 +418,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L33",
       "id": "pydeb_s3_release_rationale_33",
-      "community": 17,
+      "community": 64,
       "norm_label": "create detached signature (release.gpg).          args:             input_path:"
     },
     {
@@ -427,7 +427,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L42",
       "id": "pydeb_s3_release_rationale_42",
-      "community": 17,
+      "community": 64,
       "norm_label": "return info about signing keys (for error messages)."
     },
     {
@@ -517,7 +517,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L216",
       "id": "pydeb_s3_release_rationale_216",
-      "community": 40,
+      "community": 160,
       "norm_label": "get the set of signature file paths that should be excluded fromrelease hash sec"
     },
     {
@@ -526,7 +526,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L220",
       "id": "pydeb_s3_release_rationale_220",
-      "community": 40,
+      "community": 160,
       "norm_label": "generate release file content."
     },
     {
@@ -544,7 +544,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L339",
       "id": "pydeb_s3_release_rationale_339",
-      "community": 40,
+      "community": 160,
       "norm_label": "upload the release file to s3."
     },
     {
@@ -562,7 +562,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L377",
       "id": "pydeb_s3_release_rationale_377",
-      "community": 40,
+      "community": 161,
       "norm_label": "write the release file to s3.          args:             s3_adapter: adapter for"
     },
     {
@@ -571,7 +571,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L411",
       "id": "pydeb_s3_release_rationale_411",
-      "community": 40,
+      "community": 161,
       "norm_label": "validate other architectures are present."
     },
     {
@@ -580,7 +580,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L424",
       "id": "pydeb_s3_release_rationale_424",
-      "community": 40,
+      "community": 161,
       "norm_label": "update release with manifest information."
     },
     {
@@ -1876,7 +1876,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L1",
       "id": "src_pydeb_s3_cli_py",
-      "community": 13,
+      "community": 9,
       "norm_label": "cli.py"
     },
     {
@@ -1885,7 +1885,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L25",
       "id": "pydeb_s3_cli_s3config",
-      "community": 13,
+      "community": 9,
       "norm_label": "s3config"
     },
     {
@@ -1894,7 +1894,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L46",
       "id": "pydeb_s3_cli_build_s3_config",
-      "community": 13,
+      "community": 9,
       "norm_label": "build_s3_config()"
     },
     {
@@ -1903,7 +1903,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L93",
       "id": "pydeb_s3_cli_configure_s3",
-      "community": 13,
+      "community": 9,
       "norm_label": "_configure_s3()"
     },
     {
@@ -1912,7 +1912,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L136",
       "id": "pydeb_s3_cli_cli_callback",
-      "community": 13,
+      "community": 9,
       "norm_label": "cli_callback()"
     },
     {
@@ -1921,7 +1921,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L168",
       "id": "pydeb_s3_cli_upload_command",
-      "community": 13,
+      "community": 9,
       "norm_label": "upload_command()"
     },
     {
@@ -1966,7 +1966,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L616",
       "id": "pydeb_s3_cli_delete_command",
-      "community": 13,
+      "community": 9,
       "norm_label": "delete_command()"
     },
     {
@@ -1993,7 +1993,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L26",
       "id": "pydeb_s3_cli_rationale_26",
-      "community": 13,
+      "community": 9,
       "norm_label": "s3 configuration grouping all s3-related options."
     },
     {
@@ -2002,7 +2002,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L65",
       "id": "pydeb_s3_cli_rationale_65",
-      "community": 13,
+      "community": 9,
       "norm_label": "build s3config from cli command kwargs.      maps cli parameter names to s3confi"
     },
     {
@@ -2011,7 +2011,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L94",
       "id": "pydeb_s3_cli_rationale_94",
-      "community": 13,
+      "community": 9,
       "norm_label": "configure s3 connection using s3config object. returns s3adapter."
     },
     {
@@ -2020,7 +2020,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L198",
       "id": "pydeb_s3_cli_rationale_198",
-      "community": 13,
+      "community": 9,
       "norm_label": "upload the given files to a s3 bucket as an apt repository."
     },
     {
@@ -2065,7 +2065,7 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L631",
       "id": "pydeb_s3_cli_rationale_631",
-      "community": 13,
+      "community": 9,
       "norm_label": "remove a package from the repository."
     },
     {
@@ -2443,7 +2443,7 @@
       "source_file": "src/pydeb_s3/progress.py",
       "source_location": "L55",
       "id": "pydeb_s3_progress_uploadprogress",
-      "community": 28,
+      "community": 159,
       "norm_label": "uploadprogress"
     },
     {
@@ -2461,7 +2461,7 @@
       "source_file": "src/pydeb_s3/progress.py",
       "source_location": "L111",
       "id": "pydeb_s3_progress_uploadprogress_call",
-      "community": 28,
+      "community": 159,
       "norm_label": ".__call__()"
     },
     {
@@ -2470,7 +2470,7 @@
       "source_file": "src/pydeb_s3/progress.py",
       "source_location": "L136",
       "id": "pydeb_s3_progress_uploadprogress_calculate_percentage",
-      "community": 28,
+      "community": 159,
       "norm_label": "._calculate_percentage()"
     },
     {
@@ -2479,7 +2479,7 @@
       "source_file": "src/pydeb_s3/progress.py",
       "source_location": "L141",
       "id": "pydeb_s3_progress_uploadprogress_format_speed",
-      "community": 28,
+      "community": 159,
       "norm_label": "._format_speed()"
     },
     {
@@ -2488,7 +2488,7 @@
       "source_file": "src/pydeb_s3/progress.py",
       "source_location": "L159",
       "id": "pydeb_s3_progress_uploadprogress_get_console",
-      "community": 28,
+      "community": 159,
       "norm_label": ".get_console()"
     },
     {
@@ -2497,7 +2497,7 @@
       "source_file": "src/pydeb_s3/progress.py",
       "source_location": "L164",
       "id": "pydeb_s3_progress_uploadprogress_finish",
-      "community": 28,
+      "community": 159,
       "norm_label": "._finish()"
     },
     {
@@ -2542,7 +2542,7 @@
       "source_file": "src/pydeb_s3/progress.py",
       "source_location": "L56",
       "id": "pydeb_s3_progress_rationale_56",
-      "community": 28,
+      "community": 159,
       "norm_label": "callback class for tracking upload progress."
     },
     {
@@ -2551,7 +2551,7 @@
       "source_file": "src/pydeb_s3/progress.py",
       "source_location": "L112",
       "id": "pydeb_s3_progress_rationale_112",
-      "community": 28,
+      "community": 159,
       "norm_label": "called by boto3 upload_file with current bytes transferred."
     },
     {
@@ -5728,7 +5728,7 @@
       "source_file": "tests/test_upload_progress.py",
       "source_location": "L1",
       "id": "tests_test_upload_progress_py",
-      "community": 63,
+      "community": 38,
       "norm_label": "test_upload_progress.py"
     },
     {
@@ -5881,7 +5881,7 @@
       "source_file": "tests/test_upload_progress.py",
       "source_location": "L1",
       "id": "tests_test_upload_progress_rationale_1",
-      "community": 63,
+      "community": 38,
       "norm_label": "tests for uploadprogress callback class."
     },
     {
@@ -7919,6 +7919,186 @@
       "norm_label": "lockerror is defined."
     },
     {
+      "label": "test_release_behavior.py",
+      "file_type": "code",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L1",
+      "id": "tests_test_release_behavior_py",
+      "community": 42,
+      "norm_label": "test_release_behavior.py"
+    },
+    {
+      "label": "TestGpgSigningAdapterCommands",
+      "file_type": "code",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L12",
+      "id": "tests_test_release_behavior_testgpgsigningadaptercommands",
+      "community": 42,
+      "norm_label": "testgpgsigningadaptercommands"
+    },
+    {
+      "label": "temp_file()",
+      "file_type": "code",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L16",
+      "id": "tests_test_release_behavior_temp_file",
+      "community": 42,
+      "norm_label": "temp_file()"
+    },
+    {
+      "label": ".test_clearsign_includes_batch_flags()",
+      "file_type": "code",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L29",
+      "id": "tests_test_release_behavior_testgpgsigningadaptercommands_test_clearsign_includes_batch_flags",
+      "community": 42,
+      "norm_label": ".test_clearsign_includes_batch_flags()"
+    },
+    {
+      "label": ".test_detach_sign_includes_batch_flags()",
+      "file_type": "code",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L67",
+      "id": "tests_test_release_behavior_testgpgsigningadaptercommands_test_detach_sign_includes_batch_flags",
+      "community": 42,
+      "norm_label": ".test_detach_sign_includes_batch_flags()"
+    },
+    {
+      "label": ".test_clearsign_batch_flags_before_options()",
+      "file_type": "code",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L105",
+      "id": "tests_test_release_behavior_testgpgsigningadaptercommands_test_clearsign_batch_flags_before_options",
+      "community": 42,
+      "norm_label": ".test_clearsign_batch_flags_before_options()"
+    },
+    {
+      "label": ".test_detach_sign_batch_flags_before_options()",
+      "file_type": "code",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L139",
+      "id": "tests_test_release_behavior_testgpgsigningadaptercommands_test_detach_sign_batch_flags_before_options",
+      "community": 42,
+      "norm_label": ".test_detach_sign_batch_flags_before_options()"
+    },
+    {
+      "label": "TestReleaseSignMethod",
+      "file_type": "code",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L174",
+      "id": "tests_test_release_behavior_testreleasesignmethod",
+      "community": 42,
+      "norm_label": "testreleasesignmethod"
+    },
+    {
+      "label": "mock_s3_adapter()",
+      "file_type": "code",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L178",
+      "id": "tests_test_release_behavior_mock_s3_adapter",
+      "community": 42,
+      "norm_label": "mock_s3_adapter()"
+    },
+    {
+      "label": ".test_sign_calls_clearsign_then_detach_sign()",
+      "file_type": "code",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L184",
+      "id": "tests_test_release_behavior_testreleasesignmethod_test_sign_calls_clearsign_then_detach_sign",
+      "community": 42,
+      "norm_label": ".test_sign_calls_clearsign_then_detach_sign()"
+    },
+    {
+      "label": "Integration tests for Release signing behavior.",
+      "file_type": "rationale",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L1",
+      "id": "tests_test_release_behavior_rationale_1",
+      "community": 42,
+      "norm_label": "integration tests for release signing behavior."
+    },
+    {
+      "label": "Tests for GpgSigningAdapter GPG command construction.",
+      "file_type": "rationale",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L13",
+      "id": "tests_test_release_behavior_rationale_13",
+      "community": 42,
+      "norm_label": "tests for gpgsigningadapter gpg command construction."
+    },
+    {
+      "label": "Create a temporary file for testing.",
+      "file_type": "rationale",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L17",
+      "id": "tests_test_release_behavior_rationale_17",
+      "community": 162,
+      "norm_label": "create a temporary file for testing."
+    },
+    {
+      "label": "clearsign() should include --batch --no-tty --yes flags for non-interactive GPG.",
+      "file_type": "rationale",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L30",
+      "id": "tests_test_release_behavior_rationale_30",
+      "community": 42,
+      "norm_label": "clearsign() should include --batch --no-tty --yes flags for non-interactive gpg."
+    },
+    {
+      "label": "detach_sign() should include --batch --no-tty --yes flags for non-interactive GP",
+      "file_type": "rationale",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L68",
+      "id": "tests_test_release_behavior_rationale_68",
+      "community": 42,
+      "norm_label": "detach_sign() should include --batch --no-tty --yes flags for non-interactive gp"
+    },
+    {
+      "label": "Batch flags should come before user-provided options.          This allows user",
+      "file_type": "rationale",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L106",
+      "id": "tests_test_release_behavior_rationale_106",
+      "community": 42,
+      "norm_label": "batch flags should come before user-provided options.          this allows user"
+    },
+    {
+      "label": "Batch flags should come before user-provided options.          This allows user",
+      "file_type": "rationale",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L140",
+      "id": "tests_test_release_behavior_rationale_140",
+      "community": 42,
+      "norm_label": "batch flags should come before user-provided options.          this allows user"
+    },
+    {
+      "label": "Tests for Release.sign() method.",
+      "file_type": "rationale",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L175",
+      "id": "tests_test_release_behavior_rationale_175",
+      "community": 42,
+      "norm_label": "tests for release.sign() method."
+    },
+    {
+      "label": "Create a mock S3 adapter.",
+      "file_type": "rationale",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L179",
+      "id": "tests_test_release_behavior_rationale_179",
+      "community": 163,
+      "norm_label": "create a mock s3 adapter."
+    },
+    {
+      "label": "sign() should call clearsign followed by detach_sign.          This tests the se",
+      "file_type": "rationale",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L185",
+      "id": "tests_test_release_behavior_rationale_185",
+      "community": 42,
+      "norm_label": "sign() should call clearsign followed by detach_sign.          this tests the se"
+    },
+    {
       "label": "test_bandwidth_bits.py",
       "file_type": "code",
       "source_file": "tests/test_bandwidth_bits.py",
@@ -9112,7 +9292,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L12",
       "id": "tests_conftest_mocksigningadapter",
-      "community": 35,
+      "community": 52,
       "norm_label": "mocksigningadapter"
     },
     {
@@ -9121,7 +9301,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L15",
       "id": "tests_conftest_mocksigningadapter_init",
-      "community": 35,
+      "community": 52,
       "norm_label": ".__init__()"
     },
     {
@@ -9130,7 +9310,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L20",
       "id": "tests_conftest_mocksigningadapter_clearsign",
-      "community": 35,
+      "community": 52,
       "norm_label": ".clearsign()"
     },
     {
@@ -9139,7 +9319,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L28",
       "id": "tests_conftest_mocksigningadapter_detach_sign",
-      "community": 35,
+      "community": 52,
       "norm_label": ".detach_sign()"
     },
     {
@@ -9148,7 +9328,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L36",
       "id": "tests_conftest_mocksigningadapter_get_key_info",
-      "community": 35,
+      "community": 52,
       "norm_label": ".get_key_info()"
     },
     {
@@ -9157,7 +9337,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L41",
       "id": "tests_conftest_motos3adapterfixture",
-      "community": 35,
+      "community": 65,
       "norm_label": "motos3adapterfixture"
     },
     {
@@ -9166,7 +9346,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L49",
       "id": "tests_conftest_motos3adapterfixture_init",
-      "community": 35,
+      "community": 65,
       "norm_label": ".__init__()"
     },
     {
@@ -9175,7 +9355,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L56",
       "id": "tests_conftest_motos3adapterfixture_enter",
-      "community": 35,
+      "community": 65,
       "norm_label": ".__enter__()"
     },
     {
@@ -9184,7 +9364,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L69",
       "id": "tests_conftest_motos3adapterfixture_exit",
-      "community": 35,
+      "community": 65,
       "norm_label": ".__exit__()"
     },
     {
@@ -9220,7 +9400,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L97",
       "id": "tests_conftest_moto_s3_adapter",
-      "community": 35,
+      "community": 65,
       "norm_label": "moto_s3_adapter()"
     },
     {
@@ -9229,7 +9409,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L115",
       "id": "tests_conftest_moto_s3_adapter_with_prefix",
-      "community": 35,
+      "community": 65,
       "norm_label": "moto_s3_adapter_with_prefix()"
     },
     {
@@ -9274,7 +9454,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L169",
       "id": "tests_conftest_mock_signing_adapter",
-      "community": 35,
+      "community": 52,
       "norm_label": "mock_signing_adapter()"
     },
     {
@@ -9292,7 +9472,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L13",
       "id": "tests_conftest_rationale_13",
-      "community": 35,
+      "community": 52,
       "norm_label": "mock signingadapter for testing without gpg."
     },
     {
@@ -9301,7 +9481,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L21",
       "id": "tests_conftest_rationale_21",
-      "community": 35,
+      "community": 52,
       "norm_label": "simulate clearsigning by writing a mock signed file."
     },
     {
@@ -9310,7 +9490,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L29",
       "id": "tests_conftest_rationale_29",
-      "community": 35,
+      "community": 52,
       "norm_label": "simulate detached signing by writing a mock signature file."
     },
     {
@@ -9319,7 +9499,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L37",
       "id": "tests_conftest_rationale_37",
-      "community": 35,
+      "community": 52,
       "norm_label": "return mock key info."
     },
     {
@@ -9328,7 +9508,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L42",
       "id": "tests_conftest_rationale_42",
-      "community": 35,
+      "community": 65,
       "norm_label": "context manager for moto-backed s3 testing.      creates a real boto3s3adapter b"
     },
     {
@@ -9355,7 +9535,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L98",
       "id": "tests_conftest_rationale_98",
-      "community": 35,
+      "community": 65,
       "norm_label": "moto-backed boto3s3adapter for tests that need real boto3 mocking.      use this"
     },
     {
@@ -9364,7 +9544,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L116",
       "id": "tests_conftest_rationale_116",
-      "community": 35,
+      "community": 65,
       "norm_label": "moto-backed adapter with prefix for testing prefix handling."
     },
     {
@@ -9409,7 +9589,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L170",
       "id": "tests_conftest_rationale_170",
-      "community": 35,
+      "community": 52,
       "norm_label": "provide a mocksigningadapter for tests that need signing without gpg."
     },
     {
@@ -13584,7 +13764,7 @@
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L24",
-      "community": 13,
+      "community": 9,
       "norm_label": "s3 configuration grouping all s3-related options.",
       "id": "pydeb_s3_cli_rationale_24"
     },
@@ -13593,7 +13773,7 @@
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L63",
-      "community": 13,
+      "community": 9,
       "norm_label": "build s3config from cli command kwargs.      maps cli parameter names to s3confi",
       "id": "pydeb_s3_cli_rationale_63"
     },
@@ -13602,7 +13782,7 @@
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L92",
-      "community": 13,
+      "community": 9,
       "norm_label": "configure s3 connection using s3config object. returns s3adapter.",
       "id": "pydeb_s3_cli_rationale_92"
     },
@@ -13611,7 +13791,7 @@
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L196",
-      "community": 13,
+      "community": 9,
       "norm_label": "upload the given files to a s3 bucket as an apt repository.",
       "id": "pydeb_s3_cli_rationale_196"
     },
@@ -13656,7 +13836,7 @@
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L627",
-      "community": 13,
+      "community": 9,
       "norm_label": "remove a package from the repository.",
       "id": "pydeb_s3_cli_rationale_627"
     },
@@ -20373,9 +20553,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L688",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_688",
-      "target": "pydeb_s3_cli_verify_command",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_verify_command"
     },
     {
       "relation": "calls",
@@ -20502,9 +20682,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L766",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_766",
-      "target": "pydeb_s3_cli_clean_command",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_clean_command"
     },
     {
       "relation": "calls",
@@ -29309,6 +29489,176 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "tests_test_release_behavior_py",
+      "target": "tests_test_release_behavior_testgpgsigningadaptercommands",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "tests_test_release_behavior_py",
+      "target": "tests_test_release_behavior_temp_file",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L174",
+      "weight": 1.0,
+      "source": "tests_test_release_behavior_py",
+      "target": "tests_test_release_behavior_testreleasesignmethod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L178",
+      "weight": 1.0,
+      "source": "tests_test_release_behavior_py",
+      "target": "tests_test_release_behavior_mock_s3_adapter",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "tests_test_release_behavior_rationale_1",
+      "target": "tests_test_release_behavior_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "tests_test_release_behavior_testgpgsigningadaptercommands",
+      "target": "tests_test_release_behavior_testgpgsigningadaptercommands_test_clearsign_includes_batch_flags",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L67",
+      "weight": 1.0,
+      "source": "tests_test_release_behavior_testgpgsigningadaptercommands",
+      "target": "tests_test_release_behavior_testgpgsigningadaptercommands_test_detach_sign_includes_batch_flags",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L105",
+      "weight": 1.0,
+      "source": "tests_test_release_behavior_testgpgsigningadaptercommands",
+      "target": "tests_test_release_behavior_testgpgsigningadaptercommands_test_clearsign_batch_flags_before_options",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L139",
+      "weight": 1.0,
+      "source": "tests_test_release_behavior_testgpgsigningadaptercommands",
+      "target": "tests_test_release_behavior_testgpgsigningadaptercommands_test_detach_sign_batch_flags_before_options",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "tests_test_release_behavior_rationale_13",
+      "target": "tests_test_release_behavior_testgpgsigningadaptercommands",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "tests_test_release_behavior_rationale_30",
+      "target": "tests_test_release_behavior_testgpgsigningadaptercommands_test_clearsign_includes_batch_flags",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L68",
+      "weight": 1.0,
+      "source": "tests_test_release_behavior_rationale_68",
+      "target": "tests_test_release_behavior_testgpgsigningadaptercommands_test_detach_sign_includes_batch_flags",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L106",
+      "weight": 1.0,
+      "source": "tests_test_release_behavior_rationale_106",
+      "target": "tests_test_release_behavior_testgpgsigningadaptercommands_test_clearsign_batch_flags_before_options",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L140",
+      "weight": 1.0,
+      "source": "tests_test_release_behavior_rationale_140",
+      "target": "tests_test_release_behavior_testgpgsigningadaptercommands_test_detach_sign_batch_flags_before_options",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L184",
+      "weight": 1.0,
+      "source": "tests_test_release_behavior_testreleasesignmethod",
+      "target": "tests_test_release_behavior_testreleasesignmethod_test_sign_calls_clearsign_then_detach_sign",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L175",
+      "weight": 1.0,
+      "source": "tests_test_release_behavior_rationale_175",
+      "target": "tests_test_release_behavior_testreleasesignmethod",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_release_behavior.py",
+      "source_location": "L185",
+      "weight": 1.0,
+      "source": "tests_test_release_behavior_rationale_185",
+      "target": "tests_test_release_behavior_testreleasesignmethod_test_sign_calls_clearsign_then_detach_sign",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "tests/test_bandwidth_bits.py",
       "source_location": "L6",
       "weight": 1.0,
@@ -32242,9 +32592,9 @@
       "source_file": "tests/test_delete_behavior.py",
       "source_location": "L298",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_testdeletecommand_test_delete_existing_package_succeeds",
-      "target": "tests_test_delete_behavior_setup_logger",
-      "confidence_score": 1.0
+      "target": "tests_test_delete_behavior_setup_logger"
     },
     {
       "relation": "rationale_for",
@@ -32307,9 +32657,9 @@
       "source_file": "tests/test_delete_behavior.py",
       "source_location": "L309",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_testdeletecommand_test_delete_existing_package_succeeds",
-      "target": "tests_test_delete_behavior_package_exists",
-      "confidence_score": 1.0
+      "target": "tests_test_delete_behavior_package_exists"
     },
     {
       "relation": "rationale_for",
@@ -32493,9 +32843,9 @@
       "source_file": "tests/test_delete_behavior.py",
       "source_location": "L71",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_testdeletemanifest_test_delete_package_removes_from_manifest",
-      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest",
-      "confidence_score": 1.0
+      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest"
     },
     {
       "relation": "rationale_for",
@@ -32525,9 +32875,9 @@
       "source_file": "tests/test_delete_behavior.py",
       "source_location": "L92",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_testdeletemanifest_test_delete_package_with_versions",
-      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest",
-      "confidence_score": 1.0
+      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest"
     },
     {
       "relation": "rationale_for",
@@ -32557,9 +32907,9 @@
       "source_file": "tests/test_delete_behavior.py",
       "source_location": "L115",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_testdeletemanifest_test_delete_package_writes_to_s3",
-      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest",
-      "confidence_score": 1.0
+      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest"
     },
     {
       "relation": "rationale_for",
@@ -32610,9 +32960,9 @@
       "source_file": "tests/test_delete_behavior.py",
       "source_location": "L154",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_testdeletemanifest_test_delete_package_updates_release",
-      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest",
-      "confidence_score": 1.0
+      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest"
     },
     {
       "relation": "rationale_for",
@@ -32661,9 +33011,9 @@
       "source_file": "tests/test_delete_behavior.py",
       "source_location": "L243",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_testdeletecommand",
-      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest",
-      "confidence_score": 1.0
+      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest"
     },
     {
       "relation": "method",
@@ -32691,9 +33041,9 @@
       "source_file": "tests/test_delete_behavior.py",
       "source_location": "L289",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_testdeletecommand",
-      "target": "tests_test_delete_behavior_testdeletecommand_test_delete_existing_package_succeeds",
-      "confidence_score": 1.0
+      "target": "tests_test_delete_behavior_testdeletecommand_test_delete_existing_package_succeeds"
     },
     {
       "relation": "rationale_for",
@@ -32712,9 +33062,9 @@
       "source_file": "tests/test_delete_behavior.py",
       "source_location": "L301",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_testdeletecommand_test_delete_existing_package_succeeds",
-      "target": "tests_test_delete_behavior_testdeletecommand_create_release",
-      "confidence_score": 1.0
+      "target": "tests_test_delete_behavior_testdeletecommand_create_release"
     },
     {
       "relation": "rationale_for",
@@ -32733,9 +33083,9 @@
       "source_file": "tests/test_delete_behavior.py",
       "source_location": "L302",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_testdeletecommand_test_delete_existing_package_succeeds",
-      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest",
-      "confidence_score": 1.0
+      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest"
     },
     {
       "relation": "rationale_for",
@@ -32743,9 +33093,9 @@
       "source_file": "tests/test_delete_behavior.py",
       "source_location": "L244",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_rationale_244",
-      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest",
-      "confidence_score": 1.0
+      "target": "tests_test_delete_behavior_testdeletecommand_add_packages_to_manifest"
     },
     {
       "relation": "rationale_for",
@@ -32753,9 +33103,9 @@
       "source_file": "tests/test_delete_behavior.py",
       "source_location": "L254",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_rationale_254",
-      "target": "tests_test_delete_behavior_testdeletecommand_test_delete_requires_bucket",
-      "confidence_score": 1.0
+      "target": "tests_test_delete_behavior_testdeletecommand_test_delete_requires_bucket"
     },
     {
       "relation": "rationale_for",
@@ -32773,9 +33123,9 @@
       "source_file": "tests/test_delete_behavior.py",
       "source_location": "L265",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_rationale_265",
-      "target": "tests_test_delete_behavior_testdeletecommand_test_delete_nonexistent_package_errors",
-      "confidence_score": 1.0
+      "target": "tests_test_delete_behavior_testdeletecommand_test_delete_nonexistent_package_errors"
     },
     {
       "relation": "rationale_for",
@@ -32793,9 +33143,9 @@
       "source_file": "tests/test_delete_behavior.py",
       "source_location": "L290",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_delete_behavior_rationale_290",
-      "target": "tests_test_delete_behavior_testdeletecommand_test_delete_existing_package_succeeds",
-      "confidence_score": 1.0
+      "target": "tests_test_delete_behavior_testdeletecommand_test_delete_existing_package_succeeds"
     },
     {
       "relation": "contains",
@@ -37737,5 +38087,5 @@
       "source_file": "tests/conftest.py"
     }
   ],
-  "built_at_commit": "25e5dbd96379f557f36e95c41ac3871eaa1aa9b9"
+  "built_at_commit": "5e35ef07682bfe08f3d3a45b175c3e77c04b2890"
 }

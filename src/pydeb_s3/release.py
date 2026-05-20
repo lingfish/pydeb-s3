@@ -60,7 +60,7 @@ class GpgSigningAdapter:
     def clearsign(self, input_path: str, output_path: str) -> None:
         """Create clearsigned file (InRelease)."""
         key_param = " ".join(f"-u {k}" for k in self.keys) if self.keys else ""
-        cmd = f"{self.provider} -a {key_param} --digest-algo SHA256 {self.options} -s --clearsign {input_path}"
+        cmd = f"{self.provider} -a {key_param} --digest-algo SHA256 --batch --no-tty --yes {self.options} -s --clearsign {input_path}"
         result = subprocess.run(cmd, check=False, shell=True, capture_output=True)
 
         if result.returncode != 0:
@@ -90,7 +90,7 @@ class GpgSigningAdapter:
     def detach_sign(self, input_path: str, output_path: str) -> None:
         """Create detached signature (Release.gpg)."""
         key_param = " ".join(f"-u {k}" for k in self.keys) if self.keys else ""
-        cmd = f"{self.provider} -a {key_param} --digest-algo SHA256 {self.options} -b {input_path}"
+        cmd = f"{self.provider} -a {key_param} --digest-algo SHA256 --batch --no-tty --yes {self.options} -b {input_path}"
         result = subprocess.run(cmd, check=False, shell=True, capture_output=True)
 
         if result.returncode != 0:
