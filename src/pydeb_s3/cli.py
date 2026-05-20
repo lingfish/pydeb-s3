@@ -8,7 +8,9 @@ from typing import Annotated, Optional
 
 import typer
 from loguru import logger
+from rich.console import Console
 from rich.progress import BarColumn, DownloadColumn, Progress
+from rich.table import Table
 
 from pydeb_s3 import lock as lock_module
 from pydeb_s3 import manifest as manifest_module
@@ -384,7 +386,6 @@ def list_command(
     if arch and arch != "all":
         archs = [arch]
 
-    widths = [0, 0]
     rows = []
 
     for architecture in archs:
@@ -392,29 +393,32 @@ def list_command(
 
         if manifest.packages:
             for pkg in sorted(manifest.packages):
+                desc_first_line = pkg.description.split("\n")[0] if pkg.description else ""
                 rows.append(
                     [
-                        f"{pkg.name}",
-                        f"{pkg.version}",
-                        f"{architecture}",
-                        f"{pkg.category}",
-                        f"{pkg.description[:62]}...",
+                        pkg.name,
+                        pkg.version or "",
+                        architecture,
+                        pkg.category or "",
+                        desc_first_line,
                     ]
                 )
 
-                widths[0] = max(widths[0], len(pkg.name))
-                widths[1] = max(widths[1], len(pkg.version))
+    if rows and not quiet:
+        console = Console()
+        table = Table(title=f"Packages in {codename}/{component}")
+        table.add_column("Package", no_wrap=True)
+        table.add_column("Version", no_wrap=True)
+        table.add_column("Arch")
+        table.add_column("Section")
+        table.add_column("Description", no_wrap=True)
 
-    if rows:
-        if not quiet:
-            # Print header to stdout
-            print(f"{'Package':<{widths[0]}} {'Version':<{widths[1]}} Architecture Section Description")
+        for name, version, arch, section, desc in rows:
+            if not long and len(desc) > 50:
+                desc = desc[:49] + "…"
+            table.add_row(name, version, arch, section, desc)
 
-        for row in rows:
-            name, version, arch, section, desc = row
-            if not quiet:
-                # Print row to stdout
-                print(f"{name:<{widths[0]}} {version:<{widths[1]}} {arch}  {section}  {desc[:62]}")
+        console.print(table)
 
 
 @app.command("show")
