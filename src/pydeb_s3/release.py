@@ -304,10 +304,15 @@ class Release:
             )
 
             # Adapter handles ONLY GPG operations
+            # IMPORTANT: Use distinct paths and run detach_sign BEFORE clearsign.
+            # GpgSigningAdapter produces input_path + ".asc" then renames it to output_path.
+            # If both use the same path, detach_sign overwrites clearsign output.
+            # If clearsign runs last, its output gets overwritten.
+            # Solution: detach_sign first to temp.detached, then clearsign to temp.asc
+            detached_path = release_temp.name + ".detached"
             clearsigned_path = release_temp.name + ".asc"
-            detached_path = release_temp.name + ".asc"
-            signing_adapter.clearsign(release_temp.name, clearsigned_path)
             signing_adapter.detach_sign(release_temp.name, detached_path)
+            signing_adapter.clearsign(release_temp.name, clearsigned_path)
 
             # Upload signed files to S3
             inrelease_path = f"dists/{self.codename}/InRelease"
