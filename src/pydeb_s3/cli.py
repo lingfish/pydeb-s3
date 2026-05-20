@@ -651,7 +651,8 @@ def delete_command(
     logger.info("Retrieving existing manifests")
     manifest = manifest_module.Manifest.retrieve(s3_adapter, codename, component, arch, cache_control)
 
-    if package not in manifest.packages:
+    pkg = next((p for p in manifest.packages if p.name == package), None)
+    if not pkg:
         logger.error(f"Package {package} not found.")
         raise typer.Exit(code=1)
 

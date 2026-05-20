@@ -240,6 +240,16 @@ class TestDeleteCommand:
         release.write_to_s3(self.s3_adapter)
         return release
 
+    def _add_packages_to_manifest(self, release, deb_file, component="main", arch="amd64"):
+        """Add packages to manifest and update release."""
+        pkg = package_module.Package.parse_file(deb_file)
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", component, arch)
+        manifest.add(pkg)
+        manifest.write_to_s3(self.s3_adapter)
+        release.update_manifest(manifest)
+        release.write_to_s3(self.s3_adapter)
+        return pkg
+
     def test_delete_requires_bucket(self):
         """Delete command requires bucket option."""
         with pytest.raises(typer.Exit):
@@ -275,3 +285,39 @@ class TestDeleteCommand:
                 component="main",
                 arch="amd64",
             )
+
+    def test_delete_existing_package_succeeds(self):
+        """Deleting a package that exists should succeed.
+
+        This test reproduces the bug where the CLI uses 'in' operator
+        to check if a package name exists in manifest.packages.
+        Since manifest.packages is a list of Package objects (not strings),
+        the 'in' check always returns False, causing the delete to fail
+        with 'Package not found' even when the package exists.
+        """
+        setup_logger()
+
+        # Create release and add package
+        release = self._create_release()
+        pkg = self._add_packages_to_manifest(
+            release,
+            self.sample_deb_file,
+        )
+
+        # Verify package exists in manifest
+        manifest = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
+        assert package_exists(manifest, "test-pkg")
+
+        # Delete the package via CLI command - this should succeed
+        # but currently fails due to the 'in' operator bug
+        delete_command(
+            package="test-pkg",
+            bucket="test-bucket",
+            codename="stable",
+            component="main",
+            arch="amd64",
+        )
+
+        # Verify package was actually deleted
+        manifest_after = manifest_module.Manifest.retrieve(self.s3_adapter, "stable", "main", "amd64")
+        assert not package_exists(manifest_after, "test-pkg")
