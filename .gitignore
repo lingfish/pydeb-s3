@@ -43,9 +43,9 @@ MANIFEST
 # pyright
 .pyright/
 
-graphify-out/manifest.json    # mtime-based, breaks after git clone
-graphify-out/cost.json        # local only
-# graphify-out/cache/         # optional: commit for speed, skip to keep repo small
+graphify-out/manifest.json
+graphify-out/cost.json
+# graphify-out/cache/
 
 # opencode config
 .opencode/*

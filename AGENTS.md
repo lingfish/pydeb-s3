@@ -23,6 +23,7 @@ hatch run pydeb-s3 --help
 - **Tag format**: `X.Y.Z` (no 'v' prefix)
 - **Run tests before committing**
 - **Integration test file naming**: `test_<module>_behavior.py`
+- **Version numbering**: Dynamically decided via hatch-vcs, not `hatch version`
 
 
 ## Project Structure
@@ -56,6 +57,10 @@ CLI is invoked via `pyproject.toml` script entry: `pydeb-s3 = "pydeb_s3.cli:app"
 - `--sign` option is currently not repeatable (unlike Ruby version) due to Typer version constraints
 - Signing uses `SigningAdapter` protocol - pass adapter to `Release.sign()` method
 - `GpgSigningAdapter` implements GPG subprocess calls; use `MockSigningAdapter` from `conftest.py` for tests
+
+## Testing
+
+- After a plan is approved and before executing code changes, use the test-engineer skill to verify the planned changes are correct
 
 ## graphify
 
