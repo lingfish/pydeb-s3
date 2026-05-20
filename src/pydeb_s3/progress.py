@@ -78,6 +78,7 @@ class UploadProgress:
         self._progress = None
         self._task_id = None
         self._shared_progress = progress is not None
+        self._finished = False
 
         if self._is_interactive and RICH_AVAILABLE:
             if progress is not None:
@@ -108,6 +109,11 @@ class UploadProgress:
                 total=filesize
             )
 
+    def cleanup(self) -> None:
+        """Force-stop the progress bar if owned, regardless of completion."""
+        if self._is_interactive and self._progress and not self._shared_progress:
+            self._progress.stop()
+
     def __call__(self, bytes_transferred: int) -> None:
         """Called by boto3 upload_file with current bytes transferred."""
         self._bytes_transferred = bytes_transferred
@@ -130,7 +136,8 @@ class UploadProgress:
             )
             self._last_log_time = current_time
 
-        if bytes_transferred >= self.filesize:
+        if bytes_transferred >= self.filesize and not self._finished:
+            self._finished = True
             self._finish()
 
     def _calculate_percentage(self, bytes_transferred: int) -> int:
@@ -167,8 +174,9 @@ class UploadProgress:
 
         if self._is_interactive and self._progress:
             self._progress.update(self._task_id, completed=self.filesize)
-            if not self._shared_progress:
-                self._progress.stop()
+            self.cleanup()
+            sys.stderr.write('\n')
+            sys.stderr.flush()
         else:
             print()
             logger.success(

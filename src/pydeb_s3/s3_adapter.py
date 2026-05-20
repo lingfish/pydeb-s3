@@ -286,13 +286,16 @@ class Boto3S3Adapter:
         )
 
         # Use upload_file for progress callback support and automatic multipart
-        self._client.upload_file(
-            filepath,
-            self.bucket,
-            key,
-            ExtraArgs=extra_args,
-            Callback=progress_callback
-        )
+        try:
+            self._client.upload_file(
+                filepath,
+                self.bucket,
+                key,
+                ExtraArgs=extra_args,
+                Callback=progress_callback
+            )
+        finally:
+            progress_callback.cleanup()
 
         if progress_console:
             progress_console.print(f"Stored {filesize} bytes to s3://{self.bucket}/{key}")

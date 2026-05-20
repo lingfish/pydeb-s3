@@ -1,16 +1,16 @@
 # Graph Report - pydeb-s3  (2026-05-20)
 
 ## Corpus Check
-- 44 files · ~39,252 words
+- 44 files · ~39,276 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1625 nodes · 2289 edges · 154 communities (81 shown, 73 thin omitted)
+- 1648 nodes · 2313 edges · 158 communities (84 shown, 74 thin omitted)
 - Extraction: 85% EXTRACTED · 15% INFERRED · 0% AMBIGUOUS · INFERRED: 344 edges (avg confidence: 0.67)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6be63992`
+- Built from commit: `fb7f05a2`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -69,6 +69,7 @@
 - [[_COMMUNITY_Community 51|Community 51]]
 - [[_COMMUNITY_Community 52|Community 52]]
 - [[_COMMUNITY_Community 53|Community 53]]
+- [[_COMMUNITY_Community 54|Community 54]]
 - [[_COMMUNITY_Community 55|Community 55]]
 - [[_COMMUNITY_Community 56|Community 56]]
 - [[_COMMUNITY_Community 57|Community 57]]
@@ -79,6 +80,7 @@
 - [[_COMMUNITY_Community 62|Community 62]]
 - [[_COMMUNITY_Community 63|Community 63]]
 - [[_COMMUNITY_Community 64|Community 64]]
+- [[_COMMUNITY_Community 65|Community 65]]
 - [[_COMMUNITY_Community 66|Community 66]]
 - [[_COMMUNITY_Community 67|Community 67]]
 - [[_COMMUNITY_Community 68|Community 68]]
@@ -160,10 +162,12 @@
 - [[_COMMUNITY_Community 145|Community 145]]
 - [[_COMMUNITY_Community 146|Community 146]]
 - [[_COMMUNITY_Community 147|Community 147]]
+- [[_COMMUNITY_Community 148|Community 148]]
 - [[_COMMUNITY_Community 149|Community 149]]
 - [[_COMMUNITY_Community 150|Community 150]]
 - [[_COMMUNITY_Community 151|Community 151]]
 - [[_COMMUNITY_Community 152|Community 152]]
+- [[_COMMUNITY_Community 154|Community 154]]
 - [[_COMMUNITY_Community 160|Community 160]]
 - [[_COMMUNITY_Community 162|Community 162]]
 - [[_COMMUNITY_Community 163|Community 163]]
@@ -171,8 +175,8 @@
 ## God Nodes (most connected - your core abstractions)
 1. `Boto3S3Adapter` - 56 edges
 2. `S3Adapter` - 52 edges
-3. `MockS3Adapter` - 50 edges
-4. `UploadProgress` - 42 edges
+3. `MockS3Adapter` - 51 edges
+4. `UploadProgress` - 43 edges
 5. `clean_command()` - 37 edges
 6. `S3NotFoundError` - 36 edges
 7. `S3Error` - 29 edges
@@ -187,10 +191,10 @@
   tests/test_clean_component_filtering.py → src/pydeb_s3/s3_adapter.py
 - `setup()` --calls--> `Boto3S3Adapter`  [INFERRED]
   tests/test_clean_real_scenario.py → src/pydeb_s3/s3_adapter.py
-- `adapter()` --calls--> `Boto3S3Adapter`  [INFERRED]
-  tests/test_s3_adapter.py → src/pydeb_s3/s3_adapter.py
 - `mock_adapter()` --calls--> `MockS3Adapter`  [INFERRED]
   tests/test_s3_adapter.py → src/pydeb_s3/s3_adapter.py
+- `MockSigningAdapter` --uses--> `SigningAdapter`  [INFERRED]
+  tests/conftest.py → src/pydeb_s3/release.py
 
 ## Hyperedges (group relationships)
 - **APT Repository Metadata Components** — release_class, manifest_class, package_class [INFERRED 0.90]
@@ -200,15 +204,15 @@
 - **S3 Adapter Implementations** — S3Adapter, Boto3S3Adapter, MockS3Adapter [EXTRACTED 1.00]
 - **Test Fixtures** — MockSigningAdapter, MotoS3AdapterFixture, MotoS3AdapterFixture [EXTRACTED 1.00]
 
-## Communities (154 total, 73 thin omitted)
+## Communities (158 total, 74 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.07
 Nodes (32): exists_command(), Check if a package exists in the repository., Check if a package exists in the repository., Integration tests for the exists command., exists returns 1 when package exists with specified version., exists returns 0 when package exists but version does not., exists returns 0 when package exists but different arch., Configure loguru to output to captured stderr. (+24 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.06
-Nodes (34): Boto3S3Adapter, S3 Adapter module - provides a seam for S3 operations.  Defines the S3Adapter pr, Concrete adapter wrapping boto3 S3 client.      This is the production implement, Initialize the adapter.          Args:             client: boto3 S3 client, Get the full S3 path with prefix., Store a local file to S3., Read an object from S3., Check if an object exists in S3. (+26 more)
+Cohesion: 0.05
+Nodes (37): Boto3S3Adapter, S3 Adapter module - provides a seam for S3 operations.  Defines the S3Adapter pr, Concrete adapter wrapping boto3 S3 client.      This is the production implement, Initialize the adapter.          Args:             client: boto3 S3 client, Get the full S3 path with prefix., Remove an object from S3., Remove an object from S3., Copy an object within S3. (+29 more)
 
 ### Community 2 - "Community 2"
 Cohesion: 0.07
@@ -291,8 +295,8 @@ Cohesion: 0.08
 Nodes (15): Tests for the Manifest model., Re-uploading same version should work (remove then re-add)., Set up test fixtures., Tests for Manifest.delete_package()., Set up test fixtures., Removes packages which have the same version as one of the versions specified., Removes packages which have the same full version., Removes all packages with the name if no versions specified. (+7 more)
 
 ### Community 22 - "Community 22"
-Cohesion: 0.07
-Nodes (18): MockS3Adapter, In-memory mock S3 adapter for testing.      This adapter stores objects in a sim, Initialize the mock adapter.          Args:             bucket: S3 bucket name (, Check if an object exists in the mock S3., Remove an object from the mock S3., List objects with a given prefix., Store string content directly to the mock S3., Reset adapter after each test. (+10 more)
+Cohesion: 0.22
+Nodes (5): Reset adapter after each test., Raises S3Error when S3 not configured., Returns content when object exists., Raises S3NotFoundError when object not found., TestS3Read
 
 ### Community 23 - "Community 23"
 Cohesion: 0.12
@@ -316,7 +320,7 @@ Nodes (13): Manifest, parse_packages(), Manifest module for managing APT Package
 
 ### Community 28 - "Community 28"
 Cohesion: 0.10
-Nodes (14): Called by boto3 upload_file with current bytes transferred., Callback class for tracking upload progress., UploadProgress, Reset any mocked modules after each test., Interactive mode updates rich progress bar., Interactive mode completes progress bar on finish., UploadProgress initializes with filename, filesize, and interactive flag., UploadProgress correctly calculates percentage. (+6 more)
+Nodes (11): Reset any mocked modules after each test., Interactive mode updates rich progress bar., Interactive mode completes progress bar on finish., UploadProgress initializes with filename, filesize, and interactive flag., UploadProgress correctly calculates percentage., UploadProgress tracks bytes transferred., Non-interactive mode logs progress every 5 seconds., Non-interactive mode prints final summary with average speed. (+3 more)
 
 ### Community 29 - "Community 29"
 Cohesion: 0.10
@@ -335,16 +339,16 @@ Cohesion: 0.17
 Nodes (7): Clean command keeps .deb files that are referenced by Packages files., Integration tests for clean command using mocked S3., Create and upload a Release file., Add packages to manifest and update release., Upload a .deb file directly to the pool in S3., Get list of .deb files in pool from S3., TestCleanIntegration
 
 ### Community 33 - "Community 33"
-Cohesion: 0.12
-Nodes (9): adapter(), mock_adapter(), Tests for S3Adapter protocol and Boto3S3Adapter., Tests for error handling in Boto3S3Adapter., read should raise S3NotFoundError when object doesn't exist., head should raise S3NotFoundError when object doesn't exist., exists should return False on 404, raise on other errors., list_objects should raise S3Error when client fails. (+1 more)
+Cohesion: 0.06
+Nodes (25): Store a local file to S3., Read an object from S3., Read an object from S3., Check if an object exists in S3., Check if an object exists in S3., List objects with a given prefix., List objects with a given prefix., Store string content directly to S3. (+17 more)
 
 ### Community 34 - "Community 34"
-Cohesion: 0.23
-Nodes (12): _current(), _initial_lock_path(), Lock, _lock_path(), Lock module for S3-based repository locking., Release a lock on the repository., Get the current lock holder., Represents a lock on the repository. (+4 more)
+Cohesion: 0.20
+Nodes (14): _current(), _initial_lock_path(), Lock, _lock_path(), LockError, Lock module for S3-based repository locking., Release a lock on the repository., Get the current lock holder. (+6 more)
 
 ### Community 35 - "Community 35"
-Cohesion: 0.06
-Nodes (26): aws_credentials(), mock_s3_adapter(), mock_signing_adapter(), MockSigningAdapter, moto_s3_adapter(), moto_s3_adapter_with_prefix(), MotoS3AdapterFixture, Pytest configuration and fixtures for pydeb-s3 tests. (+18 more)
+Cohesion: 0.13
+Nodes (13): aws_credentials(), mock_s3_adapter(), Pytest configuration and fixtures for pydeb-s3 tests., Provide a MockS3Adapter for tests that need S3 without real S3.      This is a f, Return path to sample test .deb file., Sample package data for testing., Sample Packages file content., Patch environment variables for moto AWS mocking. (+5 more)
 
 ### Community 36 - "Community 36"
 Cohesion: 0.13
@@ -363,8 +367,8 @@ Cohesion: 0.17
 Nodes (7): Tests for bandwidth stats feature - bits vs bytes display., Tests for s3_store() passing use_bytes to UploadProgress., Reset S3 configuration., Clean up after each test., s3_store() passes use_bytes=False to UploadProgress (default bits)., s3_store() passes use_bytes=True to UploadProgress., TestS3StoreUseBytes
 
 ### Community 40 - "Community 40"
-Cohesion: 0.25
-Nodes (5): Tests using MockSigningAdapter for integration testing., Release.sign() works with mock adapter., Release.sign() should handle None adapter gracefully., Release.sign() should handle adapter with no keys., TestMockSigningAdapter
+Cohesion: 0.19
+Nodes (9): Represents a Release file for APT repository., Get the access policy from visibility string., Get the access policy from visibility string., Release, Tests using MockSigningAdapter for integration testing., Release.sign() works with mock adapter., Release.sign() should handle None adapter gracefully., Release.sign() should handle adapter with no keys. (+1 more)
 
 ### Community 41 - "Community 41"
 Cohesion: 0.17
@@ -395,8 +399,8 @@ Cohesion: 0.20
 Nodes (6): Tests for UploadProgress with use_bytes parameter., use_bytes defaults to False (bits mode)., use_bytes=True uses bytes mode., use_bytes=False uses bits mode., Log output shows bits/s by default., TestUploadProgressUseBytes
 
 ### Community 48 - "Community 48"
-Cohesion: 0.20
-Nodes (6): Format speed in bits/s for single digit values., Format speed in Kb/s for values in kilobit range., Format speed in Mb/s for values in megabit range., Format speed in Gb/s for values in gigabit range., Tests for _format_speed() in bits/second format (default)., TestFormatSpeedBits
+Cohesion: 0.13
+Nodes (11): Called by boto3 upload_file with current bytes transferred., Force-stop the progress bar if owned, regardless of completion., Called by boto3 upload_file with current bytes transferred., Callback class for tracking upload progress., UploadProgress, Format speed in bits/s for single digit values., Format speed in Kb/s for values in kilobit range., Format speed in Mb/s for values in megabit range. (+3 more)
 
 ### Community 49 - "Community 49"
 Cohesion: 0.18
@@ -411,12 +415,16 @@ Cohesion: 0.20
 Nodes (6): Release should have sign() method., Release should have upload() method., Release should have generate() method., Release should have retrieve() class method., Tests for Release class interface., TestReleaseInterface
 
 ### Community 52 - "Community 52"
-Cohesion: 0.14
-Nodes (8): Tests for s3_list_objects()., Reset adapter after each test., Raises S3Error when S3 not configured., Returns list of objects and continuation token., S3 list objects applies prefix only once to the S3 API call., S3 list objects correctly handles prefix with nested path., Without prefix, s3_list_objects passes path directly to S3 API., TestS3ListObjects
+Cohesion: 0.09
+Nodes (17): MockS3Adapter, In-memory mock S3 adapter for testing.      This adapter stores objects in a sim, In-memory mock S3 adapter for testing.      This adapter stores objects in a sim, Tests for s3_list_objects()., Reset adapter after each test., Raises S3Error when S3 not configured., Returns list of objects and continuation token., S3 list objects applies prefix only once to the S3 API call. (+9 more)
 
 ### Community 53 - "Community 53"
 Cohesion: 0.22
 Nodes (5): Tests for upload command validation., upload fails without --bucket., upload fails without files., upload fails when file doesn't exist., TestUploadValidation
+
+### Community 54 - "Community 54"
+Cohesion: 0.18
+Nodes (7): mock_signing_adapter(), MockSigningAdapter, Mock SigningAdapter for testing without GPG., Provide a MockSigningAdapter for tests that need signing without GPG., Simulate clearsigning by writing a mock signed file., Simulate detached signing by writing a mock signature file., Return mock key info.
 
 ### Community 55 - "Community 55"
 Cohesion: 0.12
@@ -457,6 +465,10 @@ Nodes (5): Tests for UploadProgress callback class., Tests for automatic TTY det
 ### Community 64 - "Community 64"
 Cohesion: 0.22
 Nodes (6): Protocol, Interface for GPG signing operations.      A SigningAdapter provides a seam betw, Create clearsigned file (InRelease).          Args:             input_path: Path, Create detached signature (Release.gpg).          Args:             input_path:, Return info about signing keys (for error messages)., SigningAdapter
+
+### Community 65 - "Community 65"
+Cohesion: 0.22
+Nodes (6): moto_s3_adapter(), moto_s3_adapter_with_prefix(), MotoS3AdapterFixture, Moto-backed adapter with prefix for testing prefix handling., Context manager for moto-backed S3 testing.      Creates a real Boto3S3Adapter b, Moto-backed Boto3S3Adapter for tests that need real boto3 mocking.      Use this
 
 ### Community 66 - "Community 66"
 Cohesion: 0.33
@@ -506,32 +518,36 @@ Nodes (3): Tests that Release.sign() accepts any adapter implementing the protoc
 Cohesion: 0.18
 Nodes (10): CLI Entry Point, code:bash (# Run tests with coverage), Dependencies, graphify, Important Notes, Key Commands, Key Conventions, Project Setup (+2 more)
 
+### Community 148 - "Community 148"
+Cohesion: 0.29
+Nodes (4): Get the set of signature file paths that should be excluded fromRelease hash sec, Generate Release file content., Upload the Release file to S3., Upload the Release file to S3.
+
 ### Community 149 - "Community 149"
-Cohesion: 0.18
-Nodes (8): Exception, LockError, Error acquiring lock., AlreadyExistsError, Raised when a package already exists., Copy an object with If-Match condition., Copy an object within the mock S3., Copy an object with If-Match condition.
+Cohesion: 0.17
+Nodes (9): Exception, AlreadyExistsError, Raised when a package already exists., Copy an object with If-Match condition., Copy an object with If-Match condition., Copy an object within the mock S3., Copy an object within the mock S3., Copy an object with If-Match condition. (+1 more)
 
 ### Community 150 - "Community 150"
 Cohesion: 0.25
 Nodes (6): clean_command(), Remove orphaned package files., Remove orphaned package files., Remove orphaned package files., Clean command handles case with no orphaned packages., Dry-run mode with no orphans reports nothing to remove.
 
 ### Community 160 - "Community 160"
-Cohesion: 0.12
-Nodes (14): Represents a Release file for APT repository., Get the set of signature file paths that should be excluded fromRelease hash sec, Generate Release file content., Upload the Release file to S3., Upload the Release file to S3., Get the access policy from visibility string., Get the access policy from visibility string., Write the Release file to S3.          Args:             s3_adapter: Adapter for (+6 more)
+Cohesion: 0.22
+Nodes (6): Write the Release file to S3.          Args:             s3_adapter: Adapter for, Write the Release file to S3.          Args:             s3_adapter: Adapter for, Validate other architectures are present., Validate other architectures are present., Update Release with manifest information., Update Release with manifest information.
 
 ## Knowledge Gaps
 - **62 isolated node(s):** `$schema`, `plugin`, `@opencode-ai/plugin`, `Project Setup`, `code:bash (# Run tests with coverage)` (+57 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **73 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **74 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `S3Adapter` connect `Community 17` to `Community 0`, `Community 1`, `Community 2`, `Community 4`, `Community 6`, `Community 8`, `Community 9`, `Community 10`, `Community 13`, `Community 16`, `Community 18`, `Community 149`, `Community 24`, `Community 27`, `Community 28`, `Community 30`, `Community 160`, `Community 32`, `Community 34`, `Community 35`, `Community 33`, `Community 59`, `Community 64`?**
-  _High betweenness centrality (0.235) - this node is a cross-community bridge._
-- **Why does `Boto3S3Adapter` connect `Community 1` to `Community 33`, `Community 3`, `Community 35`, `Community 7`, `Community 39`, `Community 9`, `Community 13`, `Community 46`, `Community 47`, `Community 48`, `Community 14`, `Community 16`, `Community 23`, `Community 149`, `Community 55`, `Community 56`, `Community 24`, `Community 28`?**
-  _High betweenness centrality (0.129) - this node is a cross-community bridge._
-- **Why does `clean_command()` connect `Community 150` to `Community 32`, `Community 3`, `Community 10`, `Community 11`, `Community 13`, `Community 14`, `Community 59`?**
-  _High betweenness centrality (0.051) - this node is a cross-community bridge._
+- **Why does `S3Adapter` connect `Community 17` to `Community 0`, `Community 1`, `Community 2`, `Community 4`, `Community 6`, `Community 8`, `Community 9`, `Community 10`, `Community 13`, `Community 16`, `Community 18`, `Community 149`, `Community 24`, `Community 27`, `Community 30`, `Community 32`, `Community 34`, `Community 40`, `Community 48`, `Community 54`, `Community 59`, `Community 64`, `Community 65`?**
+  _High betweenness centrality (0.246) - this node is a cross-community bridge._
+- **Why does `Boto3S3Adapter` connect `Community 1` to `Community 33`, `Community 65`, `Community 3`, `Community 7`, `Community 39`, `Community 9`, `Community 13`, `Community 46`, `Community 47`, `Community 48`, `Community 14`, `Community 16`, `Community 23`, `Community 149`, `Community 54`, `Community 55`, `Community 56`, `Community 24`?**
+  _High betweenness centrality (0.141) - this node is a cross-community bridge._
+- **Why does `_configure_s3()` connect `Community 13` to `Community 0`, `Community 1`, `Community 2`, `Community 4`, `Community 6`, `Community 8`, `Community 150`?**
+  _High betweenness centrality (0.057) - this node is a cross-community bridge._
 - **Are the 43 inferred relationships involving `Boto3S3Adapter` (e.g. with `BitsTransferSpeedColumn` and `UploadProgress`) actually correct?**
   _`Boto3S3Adapter` has 43 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 40 inferred relationships involving `S3Adapter` (e.g. with `SigningAdapter` and `GpgSigningAdapter`) actually correct?**

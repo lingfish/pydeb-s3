@@ -322,19 +322,19 @@ def upload_command(
                     DownloadColumn(),
                 )
 
-        logger.debug(f"Uploading manifests for architectures: {list(manifests.keys())}")
-        for arch_key, manifest in manifests.items():
-            logger.debug(f"  Before write_to_s3: arch_key={arch_key}, packages count={len(manifest.packages)}")
-            logger.info(f"  Transferring dists/{codename}/{comp}/binary-{arch_key}/Packages")
-            manifest.write_to_s3(s3_adapter, use_bytes=bytes, progress=shared_progress)
-            logger.debug(f"  After write_to_s3: release.files={list(release.files.keys())}")
-            release.update_manifest(manifest)
+        try:
+            logger.debug(f"Uploading manifests for architectures: {list(manifests.keys())}")
+            for arch_key, manifest in manifests.items():
+                logger.debug(f"  Before write_to_s3: arch_key={arch_key}, packages count={len(manifest.packages)}")
+                logger.info(f"  Transferring dists/{codename}/{comp}/binary-{arch_key}/Packages")
+                manifest.write_to_s3(s3_adapter, use_bytes=bytes, progress=shared_progress)
+                logger.debug(f"  After write_to_s3: release.files={list(release.files.keys())}")
+                release.update_manifest(manifest)
 
-        release.write_to_s3(s3_adapter, use_bytes=bytes, progress=shared_progress)
-
-        # Stop the shared progress after all uploads are done
-        if shared_progress is not None:
-            shared_progress.stop()
+            release.write_to_s3(s3_adapter, use_bytes=bytes, progress=shared_progress)
+        finally:
+            if shared_progress is not None:
+                shared_progress.stop()
 
         if sign:
             logger.info(f"Signing Release file for {codename}")
