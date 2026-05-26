@@ -10,7 +10,7 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.8"
 authors = [
-    { name = "deb-s3 team", email = "deb-s3@github.com" },
+    { name = "Jason Lingohr" },
 ]
 keywords = ["apt", "debian", "s3", "repository", "package"]
 classifiers = [

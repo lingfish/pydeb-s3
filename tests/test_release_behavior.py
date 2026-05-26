@@ -2,7 +2,7 @@
 
 import os
 import tempfile
-from unittest.mock import patch, MagicMock, PropertyMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 

@@ -1,7 +1,6 @@
 """Progress tracking utilities for S3 uploads."""
 
 import hashlib
-import os
 import sys
 import time
 from typing import Optional

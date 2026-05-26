@@ -17,8 +17,8 @@ from pydeb_s3 import manifest as manifest_module
 from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
 from pydeb_s3 import s3_utils
-from pydeb_s3.s3_adapter import S3Adapter, Boto3S3Adapter
 from pydeb_s3.progress import BitsTransferSpeedColumn
+from pydeb_s3.s3_adapter import Boto3S3Adapter, S3Adapter
 
 
 @dataclass

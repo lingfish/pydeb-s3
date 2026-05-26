@@ -9,7 +9,6 @@ import pytest
 from pydeb_s3 import manifest as manifest_module
 from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
-from pydeb_s3.s3_adapter import S3Adapter
 from pydeb_s3.cli import clean_command
 
 
@@ -378,7 +377,6 @@ class TestCleanErrors:
     @pytest.fixture(autouse=True)
     def setup(self):
         """Set up test fixtures - no S3 needed for bucket validation."""
-        pass
 
     def test_clean_requires_bucket(self):
         """Clean command requires bucket option."""

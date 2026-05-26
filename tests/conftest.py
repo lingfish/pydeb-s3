@@ -1,12 +1,11 @@
 """Pytest configuration and fixtures for pydeb-s3 tests."""
 
+
 import boto3
-import hashlib
 import pytest
 from moto import mock_aws
 
-from pydeb_s3.s3_adapter import S3Adapter, MockS3Adapter, Boto3S3Adapter
-from pydeb_s3.release import SigningAdapter
+from pydeb_s3.s3_adapter import Boto3S3Adapter, MockS3Adapter
 
 
 class MockSigningAdapter:

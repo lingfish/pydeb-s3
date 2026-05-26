@@ -5,7 +5,6 @@ import pytest
 from pydeb_s3 import manifest as manifest_module
 from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
-from pydeb_s3.s3_adapter import S3Adapter
 
 
 class TestUploadIntegration:

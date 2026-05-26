@@ -3,17 +3,15 @@
 import os
 import tempfile
 from typing import Optional
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import boto3
 import pytest
 from moto import mock_aws
 
-from pydeb_s3 import s3_utils
 from pydeb_s3.s3_adapter import (
     Boto3S3Adapter,
     S3AccessError,
-    S3Adapter,
     S3Error,
     S3NotFoundError,
 )
@@ -42,27 +40,21 @@ class TestS3AdapterProtocol:
                 fail_if_exists: bool = False,
             ) -> None:
                 """Store a local file to S3."""
-                pass
 
             def read(self, path: str) -> str:
                 """Read an object from S3, return as string."""
-                pass
 
             def exists(self, path: str) -> bool:
                 """Check if an object exists in S3."""
-                pass
 
             def remove(self, path: str) -> None:
                 """Remove an object from S3."""
-                pass
 
             def copy(self, source: str, destination: str) -> None:
                 """Copy an object within S3."""
-                pass
 
             def head(self, path: str) -> dict:
                 """Get head/metadata for an object."""
-                pass
 
             def list_objects(
                 self, prefix: str, continuation_token: Optional[str] = None
@@ -312,7 +304,6 @@ class TestBoto3S3Adapter:
         where it doesn't apply the prefix to the source path. The MockS3Adapter
         test below verifies the copy functionality works correctly.
         """
-        pass
 
     def test_head(self, adapter):
         """head should return object metadata."""

@@ -9,11 +9,9 @@ from typing import Optional
 import boto3
 from loguru import logger
 
-from pydeb_s3.s3_adapter import S3Adapter, Boto3S3Adapter, S3Error
-
 # Re-export progress utilities for backward compatibility
-from pydeb_s3.progress import BitsTransferSpeedColumn, UploadProgress, calculate_stream_md5
-
+from pydeb_s3.s3_adapter import Boto3S3Adapter, S3Adapter, S3Error
+from pydeb_s3.progress import BitsTransferSpeedColumn, UploadProgress, calculate_stream_md5  # noqa: F401
 
 # Global S3Adapter instance (deprecated - for backward compatibility only)
 _s3_adapter: Optional[S3Adapter] = None

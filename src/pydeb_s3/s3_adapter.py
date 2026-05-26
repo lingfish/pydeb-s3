@@ -8,11 +8,10 @@ import hashlib
 import os
 from typing import Optional, Protocol, Tuple
 
-import boto3
 from botocore.exceptions import ClientError
 from loguru import logger
 
-from pydeb_s3.progress import BitsTransferSpeedColumn, UploadProgress, calculate_stream_md5
+from pydeb_s3.progress import UploadProgress, calculate_stream_md5
 
 
 class S3Error(Exception):

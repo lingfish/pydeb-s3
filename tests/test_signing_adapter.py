@@ -1,10 +1,10 @@
 """Tests for SigningAdapter protocol and GpgSigningAdapter."""
 
-import os
-import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-from pydeb_s3.release import SigningAdapter, GpgSigningAdapter
+import pytest
+
+from pydeb_s3.release import GpgSigningAdapter
 
 
 class TestSigningAdapterProtocol:
