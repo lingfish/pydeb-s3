@@ -263,17 +263,10 @@ class Package:
         if not depends_str:
             return
 
-        import re
-
-        dep_re = re.compile(r"^([^ ]+)(?: \(([>=<]+) ([^)]+)\))?$")
         for dep in depends_str.split(", "):
-            m = dep_re.match(dep)
-            if m:
-                name, op, version = m.groups()
-                if op and version:
-                    self.dependencies.append(f"{name} ({op} {version})")
-                else:
-                    self.dependencies.append(name.strip())
+            dep = dep.strip()
+            if dep:
+                self.dependencies.append(dep)
 
     def _apply_file_info(self, filepath: str) -> None:
         """Apply file-specific information (hashes, size)."""

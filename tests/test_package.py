@@ -97,6 +97,21 @@ class TestPackageParseString:
         assert pkg.description.startswith("example package based on GNU hello")
         assert pkg.filename.endswith("hello_2.10-5_amd64.deb")
 
+    def test_parse_depends_preserves_or_alternatives(self):
+        """Depends with | alternatives are preserved as single entries."""
+        pkg = package_module.parse_string(
+            "Package: test-pkg\n"
+            "Version: 1.0\n"
+            "Architecture: amd64\n"
+            "Maintainer: Test <test@example.com>\n"
+            "Description: test\n"
+            "Depends: libc6 (>= 2.34), systemd | systemd-standalone-sysusers | systemd-sysusers\n"
+        )
+        assert pkg.dependencies == [
+            "libc6 (>= 2.34)",
+            "systemd | systemd-standalone-sysusers | systemd-sysusers",
+        ]
+
     def test_generates_description_last_and_formatted(self):
         """Generated Packages content should have Description as the last field, correctly formatted."""
         pkg = package_module.Package(
