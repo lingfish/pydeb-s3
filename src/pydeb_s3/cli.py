@@ -60,7 +60,6 @@ def build_s3_config(
     force_path_style=False,
     checksum_when_required=False,
     cache_control=None,
-    **kwargs,
 ) -> S3Config:
     """Build S3Config from CLI command kwargs.
 
@@ -231,8 +230,7 @@ def upload_command(
     comp = component
     if section:
         logger.warning("--section is deprecated, use --component instead")
-        if not comp:
-            comp = section
+        comp = section
 
     if lock:
         lock_module.lock(s3_adapter)

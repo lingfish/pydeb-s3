@@ -150,22 +150,43 @@ class Package:
             if not control_file:
                 return
 
-            if control_file.endswith(".zst"):
-                compression = "zstd -d"
-            elif control_file.endswith(".gz"):
-                compression = "-z"
-            elif control_file.endswith(".xz"):
-                compression = "-J"
-            else:
-                compression = ""
-
-            control_cmd = f"ar p {filepath} {control_file} | tar {compression} -xf - -O control"
-            result = subprocess.run(
-                control_cmd,
-                check=False, shell=True,
-                capture_output=True,
-                text=True,
+            ar_proc = subprocess.Popen(
+                ["ar", "p", filepath, control_file],
+                stdout=subprocess.PIPE,
             )
+
+            if control_file.endswith(".zst"):
+                zstd_proc = subprocess.Popen(
+                    ["zstd", "-d"],
+                    stdin=ar_proc.stdout,
+                    stdout=subprocess.PIPE,
+                )
+                ar_proc.stdout.close()
+                result = subprocess.run(
+                    ["tar", "-xf", "-", "-O", "control"],
+                    stdin=zstd_proc.stdout,
+                    capture_output=True,
+                    text=True,
+                )
+                zstd_proc.stdout.close()
+                zstd_proc.wait()
+            else:
+                tar_args = ["tar"]
+                if control_file.endswith(".gz"):
+                    tar_args.append("-z")
+                elif control_file.endswith(".xz"):
+                    tar_args.append("-J")
+                tar_args.extend(["-xf", "-", "-O", "control"])
+                result = subprocess.run(
+                    tar_args,
+                    stdin=ar_proc.stdout,
+                    capture_output=True,
+                    text=True,
+                )
+
+            ar_proc.stdout.close()
+            ar_proc.wait()
+
             if result.returncode == 0:
                 self._parse_control(result.stdout)
         except Exception:
