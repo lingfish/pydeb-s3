@@ -18,7 +18,6 @@ Requirements:
 """
 
 import os
-import sys
 import tempfile
 
 import pytest
@@ -29,13 +28,6 @@ from pydeb_s3 import release as release_module
 from pydeb_s3 import s3_utils
 from pydeb_s3.cli import clean_command
 from pydeb_s3.s3_adapter import Boto3S3Adapter
-
-
-def setup_logger():
-    """Configure loguru to output to captured stderr."""
-    from loguru import logger
-    logger.remove()
-    logger.add(sys.stderr, format="{message}", level="DEBUG")
 
 
 class TestCleanRealScenario:
@@ -152,7 +144,7 @@ class TestOldVersionsOrphanedButRCPackagesKept(TestCleanRealScenario):
         - 0.22.0 packages should NOT be removed (referenced by stable codename)
         - 0.21.x OLD packages SHOULD be removed (orphaned)
         """
-        setup_logger()
+
 
         # Create dummy .deb content for uploads (just need some content)
         deb_content = b"dummy deb content for testing"
@@ -334,7 +326,7 @@ class TestListCodenames(TestCleanRealScenario):
 
     def test_list_codenames_returns_both(self, capfd):
         """Verify that list_codenames returns ['rc', 'stable']."""
-        setup_logger()
+
 
         # Create releases for both codenames
         self._create_release(codename="rc", components=["non-free"])
@@ -362,7 +354,7 @@ class TestCleanRealScenarioWithArm64(TestCleanRealScenario):
 
         Expected: Only truly orphaned packages (0.21.x) should be removed.
         """
-        setup_logger()
+
 
         deb_content = b"dummy deb content"
 

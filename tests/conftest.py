@@ -1,6 +1,8 @@
 """Pytest configuration and fixtures for pydeb-s3 tests."""
 
 
+import sys
+
 import boto3
 import pytest
 from moto import mock_aws
@@ -81,6 +83,14 @@ def aws_credentials(monkeypatch):
     monkeypatch.setenv("AWS_SECURITY_TOKEN", "testing")
     monkeypatch.setenv("AWS_SESSION_TOKEN", "testing")
     monkeypatch.setenv("AWS_DEFAULT_REGION", "us-east-1")
+
+
+@pytest.fixture(autouse=True)
+def setup_loguru():
+    """Configure loguru to output to captured stderr."""
+    from loguru import logger
+    logger.remove()
+    logger.add(lambda msg: sys.stderr.write(msg), format="{message}")
 
 
 @pytest.fixture

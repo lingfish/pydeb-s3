@@ -156,20 +156,6 @@ class TestReleaseGenerateExcludesSignatureFiles:
         assert "1106 Release" not in content # Specific check for previous content
         assert "1132 Release" not in content # Specific check for previous content
 
-    def test_generate_excludes_self_hashes(self):
-        """generate() excludes hash entries for Release file itself."""
-        r = release_module.Release(
-            codename="stable",
-            files={
-                "main/binary-amd64/Packages": {"sha256": "packagehash", "size": 100},
-            },
-        )
-        content = r.generate()
-        # Assert that there are no SHA256, SHA512, MD5sum entries for 'Release' file itself
-        assert " Release" not in content # Generic check for any hash entry for Release
-        assert "1106 Release" not in content # Specific check for previous content
-        assert "1132 Release" not in content # Specific check for previous content
-
 
 class TestReleaseParse:
     """Tests for Release._parse()."""

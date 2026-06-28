@@ -1,20 +1,11 @@
 """Integration tests for the list command."""
 
-import sys
-
 import pytest
 
 from pydeb_s3 import manifest as manifest_module
 from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
 from pydeb_s3.cli import list_command
-
-
-def setup_logger():
-    """Configure loguru to output to captured stderr."""
-    from loguru import logger
-    logger.remove()
-    logger.add(sys.stderr, format="{message}")
 
 
 class TestListIntegration:
@@ -57,7 +48,7 @@ class TestListIntegration:
 
     def test_list_packages_default(self, capfd):
         """List all packages from manifest without filtering."""
-        setup_logger()
+
 
         self._create_release()
         self._add_packages_to_manifest(
@@ -82,7 +73,7 @@ class TestListIntegration:
 
     def test_list_packages_long_format(self, capfd):
         """List packages with long format option (currently same as default)."""
-        setup_logger()
+
 
         self._create_release()
         self._add_packages_to_manifest(
@@ -106,7 +97,7 @@ class TestListIntegration:
 
     def test_list_filter_by_architecture(self, capfd):
         """Filter packages by architecture."""
-        setup_logger()
+
 
         # Create release with multiple architectures
         self._create_release(architectures=["amd64", "arm64"])
@@ -147,7 +138,7 @@ class TestListIntegration:
 
     def test_list_empty_manifest(self, capfd):
         """List command handles empty manifest gracefully."""
-        setup_logger()
+
 
         # Create release but no packages
         self._create_release()
@@ -169,7 +160,7 @@ class TestListIntegration:
 
     def test_list_multiple_architectures(self, capfd):
         """List packages from multiple architectures."""
-        setup_logger()
+
 
         # Create release with multiple architectures
         self._create_release(architectures=["amd64", "arm64", "i386"])
@@ -209,7 +200,7 @@ class TestListIntegration:
 
     def test_list_different_component(self, capfd):
         """List packages from different components."""
-        setup_logger()
+
 
         self._create_release(components=["main", "non-free"])
 
@@ -234,7 +225,7 @@ class TestListIntegration:
 
     def test_list_packages_sorted(self, capfd):
         """Verify packages are sorted by name then version."""
-        setup_logger()
+
 
         release = self._create_release()
 
@@ -292,7 +283,7 @@ class TestListIntegration:
 
     def test_list_packages_sorted_same_name_different_versions(self, capfd):
         """Verify packages with same name are sorted by version."""
-        setup_logger()
+
 
         release = self._create_release()
 
@@ -391,7 +382,7 @@ class TestListQuietOutput:
 
     def test_list_outputs_to_stdout_not_stderr(self, capfd):
         """List command output should go to stdout, not stderr."""
-        setup_logger()
+
 
         self._create_release()
         self._add_packages_to_manifest(
@@ -418,7 +409,7 @@ class TestListQuietOutput:
 
     def test_list_with_quiet_flag_outputs_nothing(self, capfd):
         """List command with --quiet should output nothing."""
-        setup_logger()
+
 
         # Set quiet in context
         app_ctx = {"quiet": True, "debug": False}
@@ -449,7 +440,7 @@ class TestListQuietOutput:
 
     def test_list_output_contains_package_name(self, capfd):
         """List command output should contain package name in output."""
-        setup_logger()
+
 
         self._create_release()
         self._add_packages_to_manifest(

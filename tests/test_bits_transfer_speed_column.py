@@ -10,14 +10,14 @@ class TestBitsTransferSpeedColumn:
 
     def test_bits_transfer_speed_column_exists(self):
         """BitsTransferSpeedColumn class exists and can be imported."""
-        from pydeb_s3.s3_utils import BitsTransferSpeedColumn
+        from pydeb_s3.progress import BitsTransferSpeedColumn
 
         column = BitsTransferSpeedColumn()
         assert column is not None
 
     def test_render_returns_question_mark_when_no_speed(self):
         """Render returns '?' when task has no speed."""
-        from pydeb_s3.s3_utils import BitsTransferSpeedColumn
+        from pydeb_s3.progress import BitsTransferSpeedColumn
 
         column = BitsTransferSpeedColumn()
 
@@ -33,7 +33,7 @@ class TestBitsTransferSpeedColumn:
 
     def test_render_bits_per_second_single_digit(self):
         """Render shows bits/s for single digit values."""
-        from pydeb_s3.s3_utils import BitsTransferSpeedColumn
+        from pydeb_s3.progress import BitsTransferSpeedColumn
 
         column = BitsTransferSpeedColumn()
 
@@ -52,7 +52,7 @@ class TestBitsTransferSpeedColumn:
 
     def test_render_kilobits_per_second(self):
         """Render shows Kb/s for values in kilobit range."""
-        from pydeb_s3.s3_utils import BitsTransferSpeedColumn
+        from pydeb_s3.progress import BitsTransferSpeedColumn
 
         column = BitsTransferSpeedColumn()
 
@@ -68,7 +68,7 @@ class TestBitsTransferSpeedColumn:
 
     def test_render_megabits_per_second(self):
         """Render shows Mb/s for values in megabit range."""
-        from pydeb_s3.s3_utils import BitsTransferSpeedColumn
+        from pydeb_s3.progress import BitsTransferSpeedColumn
 
         column = BitsTransferSpeedColumn()
 
@@ -84,7 +84,7 @@ class TestBitsTransferSpeedColumn:
 
     def test_render_gigabits_per_second(self):
         """Render shows Gb/s for values in gigabit range."""
-        from pydeb_s3.s3_utils import BitsTransferSpeedColumn
+        from pydeb_s3.progress import BitsTransferSpeedColumn
 
         column = BitsTransferSpeedColumn()
 
@@ -109,7 +109,7 @@ class TestUploadProgressWithSharedProgress:
 
             from rich.progress import BarColumn, DownloadColumn, Progress
 
-            from pydeb_s3.s3_utils import BitsTransferSpeedColumn, UploadProgress
+            from pydeb_s3.progress import BitsTransferSpeedColumn, UploadProgress
 
             # Create a shared Progress instance
             shared_progress = Progress(
@@ -133,7 +133,7 @@ class TestUploadProgressWithSharedProgress:
         with patch("sys.stderr") as mock_stderr:
             mock_stderr.isatty.return_value = True
 
-            from pydeb_s3.s3_utils import UploadProgress
+            from pydeb_s3.progress import UploadProgress
 
             progress = UploadProgress(
                 filename="test.deb",
@@ -150,7 +150,7 @@ class TestUploadProgressWithSharedProgress:
         with patch("sys.stderr") as mock_stderr:
             mock_stderr.isatty.return_value = True
 
-            from pydeb_s3.s3_utils import UploadProgress
+            from pydeb_s3.progress import UploadProgress
 
             progress = UploadProgress(
                 filename="test.deb",
@@ -205,7 +205,7 @@ class TestProgressConsoleLogging:
 
             from rich.progress import BarColumn, DownloadColumn, Progress
 
-            from pydeb_s3.s3_utils import BitsTransferSpeedColumn, UploadProgress
+            from pydeb_s3.progress import BitsTransferSpeedColumn, UploadProgress
 
             # Create a shared Progress with console
             shared_progress = Progress(
@@ -240,7 +240,7 @@ class TestProgressConsoleLogging:
         with patch("sys.stderr") as mock_stderr:
             mock_stderr.isatty.return_value = False
 
-            from pydeb_s3.s3_utils import UploadProgress
+            from pydeb_s3.progress import UploadProgress
 
             progress = UploadProgress(
                 filename="test.deb",

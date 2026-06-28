@@ -14,7 +14,6 @@ The fix requires:
 """
 
 import os
-import sys
 import tempfile
 from unittest.mock import patch
 
@@ -26,13 +25,6 @@ from pydeb_s3 import release as release_module
 from pydeb_s3 import s3_utils
 from pydeb_s3.cli import clean_command
 from pydeb_s3.s3_adapter import Boto3S3Adapter, S3Adapter
-
-
-def setup_logger():
-    """Configure loguru to output to captured stderr."""
-    from loguru import logger
-    logger.remove()
-    logger.add(sys.stderr, format="{message}", level="DEBUG")
 
 
 class TestCleanComponentFiltering:
@@ -101,7 +93,7 @@ class TestCleanComponentFiltering:
         under pool/main/ instead of pool/ to avoid deleting packages
         from other components.
         """
-        setup_logger()
+
 
         # Create release with packages
         release = self._create_release(components=["main", "non-free"])
@@ -165,7 +157,7 @@ class TestCleanComponentFiltering:
         This is the core bug test: when --component main is specified,
         packages in pool/non-free/ should NOT be considered orphaned.
         """
-        setup_logger()
+
 
         # Create release with packages in both main and non-free
         release = self._create_release(components=["main", "non-free"])
@@ -215,7 +207,7 @@ class TestCleanComponentFiltering:
 
     def test_clean_with_non_free_component_only(self, capfd):
         """Clean with --component non-free should only clean non-free pool."""
-        setup_logger()
+
 
         # Create release with non-free component
         release = self._create_release(components=["non-free"])
@@ -314,7 +306,7 @@ class TestCleanMultipleComponents:
 
     def test_clean_with_multiple_components_comma_separated(self, capfd):
         """Clean with --component non-free,contrib should clean both components."""
-        setup_logger()
+
 
         # Create release with non-free and contrib components
         release = self._create_release(components=["non-free", "contrib"])
@@ -429,7 +421,7 @@ class TestCleanPagination:
         should continue fetching additional pages until all objects are
         processed.
         """
-        setup_logger()
+
 
         # Create release with one package
         release = self._create_release()
@@ -500,7 +492,7 @@ class TestCleanComponentPrefixCalls:
         The fix: clean should only list pool/{component}/ for the specified component
         so that packages in other component pools are not affected.
         """
-        setup_logger()
+
 
         release = self._create_release(components=["main", "non-free"])
 
@@ -526,7 +518,7 @@ class TestCleanComponentPrefixCalls:
 
     def test_clean_with_non_free_uses_pool_non_free_prefix(self, capfd):
         """Clean with --component non-free should only process non-free pool."""
-        setup_logger()
+
 
         release = self._create_release(components=["non-free"])
 
@@ -561,7 +553,7 @@ class TestCleanComponentPrefixCalls:
 
     def test_clean_with_non_free_uses_pool_non_free_prefix(self, capfd):
         """When --component non-free, prefix should be pool/non-free/ not pool/."""
-        setup_logger()
+
 
         release = self._create_release(components=["non-free"])
 

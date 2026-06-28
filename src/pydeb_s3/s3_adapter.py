@@ -168,7 +168,7 @@ class S3Adapter(Protocol):
         ...
 
 
-class Boto3S3Adapter:
+class Boto3S3Adapter(S3Adapter):
     """Concrete adapter wrapping boto3 S3 client.
 
     This is the production implementation that replaces the global state
@@ -475,7 +475,7 @@ class Boto3S3Adapter:
             raise
 
 
-class MockS3Adapter:
+class MockS3Adapter(S3Adapter):
     """In-memory mock S3 adapter for testing.
 
     This adapter stores objects in a simple dictionary, providing

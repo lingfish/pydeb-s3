@@ -1,7 +1,6 @@
 """Integration tests for the clean command."""
 
 import os
-import sys
 import tempfile
 
 import pytest
@@ -10,13 +9,6 @@ from pydeb_s3 import manifest as manifest_module
 from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
 from pydeb_s3.cli import clean_command
-
-
-def setup_logger():
-    """Configure loguru to output to captured stderr."""
-    from loguru import logger
-    logger.remove()
-    logger.add(sys.stderr, format="{message}")
 
 
 class TestCleanIntegration:
@@ -81,7 +73,7 @@ class TestCleanIntegration:
 
     def test_clean_removes_orphaned_files(self, capfd):
         """Clean command removes .deb files not referenced by any Packages file."""
-        setup_logger()
+
 
         # Create release with packages
         release = self._create_release()
@@ -119,7 +111,7 @@ class TestCleanIntegration:
 
     def test_clean_does_not_remove_referenced_files(self, capfd):
         """Clean command keeps .deb files that are referenced by Packages files."""
-        setup_logger()
+
 
         # Create release with packages
         release = self._create_release()
@@ -153,7 +145,7 @@ class TestCleanIntegration:
 
     def test_clean_no_orphans_no_op(self, capfd):
         """Clean command handles case with no orphaned packages."""
-        setup_logger()
+
 
         # Create release with packages
         release = self._create_release()
@@ -179,7 +171,7 @@ class TestCleanIntegration:
 
     def test_clean_multiple_orphans_removed(self, capfd):
         """Clean command removes multiple orphaned files."""
-        setup_logger()
+
 
         # Create release with one package
         release = self._create_release()
@@ -218,7 +210,7 @@ class TestCleanIntegration:
 
     def test_clean_with_multiple_components(self, capfd):
         """Clean command works across multiple components."""
-        setup_logger()
+
 
         # Create release with multiple components
         release = self._create_release(components=["main", "non-free"])
@@ -263,7 +255,7 @@ class TestCleanIntegration:
 
     def test_clean_dry_run_does_not_remove_orphans(self, capfd):
         """Dry-run mode reports orphans but does not delete them."""
-        setup_logger()
+
 
         release = self._create_release()
         self._add_packages_to_manifest(
@@ -292,7 +284,7 @@ class TestCleanIntegration:
 
     def test_clean_dry_run_no_orphans(self, capfd):
         """Dry-run mode with no orphans reports nothing to remove."""
-        setup_logger()
+
 
         release = self._create_release()
         self._add_packages_to_manifest(
@@ -315,7 +307,7 @@ class TestCleanIntegration:
 
     def test_clean_dry_run_multiple_orphans(self, capfd):
         """Dry-run mode reports multiple would-be removals."""
-        setup_logger()
+
 
         release = self._create_release()
         self._add_packages_to_manifest(
@@ -347,7 +339,7 @@ class TestCleanIntegration:
 
     def test_clean_normal_run_still_works(self, capfd):
         """Normal (non-dry-run) clean still removes orphans."""
-        setup_logger()
+
 
         release = self._create_release()
         self._add_packages_to_manifest(
@@ -456,7 +448,7 @@ class TestCleanWithPrefix:
         can find .deb files in the pool. Without the fix, s3_list_objects would
         look for "apt/apt/pool/" instead of "apt/pool/", returning 0 results.
         """
-        setup_logger()
+
 
         # Create release with packages
         release = self._create_release()
@@ -486,7 +478,7 @@ class TestCleanWithPrefix:
         s3_list_objects, which internally calls s3_path("apt/pool/") and adds
         the prefix again, resulting in "apt/apt/pool/" (incorrect).
         """
-        setup_logger()
+
 
         # Create release with packages
         release = self._create_release()
@@ -526,7 +518,7 @@ class TestCleanWithPrefix:
 
     def test_clean_with_prefix_does_not_remove_referenced_files(self, capfd):
         """Clean command keeps .deb files that are referenced by Packages files when prefix is set."""
-        setup_logger()
+
 
         # Create release with packages
         release = self._create_release()
@@ -561,7 +553,7 @@ class TestCleanWithPrefix:
 
     def test_clean_with_prefix_dry_run(self, capfd):
         """Dry-run mode with prefix reports orphans but does not delete them."""
-        setup_logger()
+
 
         release = self._create_release()
         self._add_packages_to_manifest(
@@ -590,7 +582,7 @@ class TestCleanWithPrefix:
 
     def test_clean_with_prefix_no_orphans(self, capfd):
         """Clean command with prefix handles case with no orphaned packages."""
-        setup_logger()
+
 
         # Create release with packages
         release = self._create_release()
@@ -617,7 +609,7 @@ class TestCleanWithPrefix:
 
     def test_clean_with_prefix_multiple_orphans(self, capfd):
         """Clean command with prefix removes multiple orphaned files."""
-        setup_logger()
+
 
         # Create release with one package
         release = self._create_release()

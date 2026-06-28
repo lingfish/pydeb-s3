@@ -11,7 +11,7 @@ class TestFormatSpeedBits:
         with patch("sys.stderr") as mock_stderr:
             mock_stderr.isatty.return_value = False
 
-            from pydeb_s3.s3_utils import UploadProgress
+            from pydeb_s3.progress import UploadProgress
 
             progress = UploadProgress(
                 filename="test.deb",
@@ -29,7 +29,7 @@ class TestFormatSpeedBits:
         with patch("sys.stderr") as mock_stderr:
             mock_stderr.isatty.return_value = False
 
-            from pydeb_s3.s3_utils import UploadProgress
+            from pydeb_s3.progress import UploadProgress
 
             progress = UploadProgress(
                 filename="test.deb",
@@ -47,7 +47,7 @@ class TestFormatSpeedBits:
         with patch("sys.stderr") as mock_stderr:
             mock_stderr.isatty.return_value = False
 
-            from pydeb_s3.s3_utils import UploadProgress
+            from pydeb_s3.progress import UploadProgress
 
             progress = UploadProgress(
                 filename="test.deb",
@@ -69,7 +69,7 @@ class TestFormatSpeedBits:
         with patch("sys.stderr") as mock_stderr:
             mock_stderr.isatty.return_value = False
 
-            from pydeb_s3.s3_utils import UploadProgress
+            from pydeb_s3.progress import UploadProgress
 
             progress = UploadProgress(
                 filename="test.deb",
@@ -91,7 +91,7 @@ class TestFormatSpeedBytes:
         with patch("sys.stderr") as mock_stderr:
             mock_stderr.isatty.return_value = False
 
-            from pydeb_s3.s3_utils import UploadProgress
+            from pydeb_s3.progress import UploadProgress
 
             progress = UploadProgress(
                 filename="test.deb",
@@ -108,7 +108,7 @@ class TestFormatSpeedBytes:
         with patch("sys.stderr") as mock_stderr:
             mock_stderr.isatty.return_value = False
 
-            from pydeb_s3.s3_utils import UploadProgress
+            from pydeb_s3.progress import UploadProgress
 
             progress = UploadProgress(
                 filename="test.deb",
@@ -125,7 +125,7 @@ class TestFormatSpeedBytes:
         with patch("sys.stderr") as mock_stderr:
             mock_stderr.isatty.return_value = False
 
-            from pydeb_s3.s3_utils import UploadProgress
+            from pydeb_s3.progress import UploadProgress
 
             progress = UploadProgress(
                 filename="test.deb",
@@ -143,7 +143,7 @@ class TestFormatSpeedBytes:
         with patch("sys.stderr") as mock_stderr:
             mock_stderr.isatty.return_value = False
 
-            from pydeb_s3.s3_utils import UploadProgress
+            from pydeb_s3.progress import UploadProgress
 
             progress = UploadProgress(
                 filename="test.deb",
@@ -165,7 +165,7 @@ class TestUploadProgressUseBytes:
         with patch("sys.stderr") as mock_stderr:
             mock_stderr.isatty.return_value = False
 
-            from pydeb_s3.s3_utils import UploadProgress
+            from pydeb_s3.progress import UploadProgress
 
             progress = UploadProgress(
                 filename="test.deb",
@@ -182,7 +182,7 @@ class TestUploadProgressUseBytes:
         with patch("sys.stderr") as mock_stderr:
             mock_stderr.isatty.return_value = False
 
-            from pydeb_s3.s3_utils import UploadProgress
+            from pydeb_s3.progress import UploadProgress
 
             progress = UploadProgress(
                 filename="test.deb",
@@ -198,7 +198,7 @@ class TestUploadProgressUseBytes:
         with patch("sys.stderr") as mock_stderr:
             mock_stderr.isatty.return_value = False
 
-            from pydeb_s3.s3_utils import UploadProgress
+            from pydeb_s3.progress import UploadProgress
 
             progress = UploadProgress(
                 filename="test.deb",
@@ -214,7 +214,7 @@ class TestUploadProgressUseBytes:
         with patch("sys.stderr") as mock_stderr:
             mock_stderr.isatty.return_value = False
 
-            from pydeb_s3.s3_utils import UploadProgress
+            from pydeb_s3.progress import UploadProgress
 
             # Use bits mode (default)
             progress = UploadProgress(

@@ -1,20 +1,11 @@
 """Integration tests for the copy command."""
 
-import sys
-
 import pytest
 
 from pydeb_s3 import manifest as manifest_module
 from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
 from pydeb_s3.cli import copy_command
-
-
-def setup_logger():
-    """Configure loguru to output to captured stderr."""
-    from loguru import logger
-    logger.remove()
-    logger.add(sys.stderr, format="{message}")
 
 
 def package_exists(manifest, package_name):
@@ -67,7 +58,7 @@ class TestCopyIntegration:
 
     def test_copy_package_to_different_component(self, capfd):
         """Copy a package from main component to non-free component."""
-        setup_logger()
+
 
         # Create source release with main component
         release = self._create_release(components=["main", "non-free"])
@@ -117,7 +108,7 @@ class TestCopyIntegration:
 
     def test_copy_package_preserves_package_data(self, capfd):
         """Verify that copied package retains all metadata."""
-        setup_logger()
+
 
         # Create release with both components
         release = self._create_release(components=["main", "extra"])
@@ -167,7 +158,7 @@ class TestCopyIntegration:
         Actually, the copy command doesn't support cross-arch copy (no separate --to-arch param).
         This test verifies that having multiple arch releases works correctly.
         """
-        setup_logger()
+
 
         # Create release with multiple architectures (amd64 and arm64)
         release = self._create_release(architectures=["amd64", "arm64"], components=["main"])
@@ -211,7 +202,7 @@ class TestCopyIntegration:
 
     def test_copy_specific_version(self, capfd):
         """Copy only a specific version when multiple versions exist."""
-        setup_logger()
+
 
         # Create release with both components
         release = self._create_release(components=["main", "archive"])
@@ -250,7 +241,7 @@ class TestCopyIntegration:
 
     def test_copy_updates_target_release_file(self, capfd):
         """Verify that the target Release file is updated after copy."""
-        setup_logger()
+
 
         # Create release with both components
         release = self._create_release(components=["main", "non-free"])
@@ -302,7 +293,7 @@ class TestCopyErrors:
         """Error when copying a package that doesn't exist."""
         import typer
 
-        setup_logger()
+
 
         # Create release with a package
         release = release_module.Release(
@@ -341,7 +332,7 @@ class TestCopyErrors:
         """Copy command requires bucket option."""
         import typer
 
-        setup_logger()
+
 
         with pytest.raises(typer.Exit):
             copy_command(
@@ -366,7 +357,7 @@ class TestCopyErrors:
         """Error when target codename doesn't exist."""
         import typer
 
-        setup_logger()
+
 
         # Create source release
         release = release_module.Release(
@@ -409,7 +400,7 @@ class TestCopyErrors:
         """Error when target codename doesn't have the architecture."""
         import typer
 
-        setup_logger()
+
 
         # Create source release with amd64
         source_release = release_module.Release(

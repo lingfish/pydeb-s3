@@ -15,7 +15,6 @@ The fix requires:
 """
 
 import os
-import sys
 import tempfile
 from unittest.mock import patch
 
@@ -26,13 +25,6 @@ from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
 from pydeb_s3 import s3_utils
 from pydeb_s3.cli import clean_command
-
-
-def setup_logger():
-    """Configure loguru to output to captured stderr."""
-    from loguru import logger
-    logger.remove()
-    logger.add(sys.stderr, format="{message}", level="DEBUG")
 
 
 class TestListCodenames:
@@ -245,7 +237,7 @@ class TestCleanChecksAllCodenames:
         that are referenced by the stable codename should NOT be marked as orphaned
         even if they're not in rc's manifest.
         """
-        setup_logger()
+
 
         # Create stable codename with package A in manifest
         stable_release = self._create_release(codename="stable", components=["main"])
@@ -303,7 +295,7 @@ class TestCleanChecksAllCodenames:
         When running clean with --codename stable, packages that are referenced
         by other codenames (like rc) should NOT be deleted.
         """
-        setup_logger()
+
 
         # Create stable codename with package A
         stable_release = self._create_release(codename="stable", components=["main"])
@@ -368,7 +360,7 @@ class TestCleanChecksAllCodenames:
         Package A (not referenced by any codename) should be deleted.
         Package B (referenced by stable) should NOT be deleted.
         """
-        setup_logger()
+
 
         # Create stable codename with package B in manifest
         stable_release = self._create_release(codename="stable", components=["main"])
@@ -467,7 +459,7 @@ class TestCleanCodenamesMocked:
         The fix requires clean_command to call list_codenames() to find
         all available codenames in S3 before determining orphaned packages.
         """
-        setup_logger()
+
 
         # First check if list_codenames exists - if not, skip this test
         if not hasattr(s3_utils, "list_codenames"):
@@ -513,7 +505,7 @@ class TestCleanCodenamesMocked:
         When determining if a package is orphaned, clean should iterate over
         all codenames found by list_codenames() and check their manifests.
         """
-        setup_logger()
+
 
         # First check if list_codenames exists - if not, skip this test
         if not hasattr(s3_utils, "list_codenames"):
@@ -592,7 +584,7 @@ class TestCleanCodenamesEdgeCases:
         When there's only one codename in S3, clean should still work
         and correctly identify orphaned packages.
         """
-        setup_logger()
+
 
         # Create only stable codename
         release = self._create_release(codename="stable", components=["main"])
@@ -639,7 +631,7 @@ class TestCleanCodenamesEdgeCases:
         If user specifies --codename nonexistent, but other codenames exist,
         the clean should still work by checking all existing codenames.
         """
-        setup_logger()
+
 
         # Create stable codename only
         release = self._create_release(codename="stable", components=["main"])

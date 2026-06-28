@@ -1,20 +1,11 @@
 """Integration tests for the exists command."""
 
-import sys
-
 import pytest
 
 from pydeb_s3 import manifest as manifest_module
 from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
 from pydeb_s3.cli import exists_command
-
-
-def setup_logger():
-    """Configure loguru to output to captured stderr."""
-    from loguru import logger
-    logger.remove()
-    logger.add(sys.stderr, format="{message}")
 
 
 class TestExistsIntegration:
@@ -57,7 +48,7 @@ class TestExistsIntegration:
 
     def test_exists_returns_true_for_existing_package(self, capfd):
         """exists returns 1 for package that exists in repository."""
-        setup_logger()
+
 
         release = self._create_release()
         self._add_packages_to_manifest(release, self.sample_deb_file)
@@ -80,7 +71,7 @@ class TestExistsIntegration:
 
     def test_exists_returns_false_for_nonexistent_package(self, capfd):
         """exists returns 0 for package that does not exist in repository."""
-        setup_logger()
+
 
         self._create_release()
 
@@ -100,7 +91,7 @@ class TestExistsIntegration:
 
     def test_exists_with_exact_version_match(self, capfd):
         """exists returns 1 when package exists with specified version."""
-        setup_logger()
+
 
         release = self._create_release()
         self._add_packages_to_manifest(release, self.sample_deb_file)
@@ -121,7 +112,7 @@ class TestExistsIntegration:
 
     def test_exists_with_nonexistent_version(self, capfd):
         """exists returns 0 when package exists but version does not."""
-        setup_logger()
+
 
         release = self._create_release()
         self._add_packages_to_manifest(release, self.sample_deb_file)
@@ -142,7 +133,7 @@ class TestExistsIntegration:
 
     def test_exists_with_different_architecture(self, capfd):
         """exists returns 0 when package exists but different arch."""
-        setup_logger()
+
 
         release = self._create_release(architectures=["amd64", "arm64"])
 
@@ -173,7 +164,7 @@ class TestExistsIntegration:
 
     def test_exists_default_architecture_is_amd64(self, capfd):
         """exists uses amd64 as default architecture."""
-        setup_logger()
+
 
         release = self._create_release()
         self._add_packages_to_manifest(release, self.sample_deb_file)
@@ -222,7 +213,7 @@ class TestExistsMultiplePackages:
 
     def test_exists_with_hello_package(self, capfd):
         """exists works with hello package."""
-        setup_logger()
+
 
         release = self._create_release()
         pkg = package_module.Package.parse_file("tests/fixtures/hello_2.10-5_amd64.deb")
@@ -247,7 +238,7 @@ class TestExistsMultiplePackages:
 
     def test_exists_nonexistent_vs_existing(self, capfd):
         """Test contrast between existing and nonexistent packages."""
-        setup_logger()
+
 
         release = self._create_release()
 
@@ -360,7 +351,7 @@ class TestExistsQuietOutput:
 
     def test_exists_outputs_to_stdout_not_stderr(self, capfd):
         """exists command output should go to stdout, not stderr."""
-        setup_logger()
+
 
         release = self._create_release()
         self._add_packages_to_manifest(release, self.sample_deb_file)
@@ -386,7 +377,7 @@ class TestExistsQuietOutput:
 
     def test_exists_with_quiet_flag_outputs_nothing(self, capfd):
         """exists command with --quiet should output nothing."""
-        setup_logger()
+
 
         release = self._create_release()
         self._add_packages_to_manifest(release, self.sample_deb_file)
@@ -413,7 +404,7 @@ class TestExistsQuietOutput:
 
     def test_exists_nonexistent_with_quiet_outputs_nothing(self, capfd):
         """exists for nonexistent package with --quiet should output nothing."""
-        setup_logger()
+
 
         self._create_release()
 

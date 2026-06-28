@@ -421,21 +421,6 @@ class Release:
         finally:
             os.unlink(release_temp.name)
 
-
-
-    def _validate_others(self, callback: Optional[callable] = None, use_bytes: bool = False) -> None:
-        """Validate other architectures are present."""
-        for comp in self.components:
-            for arch in ["amd64", "i386", "armhf", "arm64"]:
-                key = f"{comp}/binary-{arch}/Packages"
-                if key in self.files or arch in self.architectures:
-                    m = man_module.Manifest()
-                    m.codename = self.codename
-                    m.component = comp
-                    m.architecture = arch
-                    m.write_to_s3(callback, use_bytes=use_bytes)
-                    self.update_manifest(m)
-
     def update_manifest(self, manifest: man_module.Manifest) -> None:
         """Update Release with manifest information."""
         if manifest.component not in self.components:

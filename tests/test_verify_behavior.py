@@ -1,20 +1,11 @@
 """Integration tests for the verify command."""
 
-import sys
-
 import pytest
 
 from pydeb_s3 import manifest as manifest_module
 from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
 from pydeb_s3.cli import verify_command
-
-
-def setup_logger():
-    """Configure loguru to output to captured stderr."""
-    from loguru import logger
-    logger.remove()
-    logger.add(sys.stderr, format="{message}", level="INFO")
 
 
 class TestVerifyIntegration:
@@ -62,7 +53,7 @@ class TestVerifyIntegration:
 
     def test_verify_passes_with_all_files_present(self, capfd):
         """Verify passes when all package files exist in S3."""
-        setup_logger()
+
 
         # Create release and packages
         release = self._create_release()
@@ -89,7 +80,7 @@ class TestVerifyIntegration:
 
     def test_verify_warns_on_missing_file(self, capfd):
         """Verify shows warning when package file is missing from S3."""
-        setup_logger()
+
 
         # Create release and packages
         release = self._create_release()
@@ -117,7 +108,7 @@ class TestVerifyIntegration:
 
     def test_verify_with_fix_manifests(self, capfd):
         """Verify with --fix-manifests removes missing packages from manifest."""
-        setup_logger()
+
 
         # Create release and packages
         release = self._create_release()
@@ -147,7 +138,7 @@ class TestVerifyIntegration:
 
     def test_verify_multiple_architectures(self, capfd):
         """Verify checks packages across multiple architectures."""
-        setup_logger()
+
 
         # Create release with multiple architectures
         self._create_release(architectures=["amd64", "arm64"])
@@ -191,7 +182,7 @@ class TestVerifyIntegration:
 
     def test_verify_empty_manifest(self, capfd):
         """Verify handles empty manifest gracefully."""
-        setup_logger()
+
 
         # Create release but no packages
         self._create_release()
@@ -211,7 +202,7 @@ class TestVerifyIntegration:
 
     def test_verify_multiple_packages(self, capfd):
         """Verify checks multiple packages in the manifest."""
-        setup_logger()
+
 
         release = self._create_release()
 
@@ -247,7 +238,7 @@ class TestVerifyIntegration:
 
     def test_verify_some_packages_missing(self, capfd):
         """Verify reports missing files when some packages are not uploaded."""
-        setup_logger()
+
 
         release = self._create_release()
 
@@ -310,7 +301,7 @@ class TestVerifyErrors:
 
     def test_verify_handles_empty_bucket(self, capfd):
         """Verify handles empty bucket gracefully."""
-        setup_logger()
+
 
         # Run verify on empty bucket (no release, no packages)
         verify_command(
@@ -323,10 +314,3 @@ class TestVerifyErrors:
         captured = capfd.readouterr()
         # May or may not have complete message depending on error handling
 
-
-# Helper to initialize logger for error tests
-def setup_logger():
-    """Configure loguru to output to captured stderr."""
-    from loguru import logger
-    logger.remove()
-    logger.add(sys.stderr, format="{message}", level="INFO")

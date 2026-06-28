@@ -1,7 +1,5 @@
 """Integration tests for the delete command."""
 
-import sys
-
 import pytest
 import typer
 
@@ -9,13 +7,6 @@ from pydeb_s3 import manifest as manifest_module
 from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
 from pydeb_s3.cli import delete_command
-
-
-def setup_logger():
-    """Configure loguru to output to captured stderr."""
-    from loguru import logger
-    logger.remove()
-    logger.add(sys.stderr, format="{message}")
 
 
 def package_exists(manifest, package_name):
@@ -63,7 +54,7 @@ class TestDeleteManifest:
 
     def test_delete_package_removes_from_manifest(self):
         """Delete a package removes it from the manifest."""
-        setup_logger()
+
 
         # Create release and add package
         release = self._create_release()
@@ -84,7 +75,7 @@ class TestDeleteManifest:
 
     def test_delete_package_with_versions(self):
         """Delete a specific version of a package."""
-        setup_logger()
+
 
         # Create release and add package
         release = self._create_release()
@@ -107,7 +98,7 @@ class TestDeleteManifest:
 
     def test_delete_package_writes_to_s3(self):
         """Delete should work with S3 upload."""
-        setup_logger()
+
 
         # Create release and add package
         release = self._create_release()
@@ -129,7 +120,7 @@ class TestDeleteManifest:
 
     def test_delete_nonexistent_package_returns_empty(self):
         """Deleting non-existent package returns empty list."""
-        setup_logger()
+
 
         # Create release
         release = self._create_release()
@@ -145,7 +136,7 @@ class TestDeleteManifest:
 
     def test_delete_package_updates_release(self):
         """Delete should update Release file."""
-        setup_logger()
+
 
         release = self._create_release()
 
@@ -176,7 +167,7 @@ class TestDeleteManifest:
 
     def test_delete_multiple_versions_different_architectures(self):
         """Delete should work across multiple architectures."""
-        setup_logger()
+
 
         # Create release with multiple archs
         release = self._create_release(architectures=["amd64", "arm64"])
@@ -262,7 +253,7 @@ class TestDeleteCommand:
 
     def test_delete_nonexistent_package_errors(self):
         """Deleting a package that doesn't exist should raise error."""
-        setup_logger()
+
 
         # Create empty release
         release = release_module.Release(
@@ -294,7 +285,7 @@ class TestDeleteCommand:
         the 'in' check always returns False, causing the delete to fail
         with 'Package not found' even when the package exists.
         """
-        setup_logger()
+
 
         # Create release and add package
         release = self._create_release()
