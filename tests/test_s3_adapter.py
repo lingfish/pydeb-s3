@@ -296,14 +296,19 @@ class TestBoto3S3Adapter:
         finally:
             os.unlink(temp_path)
 
-    @pytest.mark.skip(reason="Boto3S3Adapter.copy() has a bug - doesn't apply prefix to source path")
     def test_copy(self, adapter):
-        """copy should copy an object within S3.
+        """copy should copy an object within S3."""
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
+            f.write("original content")
+            temp_path = f.name
 
-        NOTE: This test is skipped because Boto3S3Adapter.copy() has a bug
-        where it doesn't apply the prefix to the source path. The MockS3Adapter
-        test below verifies the copy functionality works correctly.
-        """
+        try:
+            adapter.store_file(temp_path, "test/source.txt")
+            adapter.copy("test/source.txt", "test/dest.txt")
+            content = adapter.read("test/dest.txt")
+            assert content == "original content"
+        finally:
+            os.unlink(temp_path)
 
     def test_head(self, adapter):
         """head should return object metadata."""

@@ -367,7 +367,7 @@ class Boto3S3Adapter:
             logger.info("Copying s3://{}/{} to s3://{}/{}", self.bucket, source, self.bucket, destination)
             self._client.copy_object(
                 Bucket=self.bucket,
-                CopySource=self._s3_path(source),
+                CopySource={"Bucket": self.bucket, "Key": self._s3_path(source)},
                 Key=self._s3_path(destination),
             )
             logger.success("Copied s3://{}/{} to s3://{}/{}", self.bucket, source, self.bucket, destination)

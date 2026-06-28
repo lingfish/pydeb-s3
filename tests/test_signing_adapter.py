@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from pydeb_s3.release import GpgSigningAdapter
+from pydeb_s3.release import GpgSigningAdapter, Release
 
 
 class TestSigningAdapterProtocol:
@@ -118,6 +118,132 @@ class TestGpgSigningAdapter:
         adapter = GpgSigningAdapter(keys=["ABC123"])
         with pytest.raises(RuntimeError, match="GPG detached signing failed"):
             adapter.detach_sign("/tmp/test.Release", "/tmp/test.Release.asc")
+
+    @patch("pydeb_s3.release.subprocess.run")
+    @patch("pydeb_s3.release.os.rename")
+    @patch("pydeb_s3.release.os.path.exists")
+    @patch("builtins.open", create=True)
+    def test_clearsign_uses_args_list(self, mock_open, mock_exists, mock_rename, mock_run):
+        """clearsign() should pass an args list to subprocess.run, not a shell string."""
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stderr = b""
+        mock_exists.return_value = True
+
+        adapter = GpgSigningAdapter(keys=["ABC123"])
+        adapter.clearsign("/tmp/test.Release", "/tmp/test.Release.asc")
+
+        args = mock_run.call_args[0][0]
+        assert isinstance(args, list), f"Expected subprocess.run to receive a list, got {type(args)}: {args}"
+        kwargs = mock_run.call_args[1]
+        assert kwargs.get("shell", False) is not True, "shell should not be True — shell=True allows command injection"
+
+    @patch("pydeb_s3.release.subprocess.run")
+    @patch("pydeb_s3.release.os.rename")
+    @patch("pydeb_s3.release.os.path.exists")
+    @patch("builtins.open", create=True)
+    def test_detach_sign_uses_args_list(self, mock_open, mock_exists, mock_rename, mock_run):
+        """detach_sign() should pass an args list to subprocess.run, not a shell string."""
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stderr = b""
+        mock_exists.return_value = True
+
+        adapter = GpgSigningAdapter(keys=["ABC123"])
+        adapter.detach_sign("/tmp/test.Release", "/tmp/test.Release.asc")
+
+        args = mock_run.call_args[0][0]
+        assert isinstance(args, list), f"Expected subprocess.run to receive a list, got {type(args)}: {args}"
+        kwargs = mock_run.call_args[1]
+        assert kwargs.get("shell", False) is not True, "shell should not be True — shell=True allows command injection"
+
+    @patch("pydeb_s3.release.subprocess.run")
+    @patch("pydeb_s3.release.os.rename")
+    @patch("pydeb_s3.release.os.path.exists")
+    @patch("builtins.open", create=True)
+    def test_clearsign_options_not_shell_injected(self, mock_open, mock_exists, mock_rename, mock_run):
+        """Shell metacharacters in options should appear as literal args, not cause injection."""
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stderr = b""
+        mock_exists.return_value = True
+
+        malicious_options = "; rm -rf / --no-such-flag"
+        adapter = GpgSigningAdapter(keys=["ABC123"], options=malicious_options)
+        adapter.clearsign("/tmp/test.Release", "/tmp/test.Release.asc")
+
+        args = mock_run.call_args[0][0]
+        assert isinstance(args, list), f"Expected list args, got {type(args)}: {args}"
+        # The shell metacharacters must be literal args, not interpreted by a shell
+        assert ";" in args, f"';' should be a literal arg. Args: {args}"
+        assert "rm" in args
+        assert "-rf" in args
+        assert "/" in args
+        # The input path should still be the last element
+        assert args[-1] == "/tmp/test.Release"
+        # '-s' and '--clearsign' should appear before the input path
+        assert "-s" in args
+        assert "--clearsign" in args
+
+    @patch("pydeb_s3.release.subprocess.run")
+    @patch("pydeb_s3.release.os.rename")
+    @patch("pydeb_s3.release.os.path.exists")
+    @patch("builtins.open", create=True)
+    def test_detach_sign_options_not_shell_injected(self, mock_open, mock_exists, mock_rename, mock_run):
+        """Shell metacharacters in options should appear as literal args for detach_sign."""
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stderr = b""
+        mock_exists.return_value = True
+
+        malicious_options = "; echo pwned"
+        adapter = GpgSigningAdapter(keys=["ABC123"], options=malicious_options)
+        adapter.detach_sign("/tmp/test.Release", "/tmp/test.Release.asc")
+
+        args = mock_run.call_args[0][0]
+        assert isinstance(args, list), f"Expected list args, got {type(args)}: {args}"
+        assert ";" in args, f"';' should be a literal arg. Args: {args}"
+        assert "echo" in args
+        assert "pwned" in args
+        assert args[-1] == "/tmp/test.Release"
+        # '-b' should appear before the input path
+        assert "-b" in args
+
+    @patch("pydeb_s3.release.subprocess.run")
+    @patch("pydeb_s3.release.os.rename")
+    @patch("pydeb_s3.release.os.path.exists")
+    @patch("builtins.open", create=True)
+    def test_clearsign_multiple_keys(self, mock_open, mock_exists, mock_rename, mock_run):
+        """Multiple signing keys should each produce a -u flag in the args list."""
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stderr = b""
+        mock_exists.return_value = True
+
+        adapter = GpgSigningAdapter(keys=["KEY1", "KEY2"])
+        adapter.clearsign("/tmp/test.Release", "/tmp/test.Release.asc")
+
+        args = mock_run.call_args[0][0]
+        assert isinstance(args, list), f"Expected list args, got {type(args)}: {args}"
+        u_indices = [i for i, v in enumerate(args) if v == "-u"]
+        assert len(u_indices) == 2, f"Expected 2 '-u' flags for 2 keys, got {len(u_indices)}. Args: {args}"
+        assert args[u_indices[0] + 1] == "KEY1"
+        assert args[u_indices[1] + 1] == "KEY2"
+
+    @patch("pydeb_s3.release.subprocess.run")
+    @patch("pydeb_s3.release.os.rename")
+    @patch("pydeb_s3.release.os.path.exists")
+    @patch("builtins.open", create=True)
+    def test_detach_sign_multiple_keys(self, mock_open, mock_exists, mock_rename, mock_run):
+        """Multiple signing keys should each produce a -u flag for detach_sign."""
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stderr = b""
+        mock_exists.return_value = True
+
+        adapter = GpgSigningAdapter(keys=["KEY1", "KEY2"])
+        adapter.detach_sign("/tmp/test.Release", "/tmp/test.Release.asc")
+
+        args = mock_run.call_args[0][0]
+        assert isinstance(args, list), f"Expected list args, got {type(args)}: {args}"
+        u_indices = [i for i, v in enumerate(args) if v == "-u"]
+        assert len(u_indices) == 2, f"Expected 2 '-u' flags for 2 keys, got {len(u_indices)}. Args: {args}"
+        assert args[u_indices[0] + 1] == "KEY1"
+        assert args[u_indices[1] + 1] == "KEY2"
 
     def test_get_key_info_returns_keys(self):
         """get_key_info() should return key information."""

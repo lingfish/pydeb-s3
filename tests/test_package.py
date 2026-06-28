@@ -1,5 +1,7 @@
 """Tests for the Package model."""
 
+import inspect
+import re
 
 from pydeb_s3 import package as package_module
 
@@ -57,6 +59,18 @@ Description: example package based on GNU hello
  It is the Debian version of the GNU Project's `hello world' program
  (which is itself an example for the GNU Project)."""
 
+
+
+class TestPackageDeclaration:
+    """Tests for Package dataclass declaration integrity."""
+
+    def test_no_duplicate_field_declarations(self):
+        """Dataclass fields must not be declared more than once."""
+        source = inspect.getsource(package_module.Package)
+        field_re = re.compile(r'^    (\w+):.*=', re.MULTILINE)
+        fields = field_re.findall(source)
+        dupes = {f for f in fields if fields.count(f) > 1}
+        assert not dupes, f"Duplicate field declaration(s): {dupes}"
 
 
 class TestPackageParseString:

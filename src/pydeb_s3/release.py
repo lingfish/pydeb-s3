@@ -2,6 +2,7 @@
 
 import os
 import re
+import shlex
 import subprocess
 import tempfile
 from dataclasses import dataclass, field
@@ -59,9 +60,14 @@ class GpgSigningAdapter:
 
     def clearsign(self, input_path: str, output_path: str) -> None:
         """Create clearsigned file (InRelease)."""
-        key_param = " ".join(f"-u {k}" for k in self.keys) if self.keys else ""
-        cmd = f"{self.provider} -a {key_param} --digest-algo SHA256 --batch --no-tty --yes {self.options} -s --clearsign {input_path}"
-        result = subprocess.run(cmd, check=False, shell=True, capture_output=True)
+        args = [self.provider, "-a"]
+        for k in self.keys:
+            args.extend(["-u", k])
+        args.extend(["--digest-algo", "SHA256", "--batch", "--no-tty", "--yes"])
+        if self.options:
+            args.extend(shlex.split(self.options))
+        args.extend(["-s", "--clearsign", input_path])
+        result = subprocess.run(args, check=False, capture_output=True)
 
         if result.returncode != 0:
             stderr = result.stderr.decode() if result.stderr else ""
@@ -89,9 +95,14 @@ class GpgSigningAdapter:
 
     def detach_sign(self, input_path: str, output_path: str) -> None:
         """Create detached signature (Release.gpg)."""
-        key_param = " ".join(f"-u {k}" for k in self.keys) if self.keys else ""
-        cmd = f"{self.provider} -a {key_param} --digest-algo SHA256 --batch --no-tty --yes {self.options} -b {input_path}"
-        result = subprocess.run(cmd, check=False, shell=True, capture_output=True)
+        args = [self.provider, "-a"]
+        for k in self.keys:
+            args.extend(["-u", k])
+        args.extend(["--digest-algo", "SHA256", "--batch", "--no-tty", "--yes"])
+        if self.options:
+            args.extend(shlex.split(self.options))
+        args.extend(["-b", input_path])
+        result = subprocess.run(args, check=False, capture_output=True)
 
         if result.returncode != 0:
             stderr = result.stderr.decode() if result.stderr else ""

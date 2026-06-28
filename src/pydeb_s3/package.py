@@ -23,7 +23,6 @@ class Package:
     category: Optional[str] = None
     license: Optional[str] = None
     priority: Optional[str] = None
-    priority: Optional[str] = None
     architecture: Optional[str] = None
     description: Optional[str] = None
     dependencies: list[str] = field(default_factory=list)
@@ -96,7 +95,6 @@ class Package:
         self.url = df.get("Homepage")
         self.category = df.get("Section")
         self.license = df.get("License")
-        self.vendor = df.get("Vendor")
         self.vendor = df.get("Vendor")
 
         full_version = self.version or ""
