@@ -49,7 +49,6 @@ class TestListCodenames:
         which requires real boto3 mocking.
         """
         self.s3_adapter = moto_s3_adapter
-        s3_utils._s3_adapter = self.s3_adapter
 
     def test_list_codenames_returns_all_codenames(self):
         """list_codenames() should return all codenames from S3 dists/ directory.
@@ -83,7 +82,7 @@ class TestListCodenames:
         testing_release.write_to_s3(self.s3_adapter)
 
         # Call list_codenames and verify it returns all codenames
-        codenames = s3_utils.list_codenames()
+        codenames = s3_utils.list_codenames(self.s3_adapter)
 
         assert "stable" in codenames, "stable should be in codenames"
         assert "rc" in codenames, "rc should be in codenames"
@@ -97,7 +96,7 @@ class TestListCodenames:
         an empty list, not crash.
         """
         # Don't create any Release files - dists/ is empty
-        codenames = s3_utils.list_codenames()
+        codenames = s3_utils.list_codenames(self.s3_adapter)
 
         assert codenames == [], f"Expected empty list, got {codenames}"
 
@@ -139,7 +138,7 @@ class TestListCodenames:
             ], None
 
         with patch.object(self.s3_adapter, "list_objects", side_effect=paginated_list):
-            codenames = s3_utils.list_codenames()
+            codenames = s3_utils.list_codenames(self.s3_adapter)
 
         # Should have made multiple calls for pagination
         assert call_count[0] >= 2, f"Expected pagination calls, got {call_count[0]}"
@@ -175,7 +174,7 @@ class TestListCodenames:
             "text/plain"
         )
 
-        codenames = s3_utils.list_codenames()
+        codenames = s3_utils.list_codenames(self.s3_adapter)
 
         assert "stable" in codenames, "stable should be in codenames"
         assert "rc" in codenames, "rc should be in codenames"
@@ -196,7 +195,6 @@ class TestCleanChecksAllCodenames:
         and clean_command.
         """
         self.s3_adapter = moto_s3_adapter
-        s3_utils._s3_adapter = self.s3_adapter
 
     def _create_release(self, codename="stable", architectures=None, components=None):
         """Create and upload a Release file."""
@@ -449,7 +447,6 @@ class TestCleanCodenamesMocked:
         Uses moto_s3_adapter since these tests call clean_command.
         """
         self.s3_adapter = moto_s3_adapter
-        s3_utils._s3_adapter = self.s3_adapter
 
     def _create_release(self, codename="stable", components=None):
         """Create release."""
@@ -493,9 +490,9 @@ class TestCleanCodenamesMocked:
 
         original_list_codenames = s3_utils.list_codenames
 
-        def mock_list_codenames():
+        def mock_list_codenames(adapter):
             list_codenames_called.append(True)
-            return original_list_codenames()
+            return original_list_codenames(adapter)
 
         with patch.object(s3_utils, "list_codenames", side_effect=mock_list_codenames):
             clean_command(
@@ -575,7 +572,6 @@ class TestCleanCodenamesEdgeCases:
         Uses moto_s3_adapter since these tests call clean_command.
         """
         self.s3_adapter = moto_s3_adapter
-        s3_utils._s3_adapter = self.s3_adapter
 
     def _create_release(self, codename="stable", components=None):
         """Create release."""

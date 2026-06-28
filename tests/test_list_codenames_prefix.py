@@ -22,7 +22,7 @@ class TestListCodenamesWithPrefix:
     @pytest.fixture(autouse=True)
     def setup(self, mock_s3_adapter):
         """Set up S3 adapter for each test."""
-        s3_utils._s3_adapter = mock_s3_adapter
+        self.s3_adapter = mock_s3_adapter
 
     def test_list_codenames_with_prefix_strips_prefix(self, mock_s3_adapter):
         """list_codenames() should strip S3 prefix from keys before parsing.
@@ -44,7 +44,7 @@ class TestListCodenamesWithPrefix:
                 ],
                 None,
             )
-            result = s3_utils.list_codenames()
+            result = s3_utils.list_codenames(mock_s3_adapter)
 
         assert result == ["stable", "rc"]
 
@@ -67,7 +67,7 @@ class TestListCodenamesWithPrefix:
                 ],
                 None,
             )
-            result = s3_utils.list_codenames()
+            result = s3_utils.list_codenames(mock_s3_adapter)
 
         assert result == ["stable", "testing"]
 
@@ -90,7 +90,7 @@ class TestListCodenamesWithPrefix:
                 ],
                 None,
             )
-            result = s3_utils.list_codenames()
+            result = s3_utils.list_codenames(mock_s3_adapter)
 
         assert result == ["rc"]
 
@@ -111,7 +111,7 @@ class TestListCodenamesWithPrefix:
                 ],
                 None,
             )
-            result = s3_utils.list_codenames()
+            result = s3_utils.list_codenames(mock_s3_adapter)
 
         assert result == ["stable"]
 
@@ -131,7 +131,7 @@ class TestListCodenamesWithPrefix:
                 ],
                 None,
             )
-            result = s3_utils.list_codenames()
+            result = s3_utils.list_codenames(mock_s3_adapter)
 
         assert result == ["stable"]
 
@@ -156,7 +156,7 @@ class TestListCodenamesWithPrefix:
                 ],
                 None,
             )
-            result = s3_utils.list_codenames()
+            result = s3_utils.list_codenames(mock_s3_adapter)
 
         # Should contain all unique codenames
         assert "stable" in result
@@ -177,7 +177,7 @@ class TestListCodenamesWithPrefix:
                 ],
                 None,
             )
-            result = s3_utils.list_codenames()
+            result = s3_utils.list_codenames(mock_s3_adapter)
 
         # Should only include stable, ignore pool and InRelease
         assert result == ["stable"]
@@ -189,7 +189,7 @@ class TestListCodenamesPagination:
     @pytest.fixture(autouse=True)
     def setup(self, mock_s3_adapter):
         """Set up S3 adapter for each test."""
-        s3_utils._s3_adapter = mock_s3_adapter
+        self.s3_adapter = mock_s3_adapter
 
     def test_list_codenames_with_pagination(self, mock_s3_adapter):
         """list_codenames() handles pagination correctly.
@@ -217,7 +217,7 @@ class TestListCodenamesPagination:
                 ),
             ]
 
-            result = s3_utils.list_codenames()
+            result = s3_utils.list_codenames(mock_s3_adapter)
 
         # Both codenames should be found across pages
         assert "stable" in result
@@ -231,7 +231,7 @@ class TestListCodenamesEdgeCases:
     @pytest.fixture(autouse=True)
     def setup(self, mock_s3_adapter):
         """Set up S3 adapter for each test."""
-        s3_utils._s3_adapter = mock_s3_adapter
+        self.s3_adapter = mock_s3_adapter
 
     def test_list_codenames_empty_results(self, mock_s3_adapter):
         """list_codenames() returns empty list when no objects."""
@@ -240,7 +240,7 @@ class TestListCodenamesEdgeCases:
         with patch.object(mock_s3_adapter, "list_objects") as mock_list:
             mock_list.return_value = ([], None)
 
-            result = s3_utils.list_codenames()
+            result = s3_utils.list_codenames(mock_s3_adapter)
 
         assert result == []
 
@@ -256,7 +256,7 @@ class TestListCodenamesEdgeCases:
                 ],
                 None,
             )
-            result = s3_utils.list_codenames()
+            result = s3_utils.list_codenames(mock_s3_adapter)
 
         assert result == []
 
@@ -274,7 +274,7 @@ class TestListCodenamesEdgeCases:
                 ],
                 None,
             )
-            result = s3_utils.list_codenames()
+            result = s3_utils.list_codenames(mock_s3_adapter)
 
         # Should only have unique codenames (no duplicates)
         assert result.count("stable") == 1

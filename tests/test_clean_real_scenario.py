@@ -63,12 +63,6 @@ class TestCleanRealScenario:
             prefix="apt",
             access_policy="public-read"
         )
-        s3_utils._s3_adapter = self.s3_adapter
-
-    def teardown_method(self):
-        """Reset prefix after each test."""
-        s3_utils._s3_adapter = None
-
     def _create_release(self, codename="stable", architectures=None, components=None):
         """Create and upload a Release file."""
         if architectures is None:
@@ -347,7 +341,7 @@ class TestListCodenames(TestCleanRealScenario):
         self._create_release(codename="stable", components=["non-free"])
 
         # Get codenames
-        codenames = s3_utils.list_codenames()
+        codenames = s3_utils.list_codenames(self.s3_adapter)
 
         print(f"\nFound codenames: {codenames}")
 

@@ -25,7 +25,7 @@ from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
 from pydeb_s3 import s3_utils
 from pydeb_s3.cli import clean_command
-from pydeb_s3.s3_adapter import Boto3S3Adapter
+from pydeb_s3.s3_adapter import Boto3S3Adapter, S3Adapter
 
 
 def setup_logger():
@@ -52,7 +52,6 @@ class TestCleanComponentFiltering:
             bucket="test-bucket",
             access_policy="public-read"
         )
-        s3_utils._s3_adapter = self.s3_adapter
 
     def _create_release(self, codename="stable", architectures=None, components=None):
         """Create and upload a Release file."""
@@ -91,7 +90,7 @@ class TestCleanComponentFiltering:
             first_letter = name[0]
             # Store in pool with component path
             key = f"pool/{component}/{first_letter}/{name}/{filename}"
-            s3_utils.s3_store(tmp_path, key, "application/x-debian-package")
+            self.s3_adapter.store_file(tmp_path, key, "application/x-debian-package")
         finally:
             os.unlink(tmp_path)
 
@@ -127,7 +126,7 @@ class TestCleanComponentFiltering:
             component="main",
         )
 
-        # Mock list_objects to verify it's called with correct prefix
+        # Mock list_objects on the adapter to capture calls
         original_list_objects = self.s3_adapter.list_objects
 
         call_args = []
@@ -137,11 +136,18 @@ class TestCleanComponentFiltering:
             return original_list_objects(prefix, continuation_token)
 
         with patch.object(self.s3_adapter, "list_objects", side_effect=mock_list_objects):
-            clean_command(
-                bucket="test-bucket",
-                codename="stable",
-                component="main",
-            )
+            from pydeb_s3 import cli as cli_module
+            original_configure_s3 = cli_module._configure_s3
+
+            def mock_configure_s3(config):
+                return self.s3_adapter
+
+            with patch.object(cli_module, "_configure_s3", side_effect=mock_configure_s3):
+                clean_command(
+                    bucket="test-bucket",
+                    codename="stable",
+                    component="main",
+                )
 
         # Verify list_objects was called with pool/main/ not pool/
         assert len(call_args) > 0, "list_objects should have been called"
@@ -265,7 +271,6 @@ class TestCleanMultipleComponents:
             bucket="test-bucket",
             access_policy="public-read"
         )
-        s3_utils._s3_adapter = self.s3_adapter
 
     def _create_release(self, codename="stable", architectures=None, components=None):
         """Create and upload a Release file."""
@@ -303,7 +308,7 @@ class TestCleanMultipleComponents:
             name = filename.rsplit("_", 2)[0]
             first_letter = name[0]
             key = f"pool/{component}/{first_letter}/{name}/{filename}"
-            s3_utils.s3_store(tmp_path, key, "application/x-debian-package")
+            self.s3_adapter.store_file(tmp_path, key, "application/x-debian-package")
         finally:
             os.unlink(tmp_path)
 
@@ -362,7 +367,7 @@ class TestCleanMultipleComponents:
 class TestCleanPagination:
     """Tests for pagination handling in clean command.
 
-    The bug: s3_list_objects only returns first 1000 objects (S3 default),
+    The bug: S3 list_objects only returns first 1000 objects (S3 default),
     potentially missing orphaned packages beyond page 1.
     """
 
@@ -376,7 +381,6 @@ class TestCleanPagination:
             bucket="test-bucket",
             access_policy="public-read"
         )
-        s3_utils._s3_adapter = self.s3_adapter
 
     def _create_release(self, codename="stable", architectures=None, components=None):
         """Create and upload a Release file."""
@@ -414,7 +418,7 @@ class TestCleanPagination:
             name = filename.rsplit("_", 2)[0]
             first_letter = name[0]
             key = f"pool/{component}/{first_letter}/{name}/{filename}"
-            s3_utils.s3_store(tmp_path, key, "application/x-debian-package")
+            self.s3_adapter.store_file(tmp_path, key, "application/x-debian-package")
         finally:
             os.unlink(tmp_path)
 
@@ -461,7 +465,6 @@ class TestCleanComponentPrefixCalls:
             bucket="test-bucket",
             access_policy="public-read"
         )
-        s3_utils._s3_adapter = self.s3_adapter
 
     def _create_release(self, codename="stable", components=None):
         """Create release."""
@@ -487,7 +490,7 @@ class TestCleanComponentPrefixCalls:
             name = filename.rsplit("_", 2)[0]
             first_letter = name[0]
             key = f"pool/{component}/{first_letter}/{name}/{filename}"
-            s3_utils.s3_store(tmp_path, key, "application/x-debian-package")
+            self.s3_adapter.store_file(tmp_path, key, "application/x-debian-package")
         finally:
             os.unlink(tmp_path)
 
@@ -514,7 +517,7 @@ class TestCleanComponentPrefixCalls:
         )
 
         # Verify non-free orphan was NOT deleted
-        result = s3_utils.s3_list_objects("pool/non-free/")
+        result = self.s3_adapter.list_objects("pool/non-free/")
         objects = result[0] if isinstance(result, tuple) else result
         non_free_files = [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
         assert any("test-pkg-full" in f for f in non_free_files), (
@@ -549,7 +552,7 @@ class TestCleanComponentPrefixCalls:
         )
 
         # Orphan should be removed
-        result = s3_utils.s3_list_objects("pool/non-free/")
+        result = self.s3_adapter.list_objects("pool/non-free/")
         objects = result[0] if isinstance(result, tuple) else result
         non_free_files = [obj["Key"] for obj in objects if obj.get("Key", "").endswith(".deb")]
         assert not any("test-pkg-full" in f for f in non_free_files), (
@@ -579,11 +582,18 @@ class TestCleanComponentPrefixCalls:
             return original_list_objects(prefix, continuation_token)
 
         with patch.object(self.s3_adapter, "list_objects", side_effect=catching_list):
-            clean_command(
-                bucket="test-bucket",
-                codename="stable",
-                component="non-free",
-            )
+            from pydeb_s3 import cli as cli_module
+            original_configure_s3 = cli_module._configure_s3
+
+            def mock_configure_s3(config):
+                return self.s3_adapter
+
+            with patch.object(cli_module, "_configure_s3", side_effect=mock_configure_s3):
+                clean_command(
+                    bucket="test-bucket",
+                    codename="stable",
+                    component="non-free",
+                )
 
         # Should use pool/non-free/ prefix
         assert len(prefixes_used) > 0

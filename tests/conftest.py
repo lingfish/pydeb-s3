@@ -98,28 +98,17 @@ def moto_s3_adapter():
 
     Use this for tests that:
     - Call CLI commands (delete_command, list_command, etc.)
-    - Use s3_utils module-level functions
     - Need real boto3 mocking behavior
     """
-    from pydeb_s3 import s3_utils
     with MotoS3AdapterFixture() as f:
-        # Set the global adapter so functions use it
-        s3_utils._s3_adapter = f.adapter
         yield f.adapter
-        # Clean up global adapter after test
-        s3_utils._s3_adapter = None
 
 
 @pytest.fixture
 def moto_s3_adapter_with_prefix():
     """Moto-backed adapter with prefix for testing prefix handling."""
-    from pydeb_s3 import s3_utils
     with MotoS3AdapterFixture(bucket="test-bucket", prefix="apt") as f:
-        # Set the global adapter so clean_command uses it
-        s3_utils._s3_adapter = f.adapter
         yield f.adapter
-        # Clean up global adapter after test
-        s3_utils._s3_adapter = None
 
 
 @pytest.fixture

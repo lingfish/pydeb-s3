@@ -782,49 +782,10 @@ def clean_command(
     )
     s3_adapter = _configure_s3(s3_config)
 
-    # If s3_utils._s3_adapter is already set (by tests), keep using it
-    # Otherwise, use the adapter we just created
-    if s3_utils._s3_adapter is None:
-        s3_utils._s3_adapter = s3_adapter
-
-    # Use the same adapter for all operations (this ensures tests' adapters are used)
-    s3_adapter = s3_utils._s3_adapter
-
     logger.info("Retrieving existing manifests")
 
     # Get all codenames from S3 to check all of them
-    # Use s3_utils.list_codenames if available, otherwise inline implementation
-    # Pass the adapter to list_codenames so tests can patch the correct adapter
-    adapter_for_codenames = s3_utils._s3_adapter if s3_utils._s3_adapter is not None else s3_adapter
-    if hasattr(s3_utils, 'list_codenames'):
-        try:
-            all_codenames = s3_utils.list_codenames(adapter_for_codenames)
-        except TypeError:
-            # If list_codenames doesn't accept adapter argument, call without it
-            all_codenames = s3_utils.list_codenames()
-    else:
-        # Inline implementation for backward compatibility
-        all_codenames = []
-        continuation_token = None
-        while True:
-            contents, next_token = adapter_for_codenames.list_objects("dists/", continuation_token=continuation_token)
-            for obj in contents:
-                key = obj.get("Key", "")
-                # Strip prefix from key for comparison
-                if adapter_for_codenames.prefix:
-                    prefix_stripped = adapter_for_codenames.prefix.rstrip("/") + "/"
-                    if key.startswith(prefix_stripped):
-                        key = key[len(prefix_stripped):]
-                if key.startswith("dists/"):
-                    path_after_dists = key[len("dists/"):]
-                    parts = path_after_dists.split("/")
-                    if len(parts) >= 2:
-                        codename = parts[0]
-                        if codename and codename not in all_codenames:
-                            all_codenames.append(codename)
-            if not next_token:
-                break
-            continuation_token = next_token
+    all_codenames = s3_utils.list_codenames(s3_adapter)
 
     if not all_codenames:
         # Fallback to specified codename if no codenames found in S3

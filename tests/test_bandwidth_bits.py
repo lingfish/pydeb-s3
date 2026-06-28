@@ -247,20 +247,10 @@ class TestUploadProgressUseBytes:
 
 
 class TestS3StoreUseBytes:
-    """Tests for s3_store() passing use_bytes to UploadProgress."""
+    """Tests for store_file() passing use_bytes to UploadProgress."""
 
-    def setup_method(self):
-        """Reset S3 configuration."""
-        from pydeb_s3 import s3_utils
-        s3_utils._s3_adapter = None
-
-    def teardown_method(self):
-        """Clean up after each test."""
-        from pydeb_s3 import s3_utils
-        s3_utils._s3_adapter = None
-
-    def test_s3_store_passes_use_bytes_false(self):
-        """s3_store() passes use_bytes=False to UploadProgress (default bits)."""
+    def test_store_file_passes_use_bytes_false(self):
+        """store_file() passes use_bytes=False to UploadProgress (default bits)."""
         import os
         import tempfile
         from unittest.mock import patch
@@ -273,33 +263,27 @@ class TestS3StoreUseBytes:
         with mock_aws():
             client = boto3.client("s3", region_name="us-east-1")
             client.create_bucket(Bucket="test-bucket")
+            adapter = Boto3S3Adapter(client=client, bucket="test-bucket")
 
-            from pydeb_s3 import s3_utils
-
-            s3_utils._s3_adapter = Boto3S3Adapter(client=client, bucket="test-bucket")
-
-            # Create temp file
             with tempfile.NamedTemporaryFile(delete=False, mode='w') as f:
                 f.write("test content")
                 temp_path = f.name
 
             try:
                 with patch("pydeb_s3.s3_adapter.UploadProgress") as mock_progress:
-                    # Mock the progress class to capture what params are passed
                     mock_instance = MagicMock()
                     mock_progress.return_value = mock_instance
 
-                    s3_utils.s3_store(temp_path, "test/key", use_bytes=False)
+                    adapter.store_file(temp_path, "test/key", use_bytes=False)
 
-                    # Verify use_bytes=False was passed
                     mock_progress.assert_called()
                     call_kwargs = mock_progress.call_args[1]
                     assert call_kwargs.get("use_bytes") is False
             finally:
                 os.unlink(temp_path)
 
-    def test_s3_store_passes_use_bytes_true(self):
-        """s3_store() passes use_bytes=True to UploadProgress."""
+    def test_store_file_passes_use_bytes_true(self):
+        """store_file() passes use_bytes=True to UploadProgress."""
         import os
         import tempfile
         from unittest.mock import patch
@@ -312,12 +296,8 @@ class TestS3StoreUseBytes:
         with mock_aws():
             client = boto3.client("s3", region_name="us-east-1")
             client.create_bucket(Bucket="test-bucket")
+            adapter = Boto3S3Adapter(client=client, bucket="test-bucket")
 
-            from pydeb_s3 import s3_utils
-
-            s3_utils._s3_adapter = Boto3S3Adapter(client=client, bucket="test-bucket")
-
-            # Create temp file
             with tempfile.NamedTemporaryFile(delete=False, mode='w') as f:
                 f.write("test content")
                 temp_path = f.name
@@ -327,9 +307,8 @@ class TestS3StoreUseBytes:
                     mock_instance = MagicMock()
                     mock_progress.return_value = mock_instance
 
-                    s3_utils.s3_store(temp_path, "test/key", use_bytes=True)
+                    adapter.store_file(temp_path, "test/key", use_bytes=True)
 
-                    # Verify use_bytes=True was passed
                     mock_progress.assert_called()
                     call_kwargs = mock_progress.call_args[1]
                     assert call_kwargs.get("use_bytes") is True

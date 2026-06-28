@@ -1,7 +1,6 @@
 """S3 utility functions for interacting with AWS S3.
 
-Deprecated: Use S3Adapter from s3_adapter module instead.
-This module is maintained for backward compatibility with existing tests.
+Use S3Adapter from s3_adapter module instead of these utilities.
 """
 
 from typing import Optional
@@ -9,12 +8,8 @@ from typing import Optional
 import boto3
 from loguru import logger
 
-# Re-export progress utilities for backward compatibility
-from pydeb_s3.s3_adapter import Boto3S3Adapter, S3Adapter, S3Error
+from pydeb_s3.s3_adapter import Boto3S3Adapter, S3Adapter
 from pydeb_s3.progress import BitsTransferSpeedColumn, UploadProgress, calculate_stream_md5  # noqa: F401
-
-# Global S3Adapter instance (deprecated - for backward compatibility only)
-_s3_adapter: Optional[S3Adapter] = None
 
 
 def configure_s3(
@@ -35,7 +30,6 @@ def configure_s3(
     checksum_when_required: bool = False,
 ) -> S3Adapter:
     """Configure S3 and return an S3Adapter instance."""
-    global _s3_adapter
 
     logger.info("Configuring S3: region={}, bucket={}", region, bucket)
 
@@ -69,7 +63,7 @@ def configure_s3(
     elif visibility == "bucket_owner":
         access_policy = "bucket-owner-full-control"
 
-    _s3_adapter = Boto3S3Adapter(
+    adapter = Boto3S3Adapter(
         client=client,
         bucket=bucket,
         prefix=prefix,
@@ -78,101 +72,19 @@ def configure_s3(
     )
 
     logger.success("S3 configured: bucket={}, prefix={}", bucket, prefix)
-    return _s3_adapter
-
-
-def _get_adapter() -> S3Adapter:
-    """Get the global S3Adapter instance, raising S3Error if not configured."""
-    if _s3_adapter is None:
-        logger.error("S3 not configured")
-        raise S3Error("S3 not configured")
-    return _s3_adapter
-
-
-# Backward compatibility wrapper functions
-def s3_store(
-    filepath: str,
-    key: str,
-    content_type: str = "application/octet-stream",
-    cache_control: Optional[str] = None,
-    fail_if_exists: bool = False,
-    use_bytes: bool = False,
-    progress: Optional[object] = None,
-) -> None:
-    """Backward compatibility wrapper - use S3Adapter.store_file() instead."""
-    adapter = _get_adapter()
-    adapter.store_file(
-        filepath=filepath,
-        key=key,
-        content_type=content_type,
-        cache_control=cache_control,
-        fail_if_exists=fail_if_exists,
-        use_bytes=use_bytes,
-        progress=progress,
-    )
-
-
-def s3_read(path: str) -> str:
-    """Backward compatibility wrapper - use S3Adapter.read() instead."""
-    adapter = _get_adapter()
-    return adapter.read(path)
-
-
-def s3_exists(path: str) -> bool:
-    """Backward compatibility wrapper - use S3Adapter.exists() instead."""
-    adapter = _get_adapter()
-    return adapter.exists(path)
-
-
-def s3_remove(path: str) -> None:
-    """Backward compatibility wrapper - use S3Adapter.remove() instead."""
-    adapter = _get_adapter()
-    return adapter.remove(path)
-
-
-def s3_copy(source: str, destination: str) -> None:
-    """Backward compatibility wrapper - use S3Adapter.copy() instead."""
-    adapter = _get_adapter()
-    return adapter.copy(source, destination)
-
-
-def s3_head(path: str) -> dict:
-    """Backward compatibility wrapper - use S3Adapter.head() instead."""
-    adapter = _get_adapter()
-    return adapter.head(path)
-
-
-def s3_list_objects(prefix: str, continuation_token: Optional[str] = None) -> tuple[list, Optional[str]]:
-    """Backward compatibility wrapper - use S3Adapter.list_objects() instead."""
-    adapter = _get_adapter()
-    return adapter.list_objects(prefix, continuation_token)
-
-
-def s3_path(path: str) -> str:
-    """Backward compatibility wrapper - use S3Adapter._s3_path() instead."""
-    adapter = _get_adapter()
-    return adapter._s3_path(path)
+    return adapter
 
 
 
-
-
-
-
-
-def list_codenames(adapter: Optional["S3Adapter"] = None) -> list:
+def list_codenames(adapter: "S3Adapter") -> list:
     """List all codenames by scanning the dists/ directory in S3.
 
     Args:
-        adapter: Optional S3Adapter to use. If None, uses the global adapter.
+        adapter: S3Adapter to use.
 
     Returns a list of codename names found in the dists/ directory.
     Handles S3 pagination to ensure all codenames are found.
     """
-    # Use the provided adapter or get the global adapter
-    if adapter is None:
-        adapter = _get_adapter()
-
     codenames = []
     continuation_token = None
 

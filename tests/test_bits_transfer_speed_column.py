@@ -163,20 +163,10 @@ class TestUploadProgressWithSharedProgress:
 
 
 class TestS3StoreWithSharedProgress:
-    """Tests for s3_store() with shared progress parameter."""
+    """Tests for store_file() with shared progress parameter."""
 
-    def setup_method(self):
-        """Reset S3 configuration."""
-        from pydeb_s3 import s3_utils
-        s3_utils._s3_adapter = None
-
-    def teardown_method(self):
-        """Clean up after each test."""
-        from pydeb_s3 import s3_utils
-        s3_utils._s3_adapter = None
-
-    def test_s3_store_accepts_progress_parameter(self):
-        """s3_store() accepts optional progress parameter."""
+    def test_store_file_accepts_progress_parameter(self):
+        """store_file() accepts optional progress parameter."""
         import os
         import tempfile
         from unittest.mock import patch
@@ -189,25 +179,18 @@ class TestS3StoreWithSharedProgress:
         with mock_aws():
             client = boto3.client("s3", region_name="us-east-1")
             client.create_bucket(Bucket="test-bucket")
+            adapter = Boto3S3Adapter(client=client, bucket="test-bucket")
 
-            from pydeb_s3 import s3_utils
-
-            s3_utils._s3_adapter = Boto3S3Adapter(client=client, bucket="test-bucket")
-
-            # Create temp file
             with tempfile.NamedTemporaryFile(delete=False, mode='w') as f:
                 f.write("test content")
                 temp_path = f.name
 
             try:
                 from rich.progress import Progress
-
-                # Create a shared progress instance
                 shared_progress = Progress()
 
-                # Should not raise when progress is passed
                 with patch.object(client, "upload_file"):
-                    s3_utils.s3_store(temp_path, "test/key", progress=shared_progress)
+                    adapter.store_file(temp_path, "test/key", progress=shared_progress)
             finally:
                 os.unlink(temp_path)
 

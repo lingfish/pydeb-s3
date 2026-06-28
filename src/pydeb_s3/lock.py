@@ -1,6 +1,6 @@
 """Lock module for S3-based repository locking."""
 
-import hashlib
+import os
 import socket
 import time
 from dataclasses import dataclass
@@ -20,24 +20,9 @@ class LockError(Exception):
     """Error acquiring lock."""
 
 
-def _initial_lock_path(
-    codename: str,
-    component: str = None,
-    architecture: str = None,
-    cache_control: str = None,
-) -> str:
-    """Get the initial lock file path."""
-    return f"dists/{codename}/lockfile.lock"
-
-
-def _lock_path(
-    codename: str,
-    component: str = None,
-    architecture: str = None,
-    cache_control: str = None,
-) -> str:
-    """Get the final lock file path."""
-    return f"dists/{codename}/lockfile"
+def _locks_prefix(codename: str) -> str:
+    """Get the locks prefix path for a codename."""
+    return f"dists/{codename}/locks/"
 
 
 def lock(
@@ -49,52 +34,49 @@ def lock(
     max_attempts: int = 60,
     max_wait_interval: int = 10,
 ) -> None:
-    """Acquire a lock on the repository."""
+    """Acquire a lock on the repository using claim-file-based distributed lock."""
     import getpass
 
-    lockbody = f"{getpass.getuser()}@{socket.gethostname()}"
-    initial_lockfile = _initial_lock_path(codename, component, architecture, cache_control)
-    final_lockfile = _lock_path(codename, component, architecture, cache_control)
+    hostname = socket.gethostname()
+    pid = os.getpid()
+    claim_id = f"{hostname}-{pid}"
+    lockbody = f"{getpass.getuser()}@{hostname}"
+    prefix = _locks_prefix(codename)
+    claim_path = prefix + claim_id
 
-    md5_hex = hashlib.md5(lockbody.encode()).hexdigest()
+    s3_adapter.store_content(lockbody, claim_path, content_type="text/plain")
 
-    for i in range(max_attempts):
-        wait_interval = min((1 << i) / 10, max_wait_interval)
+    acquired = False
+    try:
+        for i in range(max_attempts):
+            wait_interval = min((1 << i) / 10, max_wait_interval)
 
-        if s3_adapter.exists(final_lockfile):
-            current_lock = _current(s3_adapter, codename, component, architecture, cache_control)
+            objects, _ = s3_adapter.list_objects(prefix)
+            claim_keys = sorted(obj["Key"] for obj in objects)
+
+            if not claim_keys:
+                s3_adapter.store_content(lockbody, claim_path, content_type="text/plain")
+                continue
+
+            first_key = claim_keys[0]
+            if first_key.endswith(claim_path):
+                acquired = True
+                return
+
+            current_lock = _current(s3_adapter, codename)
             print(
-                f"Repository is locked by another user: {current_lock.user} at host {current_lock.host} (phase-1)"
+                f"Repository is locked by another user: {current_lock.user} at host {current_lock.host}"
             )
             print(f"Attempting to obtain a lock after {wait_interval} second(s).")
             time.sleep(wait_interval)
-        else:
+
+        raise LockError(f"Unable to obtain a lock after {max_attempts} attempts, giving up.")
+    finally:
+        if not acquired:
             try:
-                s3_adapter.store_content(
-                    lockbody,
-                    initial_lockfile,
-                    content_type="text/plain",
-                    md5=md5_hex,
-                )
+                s3_adapter.remove(claim_path)
             except Exception:
                 pass
-
-            try:
-                s3_adapter.copy_with_if_match(
-                    initial_lockfile,
-                    final_lockfile,
-                    md5_hex,
-                )
-                return
-            except Exception:
-                current_lock = _current(s3_adapter, codename, component, architecture, cache_control)
-                print(
-                    f"Repository is locked by another user: {current_lock.user} at host {current_lock.host} (phase-2)"
-                )
-                print(f"Attempting to obtain a lock after {wait_interval} second(s).")
-                time.sleep(wait_interval)
-
-    raise LockError(f"Unable to obtain a lock after {max_attempts} attempts, giving up.")
 
 
 def unlock(
@@ -104,14 +86,18 @@ def unlock(
     architecture: str = None,
     cache_control: str = None,
 ) -> None:
-    """Release a lock on the repository."""
-    initial = _initial_lock_path(codename, component, architecture, cache_control)
-    final = _lock_path(codename, component, architecture, cache_control)
-
-    if s3_adapter.exists(initial):
-        s3_adapter.remove(initial)
-    if s3_adapter.exists(final):
-        s3_adapter.remove(final)
+    """Release a lock on the repository. Removes all claim files."""
+    prefix = _locks_prefix(codename)
+    objects, _ = s3_adapter.list_objects(prefix)
+    for obj in objects:
+        key = obj["Key"]
+        idx = key.find(prefix)
+        if idx >= 0:
+            relative_path = key[idx:]
+            try:
+                s3_adapter.remove(relative_path)
+            except Exception:
+                pass
 
 
 def _current(
@@ -121,13 +107,26 @@ def _current(
     architecture: str = None,
     cache_control: str = None,
 ) -> Lock:
-    """Get the current lock holder."""
-    lock_path = _lock_path(codename, component, architecture, cache_control)
-    lockbody = s3_adapter.read(lock_path)
+    """Get the current lock holder by reading the first claim file."""
+    prefix = _locks_prefix(codename)
+    objects, _ = s3_adapter.list_objects(prefix)
+    claim_keys = sorted(obj["Key"] for obj in objects)
 
-    if lockbody:
-        user_host = lockbody.split("@", 1)
-        if len(user_host) == 2:
-            return Lock(user_host[0], user_host[1])
+    if not claim_keys:
+        return Lock("unknown", "unknown")
 
+    first_key = claim_keys[0]
+    idx = first_key.find(prefix)
+    if idx < 0:
+        return Lock("unknown", "unknown")
+
+    relative_path = first_key[idx:]
+    try:
+        body = s3_adapter.read(relative_path)
+    except Exception:
+        return Lock("unknown", "unknown")
+
+    parts = body.split("@", 1)
+    if len(parts) == 2:
+        return Lock(parts[0], parts[1])
     return Lock("unknown", "unknown")
