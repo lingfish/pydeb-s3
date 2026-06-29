@@ -283,7 +283,6 @@ class TestMockSigningAdapter:
             def store_file(self, *args, **kwargs):
                 pass
 
-        from pydeb_s3.release import Release
 
         release = Release(codename="stable")
         signing_adapter = MockSigningAdapter()
@@ -297,7 +296,6 @@ class TestMockSigningAdapter:
 
     def test_sign_with_no_adapter(self):
         """Release.sign() should handle None adapter gracefully."""
-        from pydeb_s3.release import Release
 
         class MockS3Adapter:
             def store_file(self, *args, **kwargs):
@@ -310,7 +308,6 @@ class TestMockSigningAdapter:
 
     def test_sign_with_empty_key_info(self):
         """Release.sign() should handle adapter with no keys."""
-        from pydeb_s3.release import Release
 
         class MockS3Adapter:
             def store_file(self, *args, **kwargs):

@@ -2,8 +2,6 @@
 
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from pydeb_s3 import s3_utils
 from pydeb_s3.s3_adapter import MockS3Adapter, S3Error, S3NotFoundError
 

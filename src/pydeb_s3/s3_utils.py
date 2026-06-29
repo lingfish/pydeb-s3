@@ -8,8 +8,12 @@ from typing import Optional
 import boto3
 from loguru import logger
 
+from pydeb_s3.progress import (  # noqa: F401
+    BitsTransferSpeedColumn,
+    UploadProgress,
+    calculate_stream_md5,
+)
 from pydeb_s3.s3_adapter import Boto3S3Adapter, S3Adapter
-from pydeb_s3.progress import BitsTransferSpeedColumn, UploadProgress, calculate_stream_md5  # noqa: F401
 
 
 def configure_s3(
