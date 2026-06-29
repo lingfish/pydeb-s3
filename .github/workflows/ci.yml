@@ -39,4 +39,4 @@ jobs:
         run: pip install hatch
 
       - name: Run integration tests (requires Docker)
-        run: hatch test tests/integration/ -v --no-cov -m integration
+        run: hatch test tests/integration/ -vv --no-cov -m integration -n auto

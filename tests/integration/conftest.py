@@ -358,19 +358,32 @@ def docker_exec():
 
 
 # ---------------------------------------------------------------------------
+# Container image matrix (Debian 11 / 12 / 13)
+# ---------------------------------------------------------------------------
+
+APT_IMAGES = ["debian:11-slim", "debian:12-slim", "debian:13-slim"]
+
+
+@pytest.fixture(params=APT_IMAGES)
+def apt_container_image(request):
+    """Parametrized fixture: runs each Docker-dependent test on every image."""
+    return request.param
+
+
+# ---------------------------------------------------------------------------
 # Docker Debian container fixtures
 # ---------------------------------------------------------------------------
 
 
 @pytest.fixture
-def debian_container(moto_server):
+def debian_container(moto_server, apt_container_image):
     """Start a Debian container with apt source pointing at moto."""
     docker = _docker_available()
     if not docker:
         pytest.skip("Docker or Podman not available")
 
     port = urlparse(moto_server).port
-    cid = _docker_run("debian:12-slim", ["sleep", "3600"])
+    cid = _docker_run(apt_container_image, ["sleep", "3600"])
 
     try:
         # Write apt source pointing at moto
@@ -388,14 +401,14 @@ def debian_container(moto_server):
 
 
 @pytest.fixture
-def debian_container_signed(moto_server, gpg_key_id):
+def debian_container_signed(moto_server, gpg_key_id, apt_container_image):
     """Debian container configured with GPG public key (no [trusted=yes])."""
     docker = _docker_available()
     if not docker:
         pytest.skip("Docker or Podman not available")
 
     port = urlparse(moto_server).port
-    cid = _docker_run("debian:12-slim", ["sleep", "3600"])
+    cid = _docker_run(apt_container_image, ["sleep", "3600"])
 
     try:
         # Install gnupg inside container
