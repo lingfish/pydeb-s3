@@ -93,16 +93,12 @@ def _configure_s3(config: S3Config) -> S3Adapter:
     """Configure S3 connection using S3Config object. Returns S3Adapter."""
     import boto3
 
-    settings = {"region_name": config.region}
+    settings: dict = {"region_name": config.region}
 
     if config.endpoint:
         settings["endpoint_url"] = config.endpoint
     if config.proxy_uri:
         settings["proxy"] = {"http": config.proxy_uri, "https": config.proxy_uri}
-    if config.force_path_style:
-        settings["use_accelerate_endpoint"] = False
-    if config.checksum_when_required:
-        settings["request_checksum_calculation"] = "when_required"
 
     if config.access_key_id and config.secret_access_key:
         settings["aws_access_key_id"] = config.access_key_id

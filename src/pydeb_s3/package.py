@@ -164,7 +164,7 @@ class Package:
                 ar_proc.stdout.close()
                 result = subprocess.run(
                     ["tar", "-xf", "-", "-O", "control"],
-                    stdin=zstd_proc.stdout,
+                    check=False, stdin=zstd_proc.stdout,
                     capture_output=True,
                     text=True,
                 )
@@ -179,7 +179,7 @@ class Package:
                 tar_args.extend(["-xf", "-", "-O", "control"])
                 result = subprocess.run(
                     tar_args,
-                    stdin=ar_proc.stdout,
+                    check=False, stdin=ar_proc.stdout,
                     capture_output=True,
                     text=True,
                 )
