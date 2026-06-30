@@ -536,3 +536,124 @@ class TestRepoStructure:
         assert "SHA256:" in body, "Release should have SHA256 section"
         assert "main/binary-amd64/Packages" in body, "Release should reference Packages file"
         assert "main/binary-amd64/Packages.gz" in body, "Release should reference Packages.gz file"
+
+
+# ---------------------------------------------------------------------------
+# External repo coexistence (ollama-deb via extrepo)
+# ---------------------------------------------------------------------------
+
+
+class TestExternalRepoIntegration:
+    """Test that pydeb-s3 repo coexists with external repos (ollama-deb via extrepo).
+
+    Uses ``extrepo`` inside the container to add the real ollama-deb repo (hosted
+    at packages.lingfish.net).  Tests verify ollama installs correctly and that
+    apt upgrade/dist-upgrade on our moto-served packages doesn't reinstall it.
+    """
+
+    @pytest.fixture
+    def ollama_repo(self, debian_container, docker_exec):
+        """Enable ollama-deb via extrepo inside the existing container.
+
+        Skips the test on Debian < 12 (bullseye) because ollama requires
+        ``libc6 >= 2.34``, which is not available there.
+        """
+        # Check Debian version — skip if too old for ollama
+        code, out = docker_exec(debian_container, ["cat", "/etc/debian_version"])
+        if code == 0:
+            major = out.strip().split(".")[0]
+            if int(major) < 12:
+                pytest.skip(f"ollama requires libc6 >= 2.34, not available on Debian {out.strip()}")
+
+        # Update may partially fail if the moto repo is empty — that's OK
+        docker_exec(debian_container, ["apt-get", "update", "-qq"])
+        code, out = docker_exec(debian_container, ["apt-get", "install", "-y", "-qq", "extrepo"])
+        assert code == 0, f"extrepo install failed: {out}"
+        # Enable non-free policy so extrepo allows the ollama source
+        code, out = docker_exec(
+            debian_container,
+            [
+                "sed",
+                "-i",
+                "-e",
+                "s/^# - non-free$/- non-free/g",
+                "/etc/extrepo/config.yaml",
+            ],
+        )
+        assert code == 0, f"sed failed: {out}"
+        code, out = docker_exec(debian_container, ["extrepo", "enable", "ollama"])
+        assert code == 0, f"extrepo enable ollama failed: {out}"
+
+    def test_ollama_installs_via_extrepo(
+        self,
+        debian_container,
+        docker_exec,
+        ollama_repo,
+    ):
+        """ollama installs from the external repo alongside our moto repo."""
+        # Update may partially fail (empty moto repo) — ollama-deb is fine
+        docker_exec(debian_container, ["apt-get", "update", "-qq"])
+        code, out = docker_exec(debian_container, ["apt-get", "install", "-y", "ollama"])
+        assert code == 0, f"ollama install failed: {out}"
+        code, out = docker_exec(debian_container, ["which", "ollama"])
+        assert code == 0, f"ollama binary not found: {out}"
+
+    def test_upgrade_does_not_reinstall_ollama(
+        self,
+        unsigned_populated_repo,
+        moto_server,
+        bucket,
+        debian_container,
+        docker_exec,
+        ollama_repo,
+    ):
+        """apt upgrade with a new pkg version in our repo doesn't touch ollama."""
+        code, out = docker_exec(debian_container, ["apt-get", "update", "-qq"])
+        assert code == 0
+        code, out = docker_exec(
+            debian_container, ["apt-get", "install", "-y", "ollama", "test-pkg"]
+        )
+        assert code == 0, f"install failed: {out}"
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            v2 = f"{tmpdir}/test-pkg_2.0.0_amd64.deb"
+            _create_fake_deb(v2, "test-pkg", "2.0.0", "amd64")
+            _pydeb_upload(BUCKET, moto_server, v2, "--preserve-versions")
+            code, out = docker_exec(debian_container, ["apt-get", "update", "-qq"])
+            assert code == 0
+            code, out = docker_exec(debian_container, ["apt-get", "upgrade", "-y"])
+            assert code == 0, f"upgrade failed: {out}"
+            code, out = docker_exec(debian_container, ["dpkg", "-l", "ollama"])
+            assert code == 0, f"ollama was removed: {out}"
+            code, out = docker_exec(debian_container, ["dpkg", "-l", "test-pkg"])
+            assert "2.0.0" in out, f"test-pkg not upgraded: {out}"
+
+    def test_dist_upgrade_does_not_reinstall_ollama(
+        self,
+        unsigned_populated_repo,
+        moto_server,
+        bucket,
+        debian_container,
+        docker_exec,
+        ollama_repo,
+    ):
+        """apt dist-upgrade with new pkgs doesn't reinstall ollama."""
+        code, out = docker_exec(debian_container, ["apt-get", "update", "-qq"])
+        assert code == 0
+        code, out = docker_exec(
+            debian_container, ["apt-get", "install", "-y", "ollama", "test-pkg"]
+        )
+        assert code == 0, f"install failed: {out}"
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            v2 = f"{tmpdir}/test-pkg_2.0.0_amd64.deb"
+            _create_fake_deb(v2, "test-pkg", "2.0.0", "amd64")
+            _pydeb_upload(BUCKET, moto_server, v2, "--preserve-versions")
+            code, out = docker_exec(debian_container, ["apt-get", "update", "-qq"])
+            assert code == 0
+            code, out = docker_exec(debian_container, ["apt-get", "dist-upgrade", "-y"])
+            assert code == 0, f"dist-upgrade failed: {out}"
+            code, out = docker_exec(debian_container, ["dpkg", "-l", "ollama"])
+            assert code == 0, f"ollama was removed: {out}"
+            code, out = docker_exec(debian_container, ["dpkg", "-l", "test-pkg"])
+            assert "2.0.0" in out, f"test-pkg not upgraded: {out}"
