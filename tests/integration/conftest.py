@@ -46,7 +46,7 @@ def _docker_exec(cid: str, cmd: List[str]) -> Tuple[int, str]:
         text=True,
         timeout=120,
     )
-    return result.returncode, result.stdout
+    return result.returncode, result.stdout + result.stderr
 
 
 def _docker_run(image: str, cmd=None) -> str:
@@ -352,7 +352,7 @@ def docker_exec():
             text=True,
             timeout=120,
         )
-        return result.returncode, result.stdout
+        return result.returncode, result.stdout + result.stderr
 
     return _exec
 
