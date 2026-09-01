@@ -27,6 +27,7 @@ class Manifest:
     architecture: str = "amd64"
     fail_if_exists: bool = False
     skip_package_upload: bool = False
+    dedupe_component: Optional[str] = None
 
     packages: list[pkg_module.Package] = field(default_factory=list)
     packages_to_be_upload: list[pkg_module.Package] = field(default_factory=list)
@@ -97,6 +98,39 @@ class Manifest:
             pkg._parse_depends(deps)
 
         return pkg
+
+    def _build_dedupe_lookup(
+        self,
+        s3_adapter: S3Adapter,
+    ) -> dict:
+        """Build a lookup dict of packages from the dedupe component's manifest.
+
+        Returns dict keyed by (name, full_version) -> Package from the other component.
+        """
+        from loguru import logger
+
+        if not self.dedupe_component:
+            return {}
+
+        try:
+            other = Manifest.retrieve(
+                s3_adapter,
+                self.codename,
+                self.dedupe_component,
+                self.architecture,
+            )
+        except Exception:
+            logger.warning(
+                "Failed to retrieve dedupe manifest from {}, falling back to normal upload",
+                self.dedupe_component,
+            )
+            return {}
+
+        lookup = {}
+        for pkg in other.packages:
+            if pkg.name and pkg.full_version:
+                lookup[(pkg.name, pkg.full_version)] = pkg
+        return lookup
 
     def add(
         self,
@@ -189,21 +223,48 @@ class Manifest:
         logger.debug(f"write_to_s3: generated manifest preview: {manifest[:200]}")
 
         if not self.skip_package_upload:
+            dedupe_lookup = {}
+            if self.dedupe_component and self.dedupe_component != self.component:
+                dedupe_lookup = self._build_dedupe_lookup(s3_adapter)
+
             for pkg in self.packages_to_be_upload:
                 new_path = pkg.url_filename_for(self.component)
 
                 if not s3_adapter.exists(new_path):
-                    if callback:
-                        callback(new_path)
-                    s3_adapter.store_file(
-                        pkg.filename,
-                        new_path,
-                        content_type="application/octet-stream; charset=binary",
-                        cache_control=self.cache_control,
-                        fail_if_exists=self.fail_if_exists,
-                        use_bytes=use_bytes,
-                        progress=progress,
-                    )
+                    deduped = False
+                    if dedupe_lookup:
+                        key = (pkg.name, pkg.full_version)
+                        other_pkg = dedupe_lookup.get(key)
+                        if other_pkg:
+                            source_path = other_pkg.url_filename_for(self.dedupe_component)
+                            if s3_adapter.exists(source_path):
+                                logger.info(
+                                    "Package {}_{} already exists in {}, copying to {}",
+                                    pkg.name, pkg.full_version, self.dedupe_component, self.component,
+                                )
+                                try:
+                                    if callback:
+                                        callback(new_path)
+                                    s3_adapter.copy(source_path, new_path)
+                                    deduped = True
+                                except Exception as e:
+                                    logger.warning(
+                                        "Dedupe copy failed for {} ({}), falling back to upload: {}",
+                                        pkg.name, pkg.full_version, e,
+                                    )
+
+                    if not deduped:
+                        if callback:
+                            callback(new_path)
+                        s3_adapter.store_file(
+                            pkg.filename,
+                            new_path,
+                            content_type="application/octet-stream; charset=binary",
+                            cache_control=self.cache_control,
+                            fail_if_exists=self.fail_if_exists,
+                            use_bytes=use_bytes,
+                            progress=progress,
+                        )
 
         packages_temp = tempfile.NamedTemporaryFile(
             mode="wb", suffix=".Packages", delete=False

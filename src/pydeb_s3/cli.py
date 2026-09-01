@@ -167,6 +167,7 @@ def upload_command(
     lock: Annotated[bool, typer.Option("-l", "--lock", help="Use a lock file to prevent concurrent uploads.")] = False,
     fail_if_exists: Annotated[bool, typer.Option("--fail-if-exists", help="Fail if the package already exists.")] = False,
     skip_package_upload: Annotated[bool, typer.Option("--skip-package-upload", help="Don't upload the package files, only update the manifest.")] = False,
+    dedupe_component: Annotated[Optional[str], typer.Option("--dedupe-component", help="Deduplicate from this component: if a package already exists here, copy instead of re-uploading.")] = None,
     bucket: Annotated[Optional[str], typer.Option("-b", "--bucket", help="The name of the S3 bucket to upload to.")] = None,
     prefix: Annotated[Optional[str], typer.Option("--prefix", help="The path prefix to use when storing on S3.")] = None,
     origin: Annotated[Optional[str], typer.Option("-o", "--origin", help="The origin to use in the repository Release file.")] = None,
@@ -228,6 +229,10 @@ def upload_command(
         logger.warning("--section is deprecated, use --component instead")
         comp = section
 
+    if dedupe_component and dedupe_component == comp:
+        logger.error("--dedupe-component cannot be the same as --component")
+        raise typer.Exit(code=1)
+
     if lock:
         lock_module.lock(s3_adapter)
 
@@ -238,27 +243,25 @@ def upload_command(
         manifests = {}
 
         if arch and arch != "all":
-            manifests.setdefault(arch, manifest_module.Manifest.retrieve(
+            m = manifest_module.Manifest.retrieve(
                 s3_adapter, codename, comp, arch, cache_control, fail_if_exists, skip_package_upload
-            ))
+            )
+            m.dedupe_component = dedupe_component
+            manifests.setdefault(arch, m)
         elif arch == "all" and not release.architectures:
-            manifests.setdefault("amd64", manifest_module.Manifest.retrieve(
-                s3_adapter, codename, comp, "amd64", cache_control, fail_if_exists, skip_package_upload
-            ))
-            manifests.setdefault("i386", manifest_module.Manifest.retrieve(
-                s3_adapter, codename, comp, "i386", cache_control, fail_if_exists, skip_package_upload
-            ))
-            manifests.setdefault("armhf", manifest_module.Manifest.retrieve(
-                s3_adapter, codename, comp, "armhf", cache_control, fail_if_exists, skip_package_upload
-            ))
-            manifests.setdefault("arm64", manifest_module.Manifest.retrieve(
-                s3_adapter, codename, comp, "arm64", cache_control, fail_if_exists, skip_package_upload
-            ))
+            for default_arch in ("amd64", "i386", "armhf", "arm64"):
+                m = manifest_module.Manifest.retrieve(
+                    s3_adapter, codename, comp, default_arch, cache_control, fail_if_exists, skip_package_upload
+                )
+                m.dedupe_component = dedupe_component
+                manifests.setdefault(default_arch, m)
         else:
             for arch_item in release.architectures:
-                manifests.setdefault(arch_item, manifest_module.Manifest.retrieve(
+                m = manifest_module.Manifest.retrieve(
                     s3_adapter, codename, comp, arch_item, cache_control, fail_if_exists, skip_package_upload
-                ))
+                )
+                m.dedupe_component = dedupe_component
+                manifests.setdefault(arch_item, m)
 
         packages_arch_all = []
 
@@ -281,9 +284,12 @@ def upload_command(
                         f"You specified architecture {arch} but package {pkg.name} has architecture type of {pkg_arch}"
                     )
 
-                manifests.setdefault(pkg_arch, manifest_module.Manifest.retrieve(
-                    s3_adapter, codename, comp, pkg_arch, cache_control, fail_if_exists, skip_package_upload
-                ))
+                if pkg_arch not in manifests:
+                    m = manifest_module.Manifest.retrieve(
+                        s3_adapter, codename, comp, pkg_arch, cache_control, fail_if_exists, skip_package_upload
+                    )
+                    m.dedupe_component = dedupe_component
+                    manifests[pkg_arch] = m
 
                 manifests[pkg_arch].add(pkg, preserve_versions)
 

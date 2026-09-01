@@ -29,6 +29,7 @@ pydeb-s3 has been rewritten in Python with modern tooling and additional capabil
 - **GPG signing** of Release files for secure APT repositories
 - **S3-compatible storage** support (AWS S3, Google Cloud Storage, MinIO, etc.)
 - **Concurrent operation locking** to prevent conflicting uploads
+- **Cross-component deduplication** with `--dedupe-component`: avoids re-uploading packages that already exist in another component (e.g., upload to `main` by copying from `non-free`)
 - **Dry-run mode** for clean/verify operations
 - **Configurable timestamps** with `--timestamps/--no-timestamps` flag, auto-detects TTY for clean interactive output
 - Modern CLI with Typer, featuring help text and shell completion
@@ -126,6 +127,13 @@ $ pydeb-s3 exists mypackage --bucket my-bucket --version 1.0.0
 ### Copy package to another codename
 ```bash
 $ pydeb-s3 copy mypackage --bucket my-bucket --to-codename jammy --to-component main
+```
+
+### Upload with cross-component deduplication
+```bash
+$ pydeb-s3 upload --bucket my-bucket --component main \
+    --dedupe-component non-free \
+    ollama_0.15.0_amd64.deb libollama-common_0.15.0_amd64.deb
 ```
 
 ### Verify repository integrity
