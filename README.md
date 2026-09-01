@@ -7,9 +7,12 @@
 
 **pydeb-s3** is a Python port of [deb-s3](https://github.com/deb-s3/deb-s3), a simple utility to make creating and managing APT repositories on S3.
 
-Most existing guides on using S3 to host an APT repository have you using something like [reprepro](http://mirrorer.alioth.debian.org/) to generate the repository file structure, and then [s3cmd](http://s3tools.org/s3cmd) to sync the files to S3.
+Most existing guides on using S3 to host an APT repository have you using something like
+[reprepro](http://mirrorer.alioth.debian.org/) to generate the repository file structure, and then
+[s3cmd](http://s3tools.org/s3cmd) to sync the files to S3.
 
-The annoying thing about this process is it requires you to maintain a local copy of the file tree for regenerating and syncing the next time. Personally, my process is to use one-off virtual machines with [Vagrant](http://vagrantup.com), script out the build process, and then would prefer to just upload the final `.deb` from my Mac.
+The annoying thing about this process is it requires you to maintain a local copy of the file tree for regenerating and
+syncing the next time.
 
 With **pydeb-s3**, there is no need for this. pydeb-s3 features:
 
