@@ -215,12 +215,9 @@ class Manifest:
             use_bytes: If True, display speed in bytes/s. If False, display in bits/s.
             progress: Optional shared Progress instance for multiple uploads.
         """
-        # Import Progress type for type hint (avoid circular import at runtime)
-
-        manifest = self.generate()
         from loguru import logger
-        logger.debug(f"write_to_s3: generated manifest length: {len(manifest)}")
-        logger.debug(f"write_to_s3: generated manifest preview: {manifest[:200]}")
+
+        deduped_package_ids: set[int] = set()
 
         if not self.skip_package_upload:
             dedupe_lookup = {}
@@ -228,43 +225,42 @@ class Manifest:
                 dedupe_lookup = self._build_dedupe_lookup(s3_adapter)
 
             for pkg in self.packages_to_be_upload:
+                if dedupe_lookup:
+                    key = (pkg.name, pkg.full_version)
+                    other_pkg = dedupe_lookup.get(key)
+                    if other_pkg:
+                        source_path = other_pkg.url_filename_for(self.dedupe_component)
+                        if source_path and s3_adapter.exists(source_path):
+                            pkg.url_filename = source_path
+                            deduped_package_ids.add(id(pkg))
+                            logger.info(
+                                "Package {}_{} deduped: manifest points to {}/{}",
+                                pkg.name, pkg.full_version, self.dedupe_component, source_path,
+                            )
+
+        manifest = self.generate()
+        logger.debug(f"write_to_s3: generated manifest length: {len(manifest)}")
+        logger.debug(f"write_to_s3: generated manifest preview: {manifest[:200]}")
+
+        if not self.skip_package_upload:
+            for pkg in self.packages_to_be_upload:
+                if id(pkg) in deduped_package_ids:
+                    continue
+
                 new_path = pkg.url_filename_for(self.component)
 
                 if not s3_adapter.exists(new_path):
-                    deduped = False
-                    if dedupe_lookup:
-                        key = (pkg.name, pkg.full_version)
-                        other_pkg = dedupe_lookup.get(key)
-                        if other_pkg:
-                            source_path = other_pkg.url_filename_for(self.dedupe_component)
-                            if s3_adapter.exists(source_path):
-                                logger.info(
-                                    "Package {}_{} already exists in {}, copying to {}",
-                                    pkg.name, pkg.full_version, self.dedupe_component, self.component,
-                                )
-                                try:
-                                    if callback:
-                                        callback(new_path)
-                                    s3_adapter.copy(source_path, new_path)
-                                    deduped = True
-                                except Exception as e:
-                                    logger.warning(
-                                        "Dedupe copy failed for {} ({}), falling back to upload: {}",
-                                        pkg.name, pkg.full_version, e,
-                                    )
-
-                    if not deduped:
-                        if callback:
-                            callback(new_path)
-                        s3_adapter.store_file(
-                            pkg.filename,
-                            new_path,
-                            content_type="application/octet-stream; charset=binary",
-                            cache_control=self.cache_control,
-                            fail_if_exists=self.fail_if_exists,
-                            use_bytes=use_bytes,
-                            progress=progress,
-                        )
+                    if callback:
+                        callback(new_path)
+                    s3_adapter.store_file(
+                        pkg.filename,
+                        new_path,
+                        content_type="application/octet-stream; charset=binary",
+                        cache_control=self.cache_control,
+                        fail_if_exists=self.fail_if_exists,
+                        use_bytes=use_bytes,
+                        progress=progress,
+                    )
 
         packages_temp = tempfile.NamedTemporaryFile(
             mode="wb", suffix=".Packages", delete=False

@@ -89,17 +89,17 @@ class TestDedupeUploadFlow:
         return adapter, calls
 
     # ------------------------------------------------------------------
-    # Test 1: Full upload flow with dedup
+    # Test 1: Full upload flow with TRUE dedup
     # ------------------------------------------------------------------
-    def test_full_upload_flow_with_dedup(self):
-        """Upload to non-free, then upload same to main with dedup.
+    def test_full_upload_flow_with_true_dedup(self):
+        """Upload to non-free, then upload same to main with TRUE dedup.
 
         Verifies:
         1. pool/non-free/... exists after first upload.
-        2. pool/main/... exists after dedup upload.
-        3. Both pool files have identical content (server-side copy).
-        4. s3_adapter.copy() was called (not store_file for .deb).
-        5. main/Packages manifest contains the package.
+        2. pool/main/... does NOT exist (no copy made).
+        3. s3_adapter.copy() was NOT called.
+        4. main/Packages manifest Filename points to non-free pool path.
+        5. main/Packages contains the package.
         """
         self._create_release()
 
@@ -117,46 +117,43 @@ class TestDedupeUploadFlow:
         manifest_main = manifest_module.Manifest.retrieve(
             tracked, "stable", "main", "amd64"
         )
-        manifest_main.dedupe_component = "non-free"  # <-- will fail
+        manifest_main.dedupe_component = "non-free"
         manifest_main.add(pkg)
         manifest_main.write_to_s3(tracked)
 
-        # Step 3: verify main pool file exists
+        # Step 3: NO copy to main pool (TRUE dedup)
         dest_path = self._pool_path(pkg, "main")
-        assert tracked.exists(dest_path), (
-            f"main pool file should exist after dedup: {dest_path}"
+        assert not tracked.exists(dest_path), (
+            f"TRUE dedup should NOT create a copy in main: {dest_path}"
         )
 
-        # Step 4: verify copy was used (not store_file)
-        assert len(calls["copy"]) >= 1, (
-            "s3_adapter.copy() should have been called for dedup"
+        # Step 4: no copy, no .deb upload (TRUE dedup)
+        assert len(calls["copy"]) == 0, (
+            "s3_adapter.copy() should NOT be called (TRUE dedup = no copy)"
         )
         assert len(calls["store_file"]) == 0, (
-            "s3_adapter.store_file() should NOT have been called for .deb (dedup used)"
+            "s3_adapter.store_file() should NOT be called for deduped .deb"
         )
 
-        # Step 5: verify identical content (server-side copy)
-        source_content = tracked._storage[tracked._s3_path(source_path)]
-        dest_content = tracked._storage[tracked._s3_path(dest_path)]
-        assert source_content == dest_content, (
-            "Dedup copy must produce identical content"
-        )
-
-        # Step 6: verify main/Packages contains the package
+        # Step 5: verify main/Packages Filename references non-free path
         packages_content = self._packages_content("main")
+        assert source_path in packages_content, (
+            f"main/Packages Filename should reference source path: {source_path}"
+        )
         assert "test-pkg" in packages_content
 
     # ------------------------------------------------------------------
-    # Test 2: Dedup with multiple packages
+    # Test 2: Dedup with multiple packages (TRUE dedup)
     # ------------------------------------------------------------------
     def test_dedup_with_multiple_packages(self):
-        """Upload 2 to non-free, upload 3 to main (2 deduped + 1 new).
+        """Upload 2 to non-free, upload 3 to main (2 deduped via reference + 1 new).
 
         Verifies:
         1. alpha and bravo exist in non-free pool.
-        2. Deduped packages are copied to main pool via copy().
+        2. Deduped packages do NOT get copied to main pool.
         3. New-only package (charlie) is uploaded via store_file().
-        4. main/Packages contains all expected packages.
+        4. main/Packages Filename for deduped packages points to non-free pool.
+        5. main/Packages contains all expected packages.
         """
         self._create_release()
 
@@ -187,39 +184,41 @@ class TestDedupeUploadFlow:
         manifest_main = manifest_module.Manifest.retrieve(
             tracked, "stable", "main", "amd64"
         )
-        manifest_main.dedupe_component = "non-free"  # <-- will fail
+        manifest_main.dedupe_component = "non-free"
 
         manifest_main.add(pkg_a)
         manifest_main.add(pkg_b)
         manifest_main.add(pkg_c)
         manifest_main.write_to_s3(tracked)
 
-        # All 3 should exist in main
-        for pkg in [pkg_a, pkg_b, pkg_c]:
-            path = self._pool_path(pkg, "main")
-            assert tracked.exists(path), (
-                f"main should have {pkg.name} (dedup or upload)"
+        # alpha and bravo: NO copies in main pool (referenced from non-free)
+        for pkg in [pkg_a, pkg_b]:
+            non_free_path = self._pool_path(pkg, "non-free")
+            main_path = self._pool_path(pkg, "main")
+            assert tracked.exists(non_free_path), f"non-free should have {pkg.name}"
+            assert not tracked.exists(main_path), (
+                f"main should NOT have a copy of {pkg.name} (TRUE dedup)"
             )
 
-        # alpha and bravo should be copied (they exist in non-free)
-        # charlie should be uploaded normally
-        assert len(calls["copy"]) == 2, (
-            f"Expected 2 copy() calls (alpha, bravo), got {len(calls['copy'])}"
+        # charlie: uploaded to main pool
+        charlie_path = self._pool_path(pkg_c, "main")
+        assert tracked.exists(charlie_path), "charlie should be in main pool"
+
+        # No copy calls, only 1 store_file for charlie
+        assert len(calls["copy"]) == 0, (
+            f"copy() should NOT be called (TRUE dedup), got {len(calls['copy'])}"
         )
         assert len(calls["store_file"]) >= 1, (
-            "Expected at least 1 store_file() call for charlie"
+            "store_file() should be called for charlie"
         )
 
-        # Verify content matches for the deduped packages
-        for pkg in [pkg_a, pkg_b]:
-            src = tracked._storage[tracked._s3_path(self._pool_path(pkg, "non-free"))]
-            dst = tracked._storage[tracked._s3_path(self._pool_path(pkg, "main"))]
-            assert src == dst, f"dedup content must match for {pkg.name}"
-
-        # main/Packages should list all 3
+        # Verify main/Packages Filename for deduped packages points to non-free
         content = self._packages_content("main")
-        assert "alpha" in content
-        assert "bravo" in content
+        for pkg in [pkg_a, pkg_b]:
+            non_free_path = self._pool_path(pkg, "non-free")
+            assert non_free_path in content, (
+                f"main/Packages should reference non-free path for {pkg.name}"
+            )
         assert "charlie" in content
 
     # ------------------------------------------------------------------

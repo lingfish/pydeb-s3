@@ -12,6 +12,7 @@ import sys
 import tarfile
 import tempfile
 from typing import Dict, Optional, Tuple
+from urllib.parse import urlparse
 
 import pytest
 import requests
@@ -690,3 +691,86 @@ class TestExternalRepoIntegration:
             assert code == 0, f"ollama was removed: {out}"
             code, out = docker_exec(debian_container, ["dpkg", "-l", "test-pkg"])
             assert "2.0.0" in out, f"test-pkg not upgraded: {out}"
+
+
+class TestDedupCrossComponentFilename:
+    """Verify APT works with cross-component Filename paths (TRUE dedup)."""
+
+    def test_apt_install_with_dedup_cross_component_filename(
+        self,
+        moto_server,
+        bucket,
+        debian_container,
+        docker_exec,
+    ):
+        """Upload to non-free, dedup to main, verify APT can install.
+
+        Proves that APT handles Filename paths pointing to a different
+        component's pool directory (e.g., pool/non-free/... in main manifest).
+        """
+        import boto3
+
+        # Create a .deb package
+        with tempfile.TemporaryDirectory() as tmpdir:
+            deb_path = f"{tmpdir}/dedup-test_1.0.0_amd64.deb"
+            _create_fake_deb(deb_path, "dedup-test", "1.0.0", "amd64")
+
+            # Upload to non-free
+            _pydeb_upload(BUCKET, moto_server, deb_path, "-m", "non-free")
+
+            # Upload to main with dedupe-component non-free
+            _pydeb_upload(
+                BUCKET, moto_server, deb_path,
+                "-m", "main",
+                "--dedupe-component", "non-free",
+            )
+
+        # Verify: main/Packages references non-free pool path
+        code, _, packages_main = _http_get(
+            f"{moto_server}/{BUCKET}/dists/stable/main/binary-amd64/Packages"
+        )
+        assert code == 200
+        assert "Filename: pool/non-free/d/de/dedup-test_1.0.0_amd64.deb" in packages_main, (
+            f"main/Packages should reference non-free path. Content:\n{packages_main}"
+        )
+
+        # Verify: no .deb in pool/main/ (TRUE dedup)
+        client = boto3.client("s3", endpoint_url=moto_server, region_name="us-east-1")
+        objs = client.list_objects_v2(Bucket=BUCKET, Prefix="pool/main/")
+        pool_main_files = [
+            o["Key"] for o in objs.get("Contents", [])
+            if o["Key"].endswith(".deb")
+        ]
+        assert len(pool_main_files) == 0, (
+            f"pool/main/ should have no .deb files (TRUE dedup), got: {pool_main_files}"
+        )
+
+        # Verify: .deb exists in pool/non-free/
+        objs_nf = client.list_objects_v2(Bucket=BUCKET, Prefix="pool/non-free/")
+        pool_nf_files = [
+            o["Key"] for o in objs_nf.get("Contents", [])
+            if o["Key"].endswith(".deb")
+        ]
+        assert len(pool_nf_files) == 1, (
+            f"pool/non-free/ should have exactly 1 .deb, got: {pool_nf_files}"
+        )
+
+        # Add non-free to the container's sources.list
+        port = urlparse(moto_server).port
+        docker_exec(
+            debian_container,
+            ["sh", "-c",
+             f"echo 'deb [trusted=yes] http://127.0.0.1:{port}/{BUCKET} stable main non-free' > /etc/apt/sources.list.d/pydeb-s3.list"],
+        )
+
+        # apt-get update
+        code, out = docker_exec(debian_container, ["apt-get", "update", "-qq"])
+        assert code == 0, f"apt-get update failed: {out}"
+
+        # apt-get install dedup-test
+        code, out = docker_exec(debian_container, ["apt-get", "install", "-y", "dedup-test"])
+        assert code == 0, f"apt-get install failed: {out}"
+
+        # Verify package is installed
+        code, out = docker_exec(debian_container, ["dpkg", "-l", "dedup-test"])
+        assert "1.0.0" in out, f"dedup-test not installed: {out}"

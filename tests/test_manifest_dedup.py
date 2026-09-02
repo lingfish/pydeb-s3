@@ -97,18 +97,19 @@ class TestManifestDedup:
         return adapter, calls
 
     # ------------------------------------------------------------------
-    # Test 1: Happy path — copy from dedupe component
+    # Test 1: Happy path — reference from dedupe component (TRUE dedup)
     # ------------------------------------------------------------------
-    def test_dedupe_copies_from_other_component(self):
-        """Package in dedupe component with existing file → S3 copy used.
+    def test_dedupe_points_to_source_without_copy(self):
+        """Package in dedupe component with existing file → manifest references source, no copy.
 
         Steps:
         1. Create release with main + non-free components.
         2. Upload test-pkg to non-free (puts .deb in pool/non-free/...).
         3. Create a manifest for main with dedupe_component="non-free".
         4. Add the same package and call write_to_s3().
-        5. Assert pool/main/... exists.
-        6. Assert s3_adapter.copy() was called (not store_file for .deb).
+        5. Assert pool/main/... does NOT exist (no copy made).
+        6. Assert pool/non-free/... still exists (source untouched).
+        7. Assert main manifest Filename references non-free path.
         """
         self._create_initial_release()
 
@@ -126,23 +127,27 @@ class TestManifestDedup:
         manifest = manifest_module.Manifest.retrieve(
             tracked, "stable", "main", "amd64"
         )
-        manifest.dedupe_component = "non-free"  # <-- will fail before implementation
+        manifest.dedupe_component = "non-free"
         manifest.add(pkg)
         manifest.write_to_s3(tracked)
 
-        # Step 5: file should now exist in main pool (via copy)
+        # Step 5: NO copy to main pool (TRUE dedup)
         dest_path = self._pool_path(pkg, "main")
-        assert tracked.exists(dest_path), (
-            f"Copied file should exist in main: {dest_path}"
+        assert not tracked.exists(dest_path), (
+            f"TRUE dedup should NOT create a copy in main: {dest_path}"
         )
 
-        # Step 6: copy was used, not store_file for the .deb
-        assert len(calls["copy"]) >= 1, (
-            "s3_adapter.copy() should have been called for dedup"
+        # Step 6: source file still exists
+        assert tracked.exists(source_path), (
+            f"Source file should remain untouched: {source_path}"
+        )
+
+        # Step 7: no copy, no .deb upload (only manifest files uploaded)
+        assert len(calls["copy"]) == 0, (
+            "s3_adapter.copy() should NOT be called (TRUE dedup = no copy)"
         )
         assert len(calls["store_file"]) == 0, (
-            "s3_adapter.store_file() should NOT have been called for .deb files "
-            "(dedup copy should be used instead)"
+            "s3_adapter.store_file() should NOT be called for deduped .deb"
         )
 
     # ------------------------------------------------------------------
@@ -355,10 +360,10 @@ class TestManifestDedup:
     # Test 7: Dedup within same codename only (cross-codename ignored)
     # ------------------------------------------------------------------
     def test_dedupe_does_not_cross_codenames(self):
-        """Package in non-free/unstable is NOT copied to main/stable.
+        """Package in non-free/unstable is NOT referenced from main/stable.
 
         Design decision #3 says: "Same codename only (search all codenames'
-        manifests for visibility, but only copy within same codename)."
+        manifests for visibility, but only reference within same codename)."
 
         Steps:
         1. Create release for 'unstable' and 'stable' with main + non-free.

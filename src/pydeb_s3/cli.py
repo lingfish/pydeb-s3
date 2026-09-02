@@ -167,7 +167,7 @@ def upload_command(
     lock: Annotated[bool, typer.Option("-l", "--lock", help="Use a lock file to prevent concurrent uploads.")] = False,
     fail_if_exists: Annotated[bool, typer.Option("--fail-if-exists", help="Fail if the package already exists.")] = False,
     skip_package_upload: Annotated[bool, typer.Option("--skip-package-upload", help="Don't upload the package files, only update the manifest.")] = False,
-    dedupe_component: Annotated[Optional[str], typer.Option("--dedupe-component", help="Deduplicate from this component: if a package already exists here, copy instead of re-uploading.")] = None,
+    dedupe_component: Annotated[Optional[str], typer.Option("--dedupe-component", help="Deduplicate from this component: if a package already exists here, reference it instead of re-uploading (single .deb on S3, referenced by multiple manifests).")] = None,
     bucket: Annotated[Optional[str], typer.Option("-b", "--bucket", help="The name of the S3 bucket to upload to.")] = None,
     prefix: Annotated[Optional[str], typer.Option("--prefix", help="The path prefix to use when storing on S3.")] = None,
     origin: Annotated[Optional[str], typer.Option("-o", "--origin", help="The origin to use in the repository Release file.")] = None,
