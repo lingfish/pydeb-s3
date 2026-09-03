@@ -132,6 +132,64 @@ class GpgSigningAdapter:
         """Return info about signing keys."""
         return {"keys": self.keys, "provider": self.provider}
 
+    def extract_signing_key(self, inrelease_content: str) -> str:
+        """Extract the signing key ID from an existing InRelease file.
+
+        Runs gpg --verify on the content and parses the output for the key ID.
+
+        Args:
+            inrelease_content: The raw content of the InRelease file.
+
+        Returns:
+            The hex key ID string.
+
+        Raises:
+            RuntimeError: If gpg fails or key ID cannot be determined.
+        """
+        temp_path = None
+        try:
+            # Write InRelease content to a temp file for gpg
+            with tempfile.NamedTemporaryFile(suffix=".Release", delete=False, mode="wb") as f:
+                f.write(inrelease_content.encode() if isinstance(inrelease_content, str) else inrelease_content)
+                temp_path = f.name
+
+            args = [self.provider, "--verify", temp_path]
+            if self.options:
+                args.extend(shlex.split(self.options))
+
+            result = subprocess.run(args, check=False, capture_output=True)
+
+            stderr_text = result.stderr.decode() if result.stderr else ""
+            stdout_text = result.stdout.decode() if result.stdout else ""
+
+            # Check for BAD signature first
+            if "BAD signature" in stderr_text or "BAD signature" in stdout_text:
+                raise RuntimeError(
+                    "Cannot determine signing key: BAD signature in existing InRelease. "
+                    "Use --sign <key-id> to re-sign, or delete the InRelease file from S3."
+                )
+
+            # Extract key ID from gpg output — prefer stderr (gpg's typical output channel)
+            for text in (stderr_text, stdout_text):
+                match = re.search(r"using\s+\w+\s+key\s+(?:0x)?([0-9A-Fa-f]+)", text)
+                if match:
+                    return match.group(1)
+
+            # Check for non-zero exit code
+            combined = f"{stdout_text}\n{stderr_text}"
+            if result.returncode != 0:
+                raise RuntimeError(
+                    f"GPG verification failed (exit code {result.returncode}): {combined}"
+                )
+
+            raise RuntimeError(
+                f"Could not determine signing key from existing InRelease. "
+                f"GPG output: {combined}"
+            )
+        finally:
+            if temp_path and os.path.exists(temp_path):
+                os.unlink(temp_path)
+
 
 @dataclass
 class Release:
@@ -345,6 +403,47 @@ class Release:
             )
         finally:
             os.unlink(release_temp.name)
+
+    def auto_re_sign(
+        self,
+        s3_adapter: S3Adapter,
+        signing_adapter: "GpgSigningAdapter",
+    ) -> None:
+        """Re-sign InRelease if it already exists on S3.
+
+        Called when --sign was NOT passed but InRelease already exists.
+        Extracts the key ID from the existing InRelease and re-signs.
+
+        Args:
+            s3_adapter: Adapter for S3 storage operations
+            signing_adapter: The original signing adapter (used to get provider/options)
+
+        Raises:
+            RuntimeError: If key extraction fails (hard fail).
+        """
+        inrelease_path = f"dists/{self.codename}/InRelease"
+
+        if not s3_adapter.exists(inrelease_path):
+            return  # No InRelease to re-sign
+
+        logger.info(f"InRelease already exists for {self.codename}, auto re-signing...")
+
+        content = s3_adapter.read(inrelease_path)
+        try:
+            key_id = signing_adapter.extract_signing_key(content)
+        except RuntimeError as e:
+            raise RuntimeError(
+                f"Cannot auto re-sign InRelease for {self.codename}: {e}. "
+                f"Use --sign <key-id> to re-sign, or delete {inrelease_path} from S3."
+            ) from e
+
+        new_adapter = GpgSigningAdapter(
+            keys=[key_id],
+            provider=signing_adapter.provider,
+            options=signing_adapter.options,
+        )
+        logger.info(f"Auto re-signing InRelease with key {key_id}")
+        self.sign(s3_adapter, new_adapter)
 
     def upload(
         self,

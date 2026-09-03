@@ -341,6 +341,14 @@ def upload_command(
             from pydeb_s3.release import GpgSigningAdapter
             signing_adapter = GpgSigningAdapter(sign, gpg_provider, gpg_options)
             release.sign(s3_adapter, signing_adapter, use_bytes=bytes)
+        else:
+            # Auto re-sign InRelease if it already exists on S3
+            inrelease_path = f"dists/{codename}/InRelease"
+            if s3_adapter.exists(inrelease_path):
+                logger.info(f"InRelease already exists for {codename}, auto re-signing...")
+                from pydeb_s3.release import GpgSigningAdapter
+                signing_adapter = GpgSigningAdapter([], gpg_provider, gpg_options)
+                release.auto_re_sign(s3_adapter, signing_adapter)
 
         logger.info("Update complete.")
     finally:

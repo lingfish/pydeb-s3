@@ -167,3 +167,55 @@ Description: A test package
 def mock_signing_adapter():
     """Provide a MockSigningAdapter for tests that need signing without GPG."""
     return MockSigningAdapter()
+
+
+class MockGpgSigningAdapter:
+    """Mock GpgSigningAdapter for auto_re_sign tests.
+
+    Provides extract_signing_key() as a patchable method while
+    inheriting the clearsign/detach_sign interface from MockSigningAdapter.
+    """
+
+    def __init__(self):
+        self.keys = ["mock-extract-key"]
+        self.provider = "mock"
+        self.options = ""
+        self.clearsign_called = False
+        self.detach_sign_called = False
+
+    def clearsign(self, input_path: str, output_path: str) -> None:
+        """Simulate clearsigning by writing a mock signed file."""
+        self.clearsign_called = True
+        with open(output_path, "w") as f:
+            f.write("-----BEGIN PGP SIGNED MESSAGE-----\n")
+            f.write("Mock re-signed content\n")
+            f.write("-----END PGP SIGNATURE-----\n")
+
+    def detach_sign(self, input_path: str, output_path: str) -> None:
+        """Simulate detached signing by writing a mock signature file."""
+        self.detach_sign_called = True
+        with open(output_path, "w") as f:
+            f.write("-----BEGIN PGP SIGNATURE-----\n")
+            f.write("Mock detached signature\n")
+            f.write("-----END PGP SIGNATURE-----\n")
+
+    def get_key_info(self) -> dict:
+        """Return mock key info."""
+        return {"keys": self.keys, "provider": self.provider}
+
+    def extract_signing_key(self, inrelease_content: str) -> str:
+        """Mock key extraction — should be patched in tests."""
+        return self.keys[0]
+
+
+@pytest.fixture
+def auto_re_sign_adapter():
+    """Provide (MockGpgSigningAdapter, MockS3Adapter) for auto_re_sign tests.
+
+    Returns a tuple of (signing_adapter, s3_adapter) where:
+    - signing_adapter has extract_signing_key() as a patchable method
+    - s3_adapter is an in-memory mock for fast tests
+    """
+    adapter = MockGpgSigningAdapter()
+    s3 = MockS3Adapter(bucket="test-bucket", prefix="")
+    return adapter, s3
