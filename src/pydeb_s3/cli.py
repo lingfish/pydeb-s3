@@ -759,7 +759,7 @@ def clean_command(
     prefix: Annotated[Optional[str], typer.Option("--prefix", help="The path prefix to use when storing on S3.")] = None,
     origin: Annotated[Optional[str], typer.Option("-o", "--origin", help="The origin to use in the repository Release file.")] = None,
     suite: Annotated[Optional[str], typer.Option("--suite", help="The suite to use in the repository Release file.")] = None,
-    codename: Annotated[str, typer.Option("-c", "--codename", help="The codename of the APT repository.")] = "stable",
+    codename: Annotated[Optional[str], typer.Option("-c", "--codename", help="The codename of the APT repository. When specified, only this codename's manifest is checked for references.")] = None,
     component: Annotated[str, typer.Option("-m", "--component", help="The component of the APT repository.")] = "main",
     s3_region: Annotated[str, typer.Option("--s3-region", help="The region for connecting to S3.")] = "us-east-1",
     access_key_id: Annotated[Optional[str], typer.Option("--access-key-id", help="The access key for connecting to S3.")] = None,
@@ -784,20 +784,20 @@ def clean_command(
         access_key_id=access_key_id,
         secret_access_key=secret_access_key,
         session_token=session_token,
-        force_path_style=force_path_style,
-        encryption=encryption,
         cache_control=cache_control,
     )
     s3_adapter = _configure_s3(s3_config)
 
     logger.info("Retrieving existing manifests")
 
-    # Get all codenames from S3 to check all of them
-    all_codenames = s3_utils.list_codenames(s3_adapter)
-
-    if not all_codenames:
-        # Fallback to specified codename if no codenames found in S3
+    # If --codename is explicitly specified, only check that codename
+    # Otherwise check all codenames for safety (don't delete files referenced elsewhere)
+    if codename:
         all_codenames = [codename]
+    else:
+        all_codenames = s3_utils.list_codenames(s3_adapter)
+        if not all_codenames:
+            all_codenames = ["stable"]
 
     logger.info("Checking codenames: {}", all_codenames)
 
@@ -807,7 +807,6 @@ def clean_command(
 
     all_pkgs = {}
 
-    # Check ALL codenames, not just the specified one
     for cname in all_codenames:
         try:
             release = release_module.Release.retrieve(s3_adapter, cname, origin, suite)

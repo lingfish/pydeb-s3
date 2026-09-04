@@ -3,18 +3,20 @@
 These tests reproduce the real S3 bucket scenario where:
 - Multiple codenames exist (rc and stable)
 - Multiple versions of packages exist in pool
-- Only truly orphaned packages (0.21.x) should be removed when cleaning stable
-- Packages in other codenames should NOT be removed (0.21.3~rc0 is referenced by rc codename)
+- When --codename is NOT passed, all codenames are checked (safety default)
+- When --codename is explicitly passed, only that codename is checked
+- Truly orphaned packages (0.21.x) should be removed when cleaning
 
 Requirements:
 1. Setup S3 with prefix `apt/` using moto mock
 2. Upload Release files for both rc and stable codenames
 3. Upload Packages files with exact Filename content
 4. Upload pool objects for ALL versions (including old 0.21.x ones)
-5. Run clean_command with --codename stable --component non-free --dry-run
-6. Assert 0.21.3~rc0 packages are NOT removed (referenced by rc)
-7. Assert 0.22.0 packages are NOT removed (referenced by stable)
-8. Assert 0.21.x OLD packages ARE removed (orphaned)
+5. Run clean_command without --codename for safety default (check all codenames)
+6. Run clean_command with --codename stable to test filtering behavior
+7. Assert 0.21.3~rc0 packages are NOT removed (referenced by rc) when no --codename
+8. Assert 0.22.0 packages are NOT removed (referenced by stable) when no --codename
+9. Assert 0.21.x OLD packages ARE removed (orphaned)
 """
 
 import os
@@ -38,10 +40,16 @@ class TestCleanRealScenario:
     - Packages with version 0.21.3~rc0 in rc codename, 0.22.0 in stable codename
     - Old orphaned packages with versions 0.21.1, 0.21.2 that exist in pool but are not in any manifest
 
-    Expected behavior when cleaning stable:
+    Expected behavior when cleaning WITHOUT --codename (safety default):
     - 0.21.3~rc0 packages should NOT be removed (referenced by rc codename)
     - 0.22.0 packages should NOT be removed (referenced by stable codename)
     - 0.21.x OLD packages SHOULD be removed (orphaned - not referenced by any codename)
+
+    Expected behavior when cleaning WITH --codename stable:
+    - Only stable manifest is checked
+    - 0.21.3~rc0 packages ARE removed (not referenced by stable)
+    - 0.22.0 packages should NOT be removed (referenced by stable)
+    - 0.21.x OLD packages SHOULD be removed (orphaned)
     """
 
     @pytest.fixture(autouse=True)
@@ -253,12 +261,11 @@ Filename: pool/non-free/o/ol/ollama_0.22.0_amd64.deb"""
         assert len(pool_files_before) == 10, f"Expected 10 files before clean, got {len(pool_files_before)}"
 
         # ----------------------------
-        # Step 4: Run clean for stable codename
+        # Step 4: Run clean WITHOUT codename (safety default - check all codenames)
         # ----------------------------
         clean_command(
             bucket="ollama-repo",
             prefix="apt",
-            codename="stable",
             component="non-free",
             dry_run=True
         )
@@ -278,11 +285,10 @@ Filename: pool/non-free/o/ol/ollama_0.22.0_amd64.deb"""
             f"Dry-run should not remove files. Got {len(pool_files_after)} files"
         )
 
-        # Now run actual clean (not dry-run)
+        # Now run actual clean WITHOUT codename (not dry-run)
         clean_command(
             bucket="ollama-repo",
             prefix="apt",
-            codename="stable",
             component="non-free",
             dry_run=False
         )
@@ -299,6 +305,7 @@ Filename: pool/non-free/o/ol/ollama_0.22.0_amd64.deb"""
         # ----------------------------
 
         # Assert 0.21.3~rc0 packages are NOT removed (referenced by rc codename)
+        # This works because the safety default checks all codenames when --codename is not passed
         assert any("0.21.3~rc0" in f for f in pool_files_final), (
             "0.21.3~rc0 packages should NOT be removed - they're referenced by rc codename"
         )
@@ -452,11 +459,10 @@ Filename: pool/non-free/o/ol/ollama_0.22.0_amd64.deb"""
         # Should have all 20 files (6 rc + 6 stable + 8 old)
         assert len(pool_files_before) == 20, f"Expected 20 files, got {len(pool_files_before)}"
 
-        # Run clean for stable codename (not dry-run)
+        # Run clean WITHOUT codename (safety default - check all codenames)
         clean_command(
             bucket="ollama-repo",
             prefix="apt",
-            codename="stable",
             component="non-free",
             dry_run=False
         )
@@ -465,6 +471,7 @@ Filename: pool/non-free/o/ol/ollama_0.22.0_amd64.deb"""
         print(f"\nPool files AFTER clean: {sorted(pool_files_after)}")
 
         # Should still have 0.21.3~rc0 (referenced by rc) and 0.22.0 (referenced by stable)
+        # This works because the safety default checks all codenames when --codename is not passed
         assert any("0.21.3~rc0" in f for f in pool_files_after), (
             "0.21.3~rc0 packages should NOT be removed"
         )
