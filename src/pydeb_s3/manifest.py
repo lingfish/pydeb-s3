@@ -75,6 +75,15 @@ class Manifest:
         pkg = pkg_module.Package()
         pkg.name = para.get("Package")
         pkg.version = para.get("Version")
+        if pkg.version:
+            full_ver = pkg.version
+            if ":" in full_ver:
+                pkg.epoch, pkg.version = full_ver.split(":", 1)
+            if pkg.version and "-" in pkg.version:
+                parts = pkg.version.rsplit("-", 1)
+                if parts[0]:
+                    pkg.version = parts[0]
+                    pkg.iteration = parts[1]
         pkg.architecture = para.get("Architecture")
         pkg.maintainer = para.get("Maintainer")
         pkg.category = para.get("Section")

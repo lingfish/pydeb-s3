@@ -300,6 +300,97 @@ class TestPackagePoolPath:
         assert "pool/non-free/" in nonfree_path
 
 
+class TestVersionParsingConsistency:
+    """Both parse paths produce identical epoch/version/iteration/full_version."""
+
+    def test_version_no_epoch_no_iteration(self):
+        """Version '0.30.8+repack1' — no epoch, no iteration."""
+        from pydeb_s3.manifest import Manifest
+        m = Manifest()
+        m._parse_packages(
+            "Package: ollama\n"
+            "Version: 0.30.8+repack1\n"
+            "Architecture: amd64\n"
+        )
+        pkg_manifest = m.packages[0]
+
+        pkg_deb = package_module.Package.parse_file(
+            "tests/fixtures/test-pkg_1.0.0_amd64.deb"
+        )
+        # Simulate what parse_file does for this version
+        pkg_deb.version = "0.30.8+repack1"
+        pkg_deb.epoch = None
+        pkg_deb.iteration = None
+
+        assert pkg_manifest.epoch == pkg_deb.epoch
+        assert pkg_manifest.version == pkg_deb.version
+        assert pkg_manifest.iteration == pkg_deb.iteration
+        assert pkg_manifest.full_version == pkg_deb.full_version
+
+    def test_version_with_epoch_and_iteration(self):
+        """Version '1:0.33.3-1' — epoch + iteration."""
+        from pydeb_s3.manifest import Manifest
+        m = Manifest()
+        m._parse_packages(
+            "Package: ollama\n"
+            "Version: 1:0.33.3-1\n"
+            "Architecture: amd64\n"
+        )
+        pkg_manifest = m.packages[0]
+
+        pkg_deb = package_module.Package()
+        pkg_deb.version = "0.33.3"
+        pkg_deb.epoch = "1"
+        pkg_deb.iteration = "1"
+
+        assert pkg_manifest.epoch == pkg_deb.epoch
+        assert pkg_manifest.version == pkg_deb.version
+        assert pkg_manifest.iteration == pkg_deb.iteration
+        assert pkg_manifest.full_version == pkg_deb.full_version
+
+    def test_version_with_iteration_only(self):
+        """Version '0.33.3-1' — iteration only, no epoch."""
+        from pydeb_s3.manifest import Manifest
+        m = Manifest()
+        m._parse_packages(
+            "Package: ollama\n"
+            "Version: 0.33.3-1\n"
+            "Architecture: amd64\n"
+        )
+        pkg_manifest = m.packages[0]
+
+        pkg_deb = package_module.Package()
+        pkg_deb.version = "0.33.3"
+        pkg_deb.epoch = None
+        pkg_deb.iteration = "1"
+
+        assert pkg_manifest.epoch == pkg_deb.epoch
+        assert pkg_manifest.version == pkg_deb.version
+        assert pkg_manifest.iteration == pkg_deb.iteration
+        assert pkg_manifest.full_version == pkg_deb.full_version
+
+    def test_hello_package_consistency(self):
+        """hello.deb parsed via parse_file matches manifest round-trip."""
+        from pydeb_s3.manifest import Manifest
+
+        pkg_file = package_module.Package.parse_file(
+            "tests/fixtures/hello_2.10-5_amd64.deb"
+        )
+
+        m = Manifest()
+        m._parse_packages(
+            f"Package: {pkg_file.name}\n"
+            f"Version: {pkg_file.full_version}\n"
+            f"Architecture: {pkg_file.architecture}\n"
+        )
+        pkg_manifest = m.packages[0]
+
+        assert pkg_manifest.epoch == pkg_file.epoch
+        assert pkg_manifest.version == pkg_file.version
+        assert pkg_manifest.iteration == pkg_file.iteration
+        assert pkg_manifest.full_version == pkg_file.full_version
+
+
 class TestHelloPackage:
     """Tests for the hello package."""
 

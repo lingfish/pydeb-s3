@@ -405,7 +405,7 @@ def list_command(
                 rows.append(
                     [
                         pkg.name,
-                        pkg.version or "",
+                        pkg.full_version or pkg.version or "",
                         architecture,
                         pkg.category or "",
                         desc_first_line,
@@ -480,7 +480,7 @@ def show_command(
             logger.error(f"Version {version} not found for package {package}.")
             raise typer.Exit(code=1)
         if not quiet:
-            print(pkg.version)
+            print(pkg.full_version or pkg.version)
     else:
         # Output package info - name, version, and description
         output = f"{pkg.name} ({pkg.full_version or pkg.version})"
@@ -824,7 +824,7 @@ def clean_command(
                             path = pkg.url_filename
                             if not path:
                                 # Fallback: construct path from package attributes
-                                path = f"pool/{pkg.name[0]}/{pkg.name}/{pkg.name}_{pkg.version}_{arch}.deb"
+                                path = f"pool/{pkg.name[0]}/{pkg.name}/{pkg.name}_{pkg.full_version or pkg.version}_{arch}.deb"
                             if path:
                                 if path not in all_pkgs:
                                     all_pkgs[path] = []
