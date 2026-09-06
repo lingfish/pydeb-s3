@@ -554,18 +554,7 @@ class TestExternalRepoIntegration:
 
     @pytest.fixture
     def ollama_repo(self, debian_container, docker_exec):
-        """Enable ollama-deb via extrepo inside the existing container.
-
-        Skips the test on Debian < 12 (bullseye) because ollama requires
-        ``libc6 >= 2.34``, which is not available there.
-        """
-        # Check Debian version — skip if too old for ollama
-        code, out = docker_exec(debian_container, ["cat", "/etc/debian_version"])
-        if code == 0:
-            major = out.strip().split(".")[0]
-            if int(major) < 12:
-                pytest.skip(f"ollama requires libc6 >= 2.34, not available on Debian {out.strip()}")
-
+        """Enable ollama-deb via extrepo inside the existing container."""
         # Update may partially fail if the moto repo is empty — that's OK
         docker_exec(debian_container, ["apt-get", "update", "-qq"])
         code, out = docker_exec(debian_container, ["apt-get", "install", "-y", "-qq", "extrepo"])

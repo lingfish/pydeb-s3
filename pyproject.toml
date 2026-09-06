@@ -8,7 +8,7 @@ dynamic = ["version"]
 description = "A simple utility to make creating and managing APT repositories on S3"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 authors = [
     { name = "Jason Lingohr" },
 ]
@@ -19,11 +19,9 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: System :: Software Distribution",
     "Topic :: System :: Systems Administration",
 ]
@@ -73,7 +71,7 @@ version-file = "src/pydeb_s3/_version.py"
 line-length = 100
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.11"
 strict = true
 warn_return_any = true
 warn_unused_configs = true
