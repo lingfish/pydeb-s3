@@ -358,10 +358,10 @@ def docker_exec():
 
 
 # ---------------------------------------------------------------------------
-# Container image matrix (Debian 11 / 12 / 13)
+# Container image matrix (Debian 12 / 13) - Debian 11 dropped after EOL 2026-08-31
 # ---------------------------------------------------------------------------
 
-APT_IMAGES = ["debian:11-slim", "debian:12-slim", "debian:13-slim"]
+APT_IMAGES = ["debian:12-slim", "debian:13-slim"]
 
 
 @pytest.fixture(params=APT_IMAGES)
