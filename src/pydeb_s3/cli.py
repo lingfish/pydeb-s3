@@ -759,7 +759,7 @@ def clean_command(
     prefix: Annotated[Optional[str], typer.Option("--prefix", help="The path prefix to use when storing on S3.")] = None,
     origin: Annotated[Optional[str], typer.Option("-o", "--origin", help="The origin to use in the repository Release file.")] = None,
     suite: Annotated[Optional[str], typer.Option("--suite", help="The suite to use in the repository Release file.")] = None,
-    codename: Annotated[Optional[str], typer.Option("-c", "--codename", help="The codename of the APT repository. When specified, only this codename's manifest is checked for references.")] = None,
+    codename: Annotated[str, typer.Option("-c", "--codename", help="The codename of the APT repository.")] = "stable",
     component: Annotated[str, typer.Option("-m", "--component", help="The component of the APT repository.")] = "main",
     s3_region: Annotated[str, typer.Option("--s3-region", help="The region for connecting to S3.")] = "us-east-1",
     access_key_id: Annotated[Optional[str], typer.Option("--access-key-id", help="The access key for connecting to S3.")] = None,
@@ -770,6 +770,7 @@ def clean_command(
     encryption: Annotated[bool, typer.Option("-e", "--encryption", help="Use S3 server side encryption.")] = False,
     cache_control: Annotated[Optional[str], typer.Option("-C", "--cache-control", help="Add cache-control headers to S3 objects.")] = None,
     dry_run: Annotated[bool, typer.Option("-n", "--dry-run", help="Show what would be removed without deleting.")] = False,
+    force: Annotated[bool, typer.Option("--force", help="Only check the specified codename's manifest (DANGEROUS: may delete packages referenced by other codenames)")] = False,
 ):
     """Remove orphaned package files."""
     if not bucket:
@@ -790,14 +791,12 @@ def clean_command(
 
     logger.info("Retrieving existing manifests")
 
-    # If --codename is explicitly specified, only check that codename
-    # Otherwise check all codenames for safety (don't delete files referenced elsewhere)
-    if codename:
+    if force:
         all_codenames = [codename]
     else:
         all_codenames = s3_utils.list_codenames(s3_adapter)
         if not all_codenames:
-            all_codenames = ["stable"]
+            all_codenames = [codename]
 
     logger.info("Checking codenames: {}", all_codenames)
 

@@ -3,8 +3,8 @@
 These tests reproduce the real S3 bucket scenario where:
 - Multiple codenames exist (rc and stable)
 - Multiple versions of packages exist in pool
-- When --codename is NOT passed, all codenames are checked (safety default)
-- When --codename is explicitly passed, only that codename is checked
+- Default: all codenames are checked (safe); with --force, only the
+  specified codename is checked
 - Truly orphaned packages (0.21.x) should be removed when cleaning
 
 Requirements:
@@ -12,10 +12,10 @@ Requirements:
 2. Upload Release files for both rc and stable codenames
 3. Upload Packages files with exact Filename content
 4. Upload pool objects for ALL versions (including old 0.21.x ones)
-5. Run clean_command without --codename for safety default (check all codenames)
-6. Run clean_command with --codename stable to test filtering behavior
-7. Assert 0.21.3~rc0 packages are NOT removed (referenced by rc) when no --codename
-8. Assert 0.22.0 packages are NOT removed (referenced by stable) when no --codename
+5. Run clean_command (default: check all codenames - safe)
+6. Run clean_command --force --codename stable to test aggressive mode
+7. Assert 0.21.3~rc0 packages are NOT removed (referenced by rc) by default
+8. Assert 0.22.0 packages are NOT removed (referenced by stable) by default
 9. Assert 0.21.x OLD packages ARE removed (orphaned)
 """
 
@@ -40,12 +40,12 @@ class TestCleanRealScenario:
     - Packages with version 0.21.3~rc0 in rc codename, 0.22.0 in stable codename
     - Old orphaned packages with versions 0.21.1, 0.21.2 that exist in pool but are not in any manifest
 
-    Expected behavior when cleaning WITHOUT --codename (safety default):
-    - 0.21.3~rc0 packages should NOT be removed (referenced by rc codename)
-    - 0.22.0 packages should NOT be removed (referenced by stable codename)
-    - 0.21.x OLD packages SHOULD be removed (orphaned - not referenced by any codename)
+    Expected behavior when cleaning (default - check all codenames, safe):
+    - 0.21.3~rc0 packages should NOT be removed (referenced by rc)
+    - 0.22.0 packages should NOT be removed (referenced by stable)
+    - 0.21.x OLD packages SHOULD be removed (orphaned)
 
-    Expected behavior when cleaning WITH --codename stable:
+    Expected behavior when cleaning WITH --force --codename stable (aggressive):
     - Only stable manifest is checked
     - 0.21.3~rc0 packages ARE removed (not referenced by stable)
     - 0.22.0 packages should NOT be removed (referenced by stable)
