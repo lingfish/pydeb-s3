@@ -265,7 +265,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L135",
       "id": "pydeb_s3_release_gpgsigningadapter_extract_signing_key",
-      "community": 57,
+      "community": 198,
       "norm_label": ".extract_signing_key()"
     },
     {
@@ -346,7 +346,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L407",
       "id": "pydeb_s3_release_release_auto_re_sign",
-      "community": 57,
+      "community": 198,
       "norm_label": ".auto_re_sign()"
     },
     {
@@ -364,7 +364,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L473",
       "id": "pydeb_s3_release_release_get_policy",
-      "community": 270,
+      "community": 40,
       "norm_label": "._get_policy()"
     },
     {
@@ -481,7 +481,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L136",
       "id": "pydeb_s3_release_rationale_136",
-      "community": 57,
+      "community": 198,
       "norm_label": "extract the signing key id from an existing inrelease file.          runs gpg --"
     },
     {
@@ -562,7 +562,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L412",
       "id": "pydeb_s3_release_rationale_412",
-      "community": 57,
+      "community": 198,
       "norm_label": "re-sign inrelease if it already exists on s3.          called when --sign was no"
     },
     {
@@ -580,7 +580,7 @@
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L474",
       "id": "pydeb_s3_release_rationale_474",
-      "community": 270,
+      "community": 40,
       "norm_label": "get the access policy from visibility string."
     },
     {
@@ -661,7 +661,7 @@
       "source_file": "src/pydeb_s3/s3_adapter.py",
       "source_location": "L24",
       "id": "pydeb_s3_s3_adapter_s3notfounderror_init",
-      "community": 258,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -679,7 +679,7 @@
       "source_file": "src/pydeb_s3/s3_adapter.py",
       "source_location": "L32",
       "id": "pydeb_s3_s3_adapter_s3accesserror_init",
-      "community": 258,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -823,7 +823,7 @@
       "source_file": "src/pydeb_s3/s3_adapter.py",
       "source_location": "L324",
       "id": "pydeb_s3_s3_adapter_boto3s3adapter_exists",
-      "community": 33,
+      "community": 39,
       "norm_label": ".exists()"
     },
     {
@@ -895,7 +895,7 @@
       "source_file": "src/pydeb_s3/s3_adapter.py",
       "source_location": "L491",
       "id": "pydeb_s3_s3_adapter_mocks3adapter_init",
-      "community": 258,
+      "community": 1,
       "norm_label": ".__init__()"
     },
     {
@@ -1138,7 +1138,7 @@
       "source_file": "src/pydeb_s3/s3_adapter.py",
       "source_location": "L325",
       "id": "pydeb_s3_s3_adapter_rationale_325",
-      "community": 33,
+      "community": 39,
       "norm_label": "check if an object exists in s3."
     },
     {
@@ -1210,7 +1210,7 @@
       "source_file": "src/pydeb_s3/s3_adapter.py",
       "source_location": "L498",
       "id": "pydeb_s3_s3_adapter_rationale_498",
-      "community": 258,
+      "community": 1,
       "norm_label": "initialize the mock adapter.          args:             bucket: s3 bucket name ("
     },
     {
@@ -2279,7 +2279,7 @@
       "label": "BitsTransferSpeedColumn",
       "file_type": "code",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L24",
+      "source_location": "L25",
       "id": "pydeb_s3_progress_bitstransferspeedcolumn",
       "community": 9,
       "norm_label": "bitstransferspeedcolumn"
@@ -2297,7 +2297,7 @@
       "label": ".render()",
       "file_type": "code",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L27",
+      "source_location": "L28",
       "id": "pydeb_s3_progress_bitstransferspeedcolumn_render",
       "community": 9,
       "norm_label": ".render()"
@@ -2306,7 +2306,7 @@
       "label": "calculate_stream_md5()",
       "file_type": "code",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L42",
+      "source_location": "L43",
       "id": "pydeb_s3_progress_calculate_stream_md5",
       "community": 38,
       "norm_label": "calculate_stream_md5()"
@@ -2315,16 +2315,16 @@
       "label": "UploadProgress",
       "file_type": "code",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L54",
+      "source_location": "L55",
       "id": "pydeb_s3_progress_uploadprogress",
-      "community": 48,
+      "community": 28,
       "norm_label": "uploadprogress"
     },
     {
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L57",
+      "source_location": "L58",
       "id": "pydeb_s3_progress_uploadprogress_init",
       "community": 9,
       "norm_label": ".__init__()"
@@ -2333,54 +2333,54 @@
       "label": ".cleanup()",
       "file_type": "code",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L111",
+      "source_location": "L113",
       "id": "pydeb_s3_progress_uploadprogress_cleanup",
-      "community": 48,
+      "community": 157,
       "norm_label": ".cleanup()"
     },
     {
       "label": ".__call__()",
       "file_type": "code",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L116",
+      "source_location": "L118",
       "id": "pydeb_s3_progress_uploadprogress_call",
-      "community": 48,
+      "community": 157,
       "norm_label": ".__call__()"
     },
     {
       "label": "._calculate_percentage()",
       "file_type": "code",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L142",
+      "source_location": "L147",
       "id": "pydeb_s3_progress_uploadprogress_calculate_percentage",
-      "community": 48,
+      "community": 157,
       "norm_label": "._calculate_percentage()"
     },
     {
       "label": "._format_speed()",
       "file_type": "code",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L147",
+      "source_location": "L152",
       "id": "pydeb_s3_progress_uploadprogress_format_speed",
-      "community": 48,
+      "community": 157,
       "norm_label": "._format_speed()"
     },
     {
       "label": ".get_console()",
       "file_type": "code",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L165",
+      "source_location": "L170",
       "id": "pydeb_s3_progress_uploadprogress_get_console",
-      "community": 48,
+      "community": 28,
       "norm_label": ".get_console()"
     },
     {
       "label": "._finish()",
       "file_type": "code",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L170",
+      "source_location": "L175",
       "id": "pydeb_s3_progress_uploadprogress_finish",
-      "community": 48,
+      "community": 157,
       "norm_label": "._finish()"
     },
     {
@@ -2396,8 +2396,8 @@
       "label": "Custom Rich column showing transfer speed in bits/second.",
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L25",
-      "id": "pydeb_s3_progress_rationale_25",
+      "source_location": "L26",
+      "id": "pydeb_s3_progress_rationale_26",
       "community": 9,
       "norm_label": "custom rich column showing transfer speed in bits/second."
     },
@@ -2405,8 +2405,8 @@
       "label": "Render the transfer speed in bits/second.",
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L28",
-      "id": "pydeb_s3_progress_rationale_28",
+      "source_location": "L29",
+      "id": "pydeb_s3_progress_rationale_29",
       "community": 9,
       "norm_label": "render the transfer speed in bits/second."
     },
@@ -2414,8 +2414,8 @@
       "label": "Calculate MD5 hash of a file using streaming (memory efficient).",
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L43",
-      "id": "pydeb_s3_progress_rationale_43",
+      "source_location": "L44",
+      "id": "pydeb_s3_progress_rationale_44",
       "community": 38,
       "norm_label": "calculate md5 hash of a file using streaming (memory efficient)."
     },
@@ -2423,27 +2423,27 @@
       "label": "Callback class for tracking upload progress.",
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L55",
-      "id": "pydeb_s3_progress_rationale_55",
-      "community": 48,
+      "source_location": "L56",
+      "id": "pydeb_s3_progress_rationale_56",
+      "community": 28,
       "norm_label": "callback class for tracking upload progress."
     },
     {
       "label": "Force-stop the progress bar if owned, regardless of completion.",
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L112",
-      "id": "pydeb_s3_progress_rationale_112",
-      "community": 48,
+      "source_location": "L114",
+      "id": "pydeb_s3_progress_rationale_114",
+      "community": 157,
       "norm_label": "force-stop the progress bar if owned, regardless of completion."
     },
     {
       "label": "Called by boto3 upload_file with current bytes transferred.",
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L117",
-      "id": "pydeb_s3_progress_rationale_117",
-      "community": 48,
+      "source_location": "L119",
+      "id": "pydeb_s3_progress_rationale_119",
+      "community": 157,
       "norm_label": "called by boto3 upload_file with current bytes transferred."
     },
     {
@@ -2740,7 +2740,7 @@
       "source_file": "tests/test_copy_behavior.py",
       "source_location": "L356",
       "id": "tests_test_copy_behavior_testcopyerrors_test_copy_to_invalid_codename",
-      "community": 8,
+      "community": 199,
       "norm_label": ".test_copy_to_invalid_codename()"
     },
     {
@@ -2749,7 +2749,7 @@
       "source_file": "tests/test_copy_behavior.py",
       "source_location": "L399",
       "id": "tests_test_copy_behavior_testcopyerrors_test_copy_invalid_architecture_in_target",
-      "community": 278,
+      "community": 8,
       "norm_label": ".test_copy_invalid_architecture_in_target()"
     },
     {
@@ -2902,7 +2902,7 @@
       "source_file": "tests/test_copy_behavior.py",
       "source_location": "L357",
       "id": "tests_test_copy_behavior_rationale_357",
-      "community": 8,
+      "community": 199,
       "norm_label": "error when target codename doesn't exist."
     },
     {
@@ -2911,7 +2911,7 @@
       "source_file": "tests/test_copy_behavior.py",
       "source_location": "L400",
       "id": "tests_test_copy_behavior_rationale_400",
-      "community": 278,
+      "community": 8,
       "norm_label": "error when target codename doesn't have the architecture."
     },
     {
@@ -4504,7 +4504,7 @@
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L1",
       "id": "tests_test_show_behavior_py",
-      "community": 260,
+      "community": 167,
       "norm_label": "test_show_behavior.py"
     },
     {
@@ -4522,7 +4522,7 @@
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L15",
       "id": "tests_test_show_behavior_setup",
-      "community": 260,
+      "community": 167,
       "norm_label": "setup()"
     },
     {
@@ -4558,7 +4558,7 @@
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L70",
       "id": "tests_test_show_behavior_testshowintegration_test_show_with_package_name",
-      "community": 168,
+      "community": 258,
       "norm_label": ".test_show_with_package_name()"
     },
     {
@@ -4576,7 +4576,7 @@
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L112",
       "id": "tests_test_show_behavior_testshowintegration_test_show_with_nonexistent_version",
-      "community": 174,
+      "community": 238,
       "norm_label": ".test_show_with_nonexistent_version()"
     },
     {
@@ -4585,7 +4585,7 @@
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L131",
       "id": "tests_test_show_behavior_testshowintegration_test_show_with_architecture_filter",
-      "community": 285,
+      "community": 168,
       "norm_label": ".test_show_with_architecture_filter()"
     },
     {
@@ -4594,7 +4594,7 @@
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L151",
       "id": "tests_test_show_behavior_testshowintegration_test_show_with_different_architecture",
-      "community": 182,
+      "community": 174,
       "norm_label": ".test_show_with_different_architecture()"
     },
     {
@@ -4621,7 +4621,7 @@
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L196",
       "id": "tests_test_show_behavior_testshowerrors_test_show_returns_error_for_nonexistent_package",
-      "community": 167,
+      "community": 260,
       "norm_label": ".test_show_returns_error_for_nonexistent_package()"
     },
     {
@@ -4639,7 +4639,7 @@
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L234",
       "id": "tests_test_show_behavior_testshowquietoutput_create_release",
-      "community": 2,
+      "community": 254,
       "norm_label": "._create_release()"
     },
     {
@@ -4675,7 +4675,7 @@
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L310",
       "id": "tests_test_show_behavior_testshowquietoutput_test_show_version_only_to_stdout",
-      "community": 284,
+      "community": 2,
       "norm_label": ".test_show_version_only_to_stdout()"
     },
     {
@@ -4720,7 +4720,7 @@
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L1",
       "id": "tests_test_show_behavior_rationale_1",
-      "community": 260,
+      "community": 167,
       "norm_label": "integration tests for the show command."
     },
     {
@@ -4774,7 +4774,7 @@
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L71",
       "id": "tests_test_show_behavior_rationale_71",
-      "community": 168,
+      "community": 258,
       "norm_label": "show outputs package name in description."
     },
     {
@@ -4792,7 +4792,7 @@
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L113",
       "id": "tests_test_show_behavior_rationale_113",
-      "community": 174,
+      "community": 238,
       "norm_label": "show returns error for nonexistent version."
     },
     {
@@ -4801,7 +4801,7 @@
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L132",
       "id": "tests_test_show_behavior_rationale_132",
-      "community": 285,
+      "community": 168,
       "norm_label": "show works with explicit architecture."
     },
     {
@@ -4810,7 +4810,7 @@
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L152",
       "id": "tests_test_show_behavior_rationale_152",
-      "community": 182,
+      "community": 174,
       "norm_label": "show returns error for package not in requested arch."
     },
     {
@@ -4846,7 +4846,7 @@
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L197",
       "id": "tests_test_show_behavior_rationale_197",
-      "community": 167,
+      "community": 260,
       "norm_label": "show returns error when package not found."
     },
     {
@@ -4873,7 +4873,7 @@
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L235",
       "id": "tests_test_show_behavior_rationale_235",
-      "community": 2,
+      "community": 254,
       "norm_label": "create and upload a release file."
     },
     {
@@ -4909,7 +4909,7 @@
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L311",
       "id": "tests_test_show_behavior_rationale_311",
-      "community": 284,
+      "community": 2,
       "norm_label": "show with version output should go to stdout."
     },
     {
@@ -5278,7 +5278,7 @@
       "source_file": "tests/test_upload_progress.py",
       "source_location": "L1",
       "id": "tests_test_upload_progress_py",
-      "community": 63,
+      "community": 38,
       "norm_label": "test_upload_progress.py"
     },
     {
@@ -5375,7 +5375,7 @@
       "label": "TestUploadProgressAutoDetection",
       "file_type": "code",
       "source_file": "tests/test_upload_progress.py",
-      "source_location": "L187",
+      "source_location": "L185",
       "id": "tests_test_upload_progress_testuploadprogressautodetection",
       "community": 63,
       "norm_label": "testuploadprogressautodetection"
@@ -5384,7 +5384,7 @@
       "label": ".test_auto_detects_interactive_from_tty()",
       "file_type": "code",
       "source_file": "tests/test_upload_progress.py",
-      "source_location": "L190",
+      "source_location": "L188",
       "id": "tests_test_upload_progress_testuploadprogressautodetection_test_auto_detects_interactive_from_tty",
       "community": 63,
       "norm_label": ".test_auto_detects_interactive_from_tty()"
@@ -5393,7 +5393,7 @@
       "label": ".test_auto_detects_non_interactive_from_tty()",
       "file_type": "code",
       "source_file": "tests/test_upload_progress.py",
-      "source_location": "L207",
+      "source_location": "L205",
       "id": "tests_test_upload_progress_testuploadprogressautodetection_test_auto_detects_non_interactive_from_tty",
       "community": 63,
       "norm_label": ".test_auto_detects_non_interactive_from_tty()"
@@ -5402,7 +5402,7 @@
       "label": "TestStreamMD5",
       "file_type": "code",
       "source_file": "tests/test_upload_progress.py",
-      "source_location": "L225",
+      "source_location": "L223",
       "id": "tests_test_upload_progress_teststreammd5",
       "community": 38,
       "norm_label": "teststreammd5"
@@ -5411,7 +5411,7 @@
       "label": ".test_stream_md5_calculates_correct_hash()",
       "file_type": "code",
       "source_file": "tests/test_upload_progress.py",
-      "source_location": "L228",
+      "source_location": "L226",
       "id": "tests_test_upload_progress_teststreammd5_test_stream_md5_calculates_correct_hash",
       "community": 38,
       "norm_label": ".test_stream_md5_calculates_correct_hash()"
@@ -5420,7 +5420,7 @@
       "label": ".test_stream_md5_handles_large_file()",
       "file_type": "code",
       "source_file": "tests/test_upload_progress.py",
-      "source_location": "L248",
+      "source_location": "L246",
       "id": "tests_test_upload_progress_teststreammd5_test_stream_md5_handles_large_file",
       "community": 38,
       "norm_label": ".test_stream_md5_handles_large_file()"
@@ -5431,7 +5431,7 @@
       "source_file": "tests/test_upload_progress.py",
       "source_location": "L1",
       "id": "tests_test_upload_progress_rationale_1",
-      "community": 63,
+      "community": 38,
       "norm_label": "tests for uploadprogress callback class."
     },
     {
@@ -5516,20 +5516,20 @@
       "norm_label": "uploadprogress correctly calculates percentage."
     },
     {
-      "label": "UploadProgress tracks bytes transferred.",
+      "label": "UploadProgress tracks bytes transferred incrementally.",
       "file_type": "rationale",
       "source_file": "tests/test_upload_progress.py",
       "source_location": "L168",
       "id": "tests_test_upload_progress_rationale_168",
       "community": 28,
-      "norm_label": "uploadprogress tracks bytes transferred."
+      "norm_label": "uploadprogress tracks bytes transferred incrementally."
     },
     {
       "label": "Tests for automatic TTY detection.",
       "file_type": "rationale",
       "source_file": "tests/test_upload_progress.py",
-      "source_location": "L188",
-      "id": "tests_test_upload_progress_rationale_188",
+      "source_location": "L186",
+      "id": "tests_test_upload_progress_rationale_186",
       "community": 63,
       "norm_label": "tests for automatic tty detection."
     },
@@ -5537,8 +5537,8 @@
       "label": "Auto-detects interactive mode from TTY when interactive is None.",
       "file_type": "rationale",
       "source_file": "tests/test_upload_progress.py",
-      "source_location": "L191",
-      "id": "tests_test_upload_progress_rationale_191",
+      "source_location": "L189",
+      "id": "tests_test_upload_progress_rationale_189",
       "community": 63,
       "norm_label": "auto-detects interactive mode from tty when interactive is none."
     },
@@ -5546,8 +5546,8 @@
       "label": "Auto-detects non-interactive mode from TTY when interactive is None.",
       "file_type": "rationale",
       "source_file": "tests/test_upload_progress.py",
-      "source_location": "L208",
-      "id": "tests_test_upload_progress_rationale_208",
+      "source_location": "L206",
+      "id": "tests_test_upload_progress_rationale_206",
       "community": 63,
       "norm_label": "auto-detects non-interactive mode from tty when interactive is none."
     },
@@ -5555,8 +5555,8 @@
       "label": "Tests for streaming MD5 calculation.",
       "file_type": "rationale",
       "source_file": "tests/test_upload_progress.py",
-      "source_location": "L226",
-      "id": "tests_test_upload_progress_rationale_226",
+      "source_location": "L224",
+      "id": "tests_test_upload_progress_rationale_224",
       "community": 38,
       "norm_label": "tests for streaming md5 calculation."
     },
@@ -5564,8 +5564,8 @@
       "label": "Stream MD5 calculates correct hash for file.",
       "file_type": "rationale",
       "source_file": "tests/test_upload_progress.py",
-      "source_location": "L229",
-      "id": "tests_test_upload_progress_rationale_229",
+      "source_location": "L227",
+      "id": "tests_test_upload_progress_rationale_227",
       "community": 38,
       "norm_label": "stream md5 calculates correct hash for file."
     },
@@ -5573,8 +5573,8 @@
       "label": "Stream MD5 handles large files without loading into memory.",
       "file_type": "rationale",
       "source_file": "tests/test_upload_progress.py",
-      "source_location": "L249",
-      "id": "tests_test_upload_progress_rationale_249",
+      "source_location": "L247",
+      "id": "tests_test_upload_progress_rationale_247",
       "community": 38,
       "norm_label": "stream md5 handles large files without loading into memory."
     },
@@ -5665,7 +5665,7 @@
       "source_file": "tests/test_exists_behavior.py",
       "source_location": "L134",
       "id": "tests_test_exists_behavior_testexistsintegration_test_exists_with_different_architecture",
-      "community": 172,
+      "community": 216,
       "norm_label": ".test_exists_with_different_architecture()"
     },
     {
@@ -5674,7 +5674,7 @@
       "source_file": "tests/test_exists_behavior.py",
       "source_location": "L165",
       "id": "tests_test_exists_behavior_testexistsintegration_test_exists_default_architecture_is_amd64",
-      "community": 281,
+      "community": 172,
       "norm_label": ".test_exists_default_architecture_is_amd64()"
     },
     {
@@ -5881,7 +5881,7 @@
       "source_file": "tests/test_exists_behavior.py",
       "source_location": "L135",
       "id": "tests_test_exists_behavior_rationale_135",
-      "community": 172,
+      "community": 216,
       "norm_label": "exists returns 0 when package exists but different arch."
     },
     {
@@ -5890,7 +5890,7 @@
       "source_file": "tests/test_exists_behavior.py",
       "source_location": "L166",
       "id": "tests_test_exists_behavior_rationale_166",
-      "community": 281,
+      "community": 172,
       "norm_label": "exists uses amd64 as default architecture."
     },
     {
@@ -6349,7 +6349,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L1",
       "id": "tests_test_clean_behavior_py",
-      "community": 175,
+      "community": 59,
       "norm_label": "test_clean_behavior.py"
     },
     {
@@ -6367,7 +6367,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L18",
       "id": "tests_test_clean_behavior_setup",
-      "community": 175,
+      "community": 59,
       "norm_label": "setup()"
     },
     {
@@ -6412,7 +6412,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L74",
       "id": "tests_test_clean_behavior_testcleanintegration_test_clean_removes_orphaned_files",
-      "community": 276,
+      "community": 10,
       "norm_label": ".test_clean_removes_orphaned_files()"
     },
     {
@@ -6421,7 +6421,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L112",
       "id": "tests_test_clean_behavior_testcleanintegration_test_clean_does_not_remove_referenced_files",
-      "community": 176,
+      "community": 32,
       "norm_label": ".test_clean_does_not_remove_referenced_files()"
     },
     {
@@ -6430,7 +6430,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L146",
       "id": "tests_test_clean_behavior_testcleanintegration_test_clean_no_orphans_no_op",
-      "community": 150,
+      "community": 11,
       "norm_label": ".test_clean_no_orphans_no_op()"
     },
     {
@@ -6439,7 +6439,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L172",
       "id": "tests_test_clean_behavior_testcleanintegration_test_clean_multiple_orphans_removed",
-      "community": 175,
+      "community": 10,
       "norm_label": ".test_clean_multiple_orphans_removed()"
     },
     {
@@ -6448,7 +6448,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L211",
       "id": "tests_test_clean_behavior_testcleanintegration_test_clean_with_multiple_components",
-      "community": 196,
+      "community": 10,
       "norm_label": ".test_clean_with_multiple_components()"
     },
     {
@@ -6457,7 +6457,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L256",
       "id": "tests_test_clean_behavior_testcleanintegration_test_clean_dry_run_does_not_remove_orphans",
-      "community": 274,
+      "community": 10,
       "norm_label": ".test_clean_dry_run_does_not_remove_orphans()"
     },
     {
@@ -6466,7 +6466,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L285",
       "id": "tests_test_clean_behavior_testcleanintegration_test_clean_dry_run_no_orphans",
-      "community": 150,
+      "community": 32,
       "norm_label": ".test_clean_dry_run_no_orphans()"
     },
     {
@@ -6475,7 +6475,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L308",
       "id": "tests_test_clean_behavior_testcleanintegration_test_clean_dry_run_multiple_orphans",
-      "community": 275,
+      "community": 10,
       "norm_label": ".test_clean_dry_run_multiple_orphans()"
     },
     {
@@ -6484,7 +6484,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L340",
       "id": "tests_test_clean_behavior_testcleanintegration_test_clean_normal_run_still_works",
-      "community": 197,
+      "community": 10,
       "norm_label": ".test_clean_normal_run_still_works()"
     },
     {
@@ -6520,7 +6520,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L397",
       "id": "tests_test_clean_behavior_testcleanwithprefix_create_release",
-      "community": 150,
+      "community": 10,
       "norm_label": "._create_release()"
     },
     {
@@ -6529,7 +6529,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L412",
       "id": "tests_test_clean_behavior_testcleanwithprefix_add_packages_to_manifest",
-      "community": 176,
+      "community": 10,
       "norm_label": "._add_packages_to_manifest()"
     },
     {
@@ -6538,7 +6538,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L422",
       "id": "tests_test_clean_behavior_testcleanwithprefix_upload_deb_to_pool",
-      "community": 157,
+      "community": 10,
       "norm_label": "._upload_deb_to_pool()"
     },
     {
@@ -6556,7 +6556,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L444",
       "id": "tests_test_clean_behavior_testcleanwithprefix_test_clean_with_prefix_finds_pool_files",
-      "community": 198,
+      "community": 10,
       "norm_label": ".test_clean_with_prefix_finds_pool_files()"
     },
     {
@@ -6565,7 +6565,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L473",
       "id": "tests_test_clean_behavior_testcleanwithprefix_test_clean_with_prefix_removes_orphans",
-      "community": 157,
+      "community": 10,
       "norm_label": ".test_clean_with_prefix_removes_orphans()"
     },
     {
@@ -6583,7 +6583,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L554",
       "id": "tests_test_clean_behavior_testcleanwithprefix_test_clean_with_prefix_dry_run",
-      "community": 199,
+      "community": 10,
       "norm_label": ".test_clean_with_prefix_dry_run()"
     },
     {
@@ -6592,7 +6592,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L583",
       "id": "tests_test_clean_behavior_testcleanwithprefix_test_clean_with_prefix_no_orphans",
-      "community": 176,
+      "community": 10,
       "norm_label": ".test_clean_with_prefix_no_orphans()"
     },
     {
@@ -6610,7 +6610,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L1",
       "id": "tests_test_clean_behavior_rationale_1",
-      "community": 175,
+      "community": 59,
       "norm_label": "integration tests for the clean command."
     },
     {
@@ -6673,7 +6673,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L75",
       "id": "tests_test_clean_behavior_rationale_75",
-      "community": 276,
+      "community": 10,
       "norm_label": "clean command removes .deb files not referenced by any packages file."
     },
     {
@@ -6682,7 +6682,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L113",
       "id": "tests_test_clean_behavior_rationale_113",
-      "community": 176,
+      "community": 32,
       "norm_label": "clean command keeps .deb files that are referenced by packages files."
     },
     {
@@ -6691,7 +6691,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L147",
       "id": "tests_test_clean_behavior_rationale_147",
-      "community": 150,
+      "community": 11,
       "norm_label": "clean command handles case with no orphaned packages."
     },
     {
@@ -6700,7 +6700,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L173",
       "id": "tests_test_clean_behavior_rationale_173",
-      "community": 175,
+      "community": 10,
       "norm_label": "clean command removes multiple orphaned files."
     },
     {
@@ -6709,7 +6709,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L212",
       "id": "tests_test_clean_behavior_rationale_212",
-      "community": 196,
+      "community": 10,
       "norm_label": "clean command works across multiple components."
     },
     {
@@ -6718,7 +6718,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L257",
       "id": "tests_test_clean_behavior_rationale_257",
-      "community": 274,
+      "community": 10,
       "norm_label": "dry-run mode reports orphans but does not delete them."
     },
     {
@@ -6727,7 +6727,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L286",
       "id": "tests_test_clean_behavior_rationale_286",
-      "community": 150,
+      "community": 32,
       "norm_label": "dry-run mode with no orphans reports nothing to remove."
     },
     {
@@ -6736,7 +6736,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L309",
       "id": "tests_test_clean_behavior_rationale_309",
-      "community": 275,
+      "community": 10,
       "norm_label": "dry-run mode reports multiple would-be removals."
     },
     {
@@ -6745,7 +6745,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L341",
       "id": "tests_test_clean_behavior_rationale_341",
-      "community": 197,
+      "community": 10,
       "norm_label": "normal (non-dry-run) clean still removes orphans."
     },
     {
@@ -6799,7 +6799,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L398",
       "id": "tests_test_clean_behavior_rationale_398",
-      "community": 150,
+      "community": 10,
       "norm_label": "create and upload a release file."
     },
     {
@@ -6808,7 +6808,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L413",
       "id": "tests_test_clean_behavior_rationale_413",
-      "community": 176,
+      "community": 10,
       "norm_label": "add packages to manifest and update release."
     },
     {
@@ -6817,7 +6817,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L423",
       "id": "tests_test_clean_behavior_rationale_423",
-      "community": 157,
+      "community": 10,
       "norm_label": "upload a .deb file directly to the pool in s3."
     },
     {
@@ -6835,7 +6835,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L445",
       "id": "tests_test_clean_behavior_rationale_445",
-      "community": 198,
+      "community": 10,
       "norm_label": "clean command with prefix correctly lists pool files under the prefix."
     },
     {
@@ -6844,7 +6844,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L474",
       "id": "tests_test_clean_behavior_rationale_474",
-      "community": 157,
+      "community": 10,
       "norm_label": "clean command removes orphaned files when prefix is configured.          this te"
     },
     {
@@ -6862,7 +6862,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L555",
       "id": "tests_test_clean_behavior_rationale_555",
-      "community": 199,
+      "community": 10,
       "norm_label": "dry-run mode with prefix reports orphans but does not delete them."
     },
     {
@@ -6871,7 +6871,7 @@
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L584",
       "id": "tests_test_clean_behavior_rationale_584",
-      "community": 176,
+      "community": 10,
       "norm_label": "clean command with prefix handles case with no orphaned packages."
     },
     {
@@ -7816,7 +7816,7 @@
       "source_file": "tests/test_bandwidth_bits.py",
       "source_location": "L249",
       "id": "tests_test_bandwidth_bits_tests3storeusebytes",
-      "community": 39,
+      "community": 150,
       "norm_label": "tests3storeusebytes"
     },
     {
@@ -7825,7 +7825,7 @@
       "source_file": "tests/test_bandwidth_bits.py",
       "source_location": "L252",
       "id": "tests_test_bandwidth_bits_tests3storeusebytes_test_store_file_passes_use_bytes_false",
-      "community": 39,
+      "community": 150,
       "norm_label": ".test_store_file_passes_use_bytes_false()"
     },
     {
@@ -7834,7 +7834,7 @@
       "source_file": "tests/test_bandwidth_bits.py",
       "source_location": "L285",
       "id": "tests_test_bandwidth_bits_tests3storeusebytes_test_store_file_passes_use_bytes_true",
-      "community": 39,
+      "community": 150,
       "norm_label": ".test_store_file_passes_use_bytes_true()"
     },
     {
@@ -7987,7 +7987,7 @@
       "source_file": "tests/test_bandwidth_bits.py",
       "source_location": "L250",
       "id": "tests_test_bandwidth_bits_rationale_250",
-      "community": 39,
+      "community": 150,
       "norm_label": "tests for store_file() passing use_bytes to uploadprogress."
     },
     {
@@ -7996,7 +7996,7 @@
       "source_file": "tests/test_bandwidth_bits.py",
       "source_location": "L253",
       "id": "tests_test_bandwidth_bits_rationale_253",
-      "community": 39,
+      "community": 150,
       "norm_label": "store_file() passes use_bytes=false to uploadprogress (default bits)."
     },
     {
@@ -8005,7 +8005,7 @@
       "source_file": "tests/test_bandwidth_bits.py",
       "source_location": "L286",
       "id": "tests_test_bandwidth_bits_rationale_286",
-      "community": 39,
+      "community": 150,
       "norm_label": "store_file() passes use_bytes=true to uploadprogress."
     },
     {
@@ -8869,7 +8869,7 @@
       "source_file": "tests/test_verify_behavior.py",
       "source_location": "L1",
       "id": "tests_test_verify_behavior_py",
-      "community": 246,
+      "community": 251,
       "norm_label": "test_verify_behavior.py"
     },
     {
@@ -8887,7 +8887,7 @@
       "source_file": "tests/test_verify_behavior.py",
       "source_location": "L15",
       "id": "tests_test_verify_behavior_setup",
-      "community": 246,
+      "community": 251,
       "norm_label": "setup()"
     },
     {
@@ -8959,7 +8959,7 @@
       "source_file": "tests/test_verify_behavior.py",
       "source_location": "L183",
       "id": "tests_test_verify_behavior_testverifyintegration_test_verify_empty_manifest",
-      "community": 251,
+      "community": 246,
       "norm_label": ".test_verify_empty_manifest()"
     },
     {
@@ -9013,7 +9013,7 @@
       "source_file": "tests/test_verify_behavior.py",
       "source_location": "L1",
       "id": "tests_test_verify_behavior_rationale_1",
-      "community": 246,
+      "community": 251,
       "norm_label": "integration tests for the verify command."
     },
     {
@@ -9103,7 +9103,7 @@
       "source_file": "tests/test_verify_behavior.py",
       "source_location": "L184",
       "id": "tests_test_verify_behavior_rationale_184",
-      "community": 251,
+      "community": 246,
       "norm_label": "verify handles empty manifest gracefully."
     },
     {
@@ -10795,7 +10795,7 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L1",
       "id": "tests_test_clean_codename_filtering_py",
-      "community": 254,
+      "community": 46,
       "norm_label": "test_clean_codename_filtering.py"
     },
     {
@@ -10813,7 +10813,7 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L25",
       "id": "tests_test_clean_codename_filtering_setup",
-      "community": 254,
+      "community": 46,
       "norm_label": "setup()"
     },
     {
@@ -10840,7 +10840,7 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L47",
       "id": "tests_test_clean_codename_filtering_testcleanwithforceflag",
-      "community": 254,
+      "community": 46,
       "norm_label": "testcleanwithforceflag"
     },
     {
@@ -10849,7 +10849,7 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L54",
       "id": "tests_test_clean_codename_filtering_testcleanwithforceflag_create_release",
-      "community": 254,
+      "community": 46,
       "norm_label": "._create_release()"
     },
     {
@@ -10858,7 +10858,7 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L65",
       "id": "tests_test_clean_codename_filtering_testcleanwithforceflag_add_packages_to_manifest",
-      "community": 254,
+      "community": 46,
       "norm_label": "._add_packages_to_manifest()"
     },
     {
@@ -10867,7 +10867,7 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L74",
       "id": "tests_test_clean_codename_filtering_testcleanwithforceflag_upload_deb_to_pool",
-      "community": 254,
+      "community": 46,
       "norm_label": "._upload_deb_to_pool()"
     },
     {
@@ -10948,7 +10948,7 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L186",
       "id": "tests_test_clean_codename_filtering_testcleancodenamesmocked",
-      "community": 11,
+      "community": 46,
       "norm_label": "testcleancodenamesmocked"
     },
     {
@@ -10966,7 +10966,7 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L200",
       "id": "tests_test_clean_codename_filtering_testcleancodenamesmocked_test_clean_with_force_does_not_call_list_codenames",
-      "community": 11,
+      "community": 46,
       "norm_label": ".test_clean_with_force_does_not_call_list_codenames()"
     },
     {
@@ -10975,7 +10975,7 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L219",
       "id": "tests_test_clean_codename_filtering_testcleancodenamesmocked_test_clean_without_force_calls_list_codenames",
-      "community": 11,
+      "community": 46,
       "norm_label": ".test_clean_without_force_calls_list_codenames()"
     },
     {
@@ -10984,7 +10984,7 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L1",
       "id": "tests_test_clean_codename_filtering_rationale_1",
-      "community": 254,
+      "community": 46,
       "norm_label": "integration tests for clean command codename filtering.  default: clean checks a"
     },
     {
@@ -11002,7 +11002,7 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L48",
       "id": "tests_test_clean_codename_filtering_rationale_48",
-      "community": 254,
+      "community": 46,
       "norm_label": "tests that --force makes clean only check the specified codename."
     },
     {
@@ -12082,7 +12082,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L20",
       "id": "tests_test_s3_adapter_tests3adapterprotocol",
-      "community": 1,
+      "community": 175,
       "norm_label": "tests3adapterprotocol"
     },
     {
@@ -12091,7 +12091,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L23",
       "id": "tests_test_s3_adapter_tests3adapterprotocol_test_protocol_can_be_satisfied_by_class",
-      "community": 1,
+      "community": 175,
       "norm_label": ".test_protocol_can_be_satisfied_by_class()"
     },
     {
@@ -12100,7 +12100,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L75",
       "id": "tests_test_s3_adapter_tests3adapterprotocol_test_protocol_with_full_implementation",
-      "community": 1,
+      "community": 175,
       "norm_label": ".test_protocol_with_full_implementation()"
     },
     {
@@ -12289,7 +12289,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L326",
       "id": "tests_test_s3_adapter_testboto3s3adapter_test_head_raises_not_found",
-      "community": 16,
+      "community": 176,
       "norm_label": ".test_head_raises_not_found()"
     },
     {
@@ -12298,7 +12298,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L331",
       "id": "tests_test_s3_adapter_testboto3s3adapter_test_list_objects",
-      "community": 16,
+      "community": 176,
       "norm_label": ".test_list_objects()"
     },
     {
@@ -12397,7 +12397,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L462",
       "id": "tests_test_s3_adapter_testmocks3adapter_test_remove_raises_not_found",
-      "community": 24,
+      "community": 182,
       "norm_label": ".test_remove_raises_not_found()"
     },
     {
@@ -12406,7 +12406,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L467",
       "id": "tests_test_s3_adapter_testmocks3adapter_test_copy",
-      "community": 24,
+      "community": 182,
       "norm_label": ".test_copy()"
     },
     {
@@ -12424,7 +12424,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L494",
       "id": "tests_test_s3_adapter_testmocks3adapter_test_head_raises_not_found",
-      "community": 24,
+      "community": 196,
       "norm_label": ".test_head_raises_not_found()"
     },
     {
@@ -12433,7 +12433,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L499",
       "id": "tests_test_s3_adapter_testmocks3adapter_test_list_objects",
-      "community": 24,
+      "community": 196,
       "norm_label": ".test_list_objects()"
     },
     {
@@ -12460,7 +12460,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L543",
       "id": "tests_test_s3_adapter_testboto3s3adaptererrorhandling",
-      "community": 156,
+      "community": 34,
       "norm_label": "testboto3s3adaptererrorhandling"
     },
     {
@@ -12496,7 +12496,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L579",
       "id": "tests_test_s3_adapter_testboto3s3adaptererrorhandling_test_list_objects_raises_on_invalid_client",
-      "community": 156,
+      "community": 34,
       "norm_label": ".test_list_objects_raises_on_invalid_client()"
     },
     {
@@ -12514,7 +12514,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L21",
       "id": "tests_test_s3_adapter_rationale_21",
-      "community": 1,
+      "community": 175,
       "norm_label": "tests that verify the s3adapter protocol can be satisfied."
     },
     {
@@ -12523,7 +12523,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L24",
       "id": "tests_test_s3_adapter_rationale_24",
-      "community": 1,
+      "community": 175,
       "norm_label": "a class can implement the s3adapter protocol."
     },
     {
@@ -12532,7 +12532,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L76",
       "id": "tests_test_s3_adapter_rationale_76",
-      "community": 1,
+      "community": 175,
       "norm_label": "a full implementation satisfies the protocol."
     },
     {
@@ -12721,7 +12721,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L327",
       "id": "tests_test_s3_adapter_rationale_327",
-      "community": 16,
+      "community": 176,
       "norm_label": "head should raise s3notfounderror when object doesn't exist."
     },
     {
@@ -12730,7 +12730,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L332",
       "id": "tests_test_s3_adapter_rationale_332",
-      "community": 16,
+      "community": 176,
       "norm_label": "list_objects should return objects with given prefix."
     },
     {
@@ -12847,7 +12847,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L463",
       "id": "tests_test_s3_adapter_rationale_463",
-      "community": 24,
+      "community": 182,
       "norm_label": "remove should raise s3notfounderror when object doesn't exist."
     },
     {
@@ -12856,7 +12856,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L468",
       "id": "tests_test_s3_adapter_rationale_468",
-      "community": 24,
+      "community": 182,
       "norm_label": "copy should duplicate an object."
     },
     {
@@ -12874,7 +12874,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L495",
       "id": "tests_test_s3_adapter_rationale_495",
-      "community": 24,
+      "community": 196,
       "norm_label": "head should raise s3notfounderror when object doesn't exist."
     },
     {
@@ -12883,7 +12883,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L500",
       "id": "tests_test_s3_adapter_rationale_500",
-      "community": 24,
+      "community": 196,
       "norm_label": "list_objects should return objects with given prefix."
     },
     {
@@ -12910,7 +12910,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L544",
       "id": "tests_test_s3_adapter_rationale_544",
-      "community": 156,
+      "community": 34,
       "norm_label": "tests for error handling in boto3s3adapter."
     },
     {
@@ -12919,7 +12919,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L548",
       "id": "tests_test_s3_adapter_rationale_548",
-      "community": 156,
+      "community": 34,
       "norm_label": "create a mocked s3 client."
     },
     {
@@ -12964,7 +12964,7 @@
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L580",
       "id": "tests_test_s3_adapter_rationale_580",
-      "community": 156,
+      "community": 34,
       "norm_label": "list_objects should raise s3error when client fails."
     },
     {
@@ -14026,7 +14026,7 @@
       "source_file": "tests/integration/test_apt_behaviour.py",
       "source_location": "L84",
       "id": "integration_test_apt_behaviour_ar_append",
-      "community": 203,
+      "community": 237,
       "norm_label": "_ar_append()"
     },
     {
@@ -14188,7 +14188,7 @@
       "source_file": "tests/integration/test_apt_behaviour.py",
       "source_location": "L346",
       "id": "integration_test_apt_behaviour_testaptinstallremove",
-      "community": 237,
+      "community": 197,
       "norm_label": "testaptinstallremove"
     },
     {
@@ -14197,7 +14197,7 @@
       "source_file": "tests/integration/test_apt_behaviour.py",
       "source_location": "L349",
       "id": "integration_test_apt_behaviour_testaptinstallremove_test_apt_remove",
-      "community": 237,
+      "community": 197,
       "norm_label": ".test_apt_remove()"
     },
     {
@@ -14291,55 +14291,10 @@
       "norm_label": ".test_release_file_has_hashes()"
     },
     {
-      "label": "TestExternalRepoIntegration",
-      "file_type": "code",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L547",
-      "id": "integration_test_apt_behaviour_testexternalrepointegration",
-      "community": 247,
-      "norm_label": "testexternalrepointegration"
-    },
-    {
-      "label": "ollama_repo()",
-      "file_type": "code",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L556",
-      "id": "integration_test_apt_behaviour_ollama_repo",
-      "community": 237,
-      "norm_label": "ollama_repo()"
-    },
-    {
-      "label": ".test_ollama_installs_via_extrepo()",
-      "file_type": "code",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L621",
-      "id": "integration_test_apt_behaviour_testexternalrepointegration_test_ollama_installs_via_extrepo",
-      "community": 247,
-      "norm_label": ".test_ollama_installs_via_extrepo()"
-    },
-    {
-      "label": ".test_upgrade_does_not_reinstall_ollama()",
-      "file_type": "code",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L635",
-      "id": "integration_test_apt_behaviour_testexternalrepointegration_test_upgrade_does_not_reinstall_ollama",
-      "community": 247,
-      "norm_label": ".test_upgrade_does_not_reinstall_ollama()"
-    },
-    {
-      "label": ".test_dist_upgrade_does_not_reinstall_ollama()",
-      "file_type": "code",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L665",
-      "id": "integration_test_apt_behaviour_testexternalrepointegration_test_dist_upgrade_does_not_reinstall_ollama",
-      "community": 247,
-      "norm_label": ".test_dist_upgrade_does_not_reinstall_ollama()"
-    },
-    {
       "label": "TestDedupCrossComponentFilename",
       "file_type": "code",
       "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L696",
+      "source_location": "L542",
       "id": "integration_test_apt_behaviour_testdedupcrosscomponentfilename",
       "community": 266,
       "norm_label": "testdedupcrosscomponentfilename"
@@ -14348,7 +14303,7 @@
       "label": ".test_apt_install_with_dedup_cross_component_filename()",
       "file_type": "code",
       "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L699",
+      "source_location": "L545",
       "id": "integration_test_apt_behaviour_testdedupcrosscomponentfilename_test_apt_install_with_dedup_cross_component_filename",
       "community": 266,
       "norm_label": ".test_apt_install_with_dedup_cross_component_filename()"
@@ -14386,7 +14341,7 @@
       "source_file": "tests/integration/test_apt_behaviour.py",
       "source_location": "L85",
       "id": "integration_test_apt_behaviour_rationale_85",
-      "community": 203,
+      "community": 237,
       "norm_label": "append a bsd-ar member (left-justified numeric fields)."
     },
     {
@@ -14539,7 +14494,7 @@
       "source_file": "tests/integration/test_apt_behaviour.py",
       "source_location": "L347",
       "id": "integration_test_apt_behaviour_rationale_347",
-      "community": 237,
+      "community": 197,
       "norm_label": "test package removal after installation."
     },
     {
@@ -14548,7 +14503,7 @@
       "source_file": "tests/integration/test_apt_behaviour.py",
       "source_location": "L350",
       "id": "integration_test_apt_behaviour_rationale_350",
-      "community": 237,
+      "community": 197,
       "norm_label": "apt can remove a package installed from the repo."
     },
     {
@@ -14642,56 +14597,11 @@
       "norm_label": "release file contains sha256 hashes for packages files."
     },
     {
-      "label": "Test that pydeb-s3 repo coexists with external repos (ollama-deb via extrepo).",
-      "file_type": "rationale",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L548",
-      "id": "integration_test_apt_behaviour_rationale_548",
-      "community": 247,
-      "norm_label": "test that pydeb-s3 repo coexists with external repos (ollama-deb via extrepo)."
-    },
-    {
-      "label": "Enable ollama-deb via extrepo inside the existing container.          Skips the",
-      "file_type": "rationale",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L557",
-      "id": "integration_test_apt_behaviour_rationale_557",
-      "community": 309,
-      "norm_label": "enable ollama-deb via extrepo inside the existing container.          skips the"
-    },
-    {
-      "label": "ollama installs from the external repo alongside our moto repo.",
-      "file_type": "rationale",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L627",
-      "id": "integration_test_apt_behaviour_rationale_627",
-      "community": 247,
-      "norm_label": "ollama installs from the external repo alongside our moto repo."
-    },
-    {
-      "label": "apt upgrade with a new pkg version in our repo doesn't touch ollama.",
-      "file_type": "rationale",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L644",
-      "id": "integration_test_apt_behaviour_rationale_644",
-      "community": 247,
-      "norm_label": "apt upgrade with a new pkg version in our repo doesn't touch ollama."
-    },
-    {
-      "label": "apt dist-upgrade with new pkgs doesn't reinstall ollama.",
-      "file_type": "rationale",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L674",
-      "id": "integration_test_apt_behaviour_rationale_674",
-      "community": 247,
-      "norm_label": "apt dist-upgrade with new pkgs doesn't reinstall ollama."
-    },
-    {
       "label": "Verify APT works with cross-component Filename paths (TRUE dedup).",
       "file_type": "rationale",
       "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L697",
-      "id": "integration_test_apt_behaviour_rationale_697",
+      "source_location": "L543",
+      "id": "integration_test_apt_behaviour_rationale_543",
       "community": 266,
       "norm_label": "verify apt works with cross-component filename paths (true dedup)."
     },
@@ -14699,8 +14609,8 @@
       "label": "Upload to non-free, dedup to main, verify APT can install.          Proves that",
       "file_type": "rationale",
       "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L706",
-      "id": "integration_test_apt_behaviour_rationale_706",
+      "source_location": "L552",
+      "id": "integration_test_apt_behaviour_rationale_552",
       "community": 266,
       "norm_label": "upload to non-free, dedup to main, verify apt can install.          proves that"
     },
@@ -15407,6 +15317,222 @@
       "norm_label": "code:bash (hatch test -- tests/test_e2e_apt_behavior.py)"
     },
     {
+      "label": "Custom Rich column showing transfer speed in bits/second.",
+      "file_type": "rationale",
+      "source_file": "src/pydeb_s3/progress.py",
+      "source_location": "L25",
+      "community": 9,
+      "norm_label": "custom rich column showing transfer speed in bits/second.",
+      "id": "pydeb_s3_progress_rationale_25"
+    },
+    {
+      "label": "Render the transfer speed in bits/second.",
+      "file_type": "rationale",
+      "source_file": "src/pydeb_s3/progress.py",
+      "source_location": "L28",
+      "community": 9,
+      "norm_label": "render the transfer speed in bits/second.",
+      "id": "pydeb_s3_progress_rationale_28"
+    },
+    {
+      "label": "Calculate MD5 hash of a file using streaming (memory efficient).",
+      "file_type": "rationale",
+      "source_file": "src/pydeb_s3/progress.py",
+      "source_location": "L43",
+      "community": 38,
+      "norm_label": "calculate md5 hash of a file using streaming (memory efficient).",
+      "id": "pydeb_s3_progress_rationale_43"
+    },
+    {
+      "label": "Callback class for tracking upload progress.",
+      "file_type": "rationale",
+      "source_file": "src/pydeb_s3/progress.py",
+      "source_location": "L55",
+      "community": 28,
+      "norm_label": "callback class for tracking upload progress.",
+      "id": "pydeb_s3_progress_rationale_55"
+    },
+    {
+      "label": "Force-stop the progress bar if owned, regardless of completion.",
+      "file_type": "rationale",
+      "source_file": "src/pydeb_s3/progress.py",
+      "source_location": "L112",
+      "community": 157,
+      "norm_label": "force-stop the progress bar if owned, regardless of completion.",
+      "id": "pydeb_s3_progress_rationale_112"
+    },
+    {
+      "label": "Called by boto3 upload_file with current bytes transferred.",
+      "file_type": "rationale",
+      "source_file": "src/pydeb_s3/progress.py",
+      "source_location": "L117",
+      "community": 157,
+      "norm_label": "called by boto3 upload_file with current bytes transferred.",
+      "id": "pydeb_s3_progress_rationale_117"
+    },
+    {
+      "label": "Tests for automatic TTY detection.",
+      "file_type": "rationale",
+      "source_file": "tests/test_upload_progress.py",
+      "source_location": "L188",
+      "community": 63,
+      "norm_label": "tests for automatic tty detection.",
+      "id": "tests_test_upload_progress_rationale_188"
+    },
+    {
+      "label": "Auto-detects interactive mode from TTY when interactive is None.",
+      "file_type": "rationale",
+      "source_file": "tests/test_upload_progress.py",
+      "source_location": "L191",
+      "community": 63,
+      "norm_label": "auto-detects interactive mode from tty when interactive is none.",
+      "id": "tests_test_upload_progress_rationale_191"
+    },
+    {
+      "label": "Auto-detects non-interactive mode from TTY when interactive is None.",
+      "file_type": "rationale",
+      "source_file": "tests/test_upload_progress.py",
+      "source_location": "L208",
+      "community": 63,
+      "norm_label": "auto-detects non-interactive mode from tty when interactive is none.",
+      "id": "tests_test_upload_progress_rationale_208"
+    },
+    {
+      "label": "Tests for streaming MD5 calculation.",
+      "file_type": "rationale",
+      "source_file": "tests/test_upload_progress.py",
+      "source_location": "L226",
+      "community": 38,
+      "norm_label": "tests for streaming md5 calculation.",
+      "id": "tests_test_upload_progress_rationale_226"
+    },
+    {
+      "label": "Stream MD5 calculates correct hash for file.",
+      "file_type": "rationale",
+      "source_file": "tests/test_upload_progress.py",
+      "source_location": "L229",
+      "community": 38,
+      "norm_label": "stream md5 calculates correct hash for file.",
+      "id": "tests_test_upload_progress_rationale_229"
+    },
+    {
+      "label": "Stream MD5 handles large files without loading into memory.",
+      "file_type": "rationale",
+      "source_file": "tests/test_upload_progress.py",
+      "source_location": "L249",
+      "community": 38,
+      "norm_label": "stream md5 handles large files without loading into memory.",
+      "id": "tests_test_upload_progress_rationale_249"
+    },
+    {
+      "label": "TestExternalRepoIntegration",
+      "file_type": "code",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L547",
+      "community": 247,
+      "norm_label": "testexternalrepointegration",
+      "id": "integration_test_apt_behaviour_testexternalrepointegration"
+    },
+    {
+      "label": "ollama_repo()",
+      "file_type": "code",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L556",
+      "community": 237,
+      "norm_label": "ollama_repo()",
+      "id": "integration_test_apt_behaviour_ollama_repo"
+    },
+    {
+      "label": ".test_ollama_installs_via_extrepo()",
+      "file_type": "code",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L621",
+      "community": 247,
+      "norm_label": ".test_ollama_installs_via_extrepo()",
+      "id": "integration_test_apt_behaviour_testexternalrepointegration_test_ollama_installs_via_extrepo"
+    },
+    {
+      "label": ".test_upgrade_does_not_reinstall_ollama()",
+      "file_type": "code",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L635",
+      "community": 247,
+      "norm_label": ".test_upgrade_does_not_reinstall_ollama()",
+      "id": "integration_test_apt_behaviour_testexternalrepointegration_test_upgrade_does_not_reinstall_ollama"
+    },
+    {
+      "label": ".test_dist_upgrade_does_not_reinstall_ollama()",
+      "file_type": "code",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L665",
+      "community": 247,
+      "norm_label": ".test_dist_upgrade_does_not_reinstall_ollama()",
+      "id": "integration_test_apt_behaviour_testexternalrepointegration_test_dist_upgrade_does_not_reinstall_ollama"
+    },
+    {
+      "label": "Test that pydeb-s3 repo coexists with external repos (ollama-deb via extrepo).",
+      "file_type": "rationale",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L548",
+      "community": 247,
+      "norm_label": "test that pydeb-s3 repo coexists with external repos (ollama-deb via extrepo).",
+      "id": "integration_test_apt_behaviour_rationale_548"
+    },
+    {
+      "label": "Enable ollama-deb via extrepo inside the existing container.          Skips the",
+      "file_type": "rationale",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L557",
+      "community": 309,
+      "norm_label": "enable ollama-deb via extrepo inside the existing container.          skips the",
+      "id": "integration_test_apt_behaviour_rationale_557"
+    },
+    {
+      "label": "ollama installs from the external repo alongside our moto repo.",
+      "file_type": "rationale",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L627",
+      "community": 247,
+      "norm_label": "ollama installs from the external repo alongside our moto repo.",
+      "id": "integration_test_apt_behaviour_rationale_627"
+    },
+    {
+      "label": "apt upgrade with a new pkg version in our repo doesn't touch ollama.",
+      "file_type": "rationale",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L644",
+      "community": 247,
+      "norm_label": "apt upgrade with a new pkg version in our repo doesn't touch ollama.",
+      "id": "integration_test_apt_behaviour_rationale_644"
+    },
+    {
+      "label": "apt dist-upgrade with new pkgs doesn't reinstall ollama.",
+      "file_type": "rationale",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L674",
+      "community": 247,
+      "norm_label": "apt dist-upgrade with new pkgs doesn't reinstall ollama.",
+      "id": "integration_test_apt_behaviour_rationale_674"
+    },
+    {
+      "label": "Verify APT works with cross-component Filename paths (TRUE dedup).",
+      "file_type": "rationale",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L697",
+      "community": 266,
+      "norm_label": "verify apt works with cross-component filename paths (true dedup).",
+      "id": "integration_test_apt_behaviour_rationale_697"
+    },
+    {
+      "label": "Upload to non-free, dedup to main, verify APT can install.          Proves that",
+      "file_type": "rationale",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L706",
+      "community": 266,
+      "norm_label": "upload to non-free, dedup to main, verify apt can install.          proves that",
+      "id": "integration_test_apt_behaviour_rationale_706"
+    },
+    {
       "label": "S3 configuration grouping all S3-related options.",
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/cli.py",
@@ -15510,7 +15636,7 @@
       "file_type": "code",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L61",
-      "community": 238,
+      "community": 148,
       "norm_label": "testcleanfiltersbycodenamewhenpassed",
       "id": "tests_test_clean_codename_filtering_testcleanfiltersbycodenamewhenpassed"
     },
@@ -15519,7 +15645,7 @@
       "file_type": "code",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L69",
-      "community": 238,
+      "community": 148,
       "norm_label": "._create_release()",
       "id": "tests_test_clean_codename_filtering_testcleanfiltersbycodenamewhenpassed_create_release"
     },
@@ -15528,7 +15654,7 @@
       "file_type": "code",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L81",
-      "community": 238,
+      "community": 148,
       "norm_label": "._add_packages_to_manifest()",
       "id": "tests_test_clean_codename_filtering_testcleanfiltersbycodenamewhenpassed_add_packages_to_manifest"
     },
@@ -15537,7 +15663,7 @@
       "file_type": "code",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L91",
-      "community": 238,
+      "community": 148,
       "norm_label": "._upload_deb_to_pool()",
       "id": "tests_test_clean_codename_filtering_testcleanfiltersbycodenamewhenpassed_upload_deb_to_pool"
     },
@@ -15645,7 +15771,7 @@
       "file_type": "code",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L368",
-      "community": 216,
+      "community": 158,
       "norm_label": "testcleancodenamesedgecases",
       "id": "tests_test_clean_codename_filtering_testcleancodenamesedgecases"
     },
@@ -15654,7 +15780,7 @@
       "file_type": "code",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L376",
-      "community": 216,
+      "community": 158,
       "norm_label": "._create_release()",
       "id": "tests_test_clean_codename_filtering_testcleancodenamesedgecases_create_release"
     },
@@ -15663,7 +15789,7 @@
       "file_type": "code",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L386",
-      "community": 216,
+      "community": 158,
       "norm_label": ".test_clean_with_single_codename_works()",
       "id": "tests_test_clean_codename_filtering_testcleancodenamesedgecases_test_clean_with_single_codename_works"
     },
@@ -15672,7 +15798,7 @@
       "file_type": "code",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L421",
-      "community": 216,
+      "community": 158,
       "norm_label": ".test_clean_without_codename_handles_single_codename()",
       "id": "tests_test_clean_codename_filtering_testcleancodenamesedgecases_test_clean_without_codename_handles_single_codename"
     },
@@ -15717,7 +15843,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L62",
-      "community": 238,
+      "community": 148,
       "norm_label": "tests that when --codename is explicitly passed, only that codename's manifest i",
       "id": "tests_test_clean_codename_filtering_rationale_62"
     },
@@ -15735,7 +15861,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L70",
-      "community": 238,
+      "community": 148,
       "norm_label": "create and upload a release file.",
       "id": "tests_test_clean_codename_filtering_rationale_70"
     },
@@ -15744,7 +15870,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L82",
-      "community": 238,
+      "community": 148,
       "norm_label": "add packages to manifest and update release.",
       "id": "tests_test_clean_codename_filtering_rationale_82"
     },
@@ -15753,7 +15879,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L92",
-      "community": 238,
+      "community": 148,
       "norm_label": "upload a .deb file directly to the pool in s3.",
       "id": "tests_test_clean_codename_filtering_rationale_92"
     },
@@ -15852,7 +15978,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L287",
-      "community": 11,
+      "community": 46,
       "norm_label": "tests with mocked s3 responses to verify codename checking behavior.",
       "id": "tests_test_clean_codename_filtering_rationale_287"
     },
@@ -15888,7 +16014,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L369",
-      "community": 216,
+      "community": 158,
       "norm_label": "edge case tests for codename filtering in clean command.",
       "id": "tests_test_clean_codename_filtering_rationale_369"
     },
@@ -15906,7 +16032,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L387",
-      "community": 216,
+      "community": 158,
       "norm_label": "clean should work when there's only one codename in s3 and --codename is passed.",
       "id": "tests_test_clean_codename_filtering_rationale_387"
     },
@@ -15915,7 +16041,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L422",
-      "community": 216,
+      "community": 158,
       "norm_label": "clean should work when there's only one codename and no --codename is passed.",
       "id": "tests_test_clean_codename_filtering_rationale_422"
     },
@@ -16077,7 +16203,7 @@
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L364",
-      "community": 270,
+      "community": 40,
       "norm_label": "get the access policy from visibility string.",
       "id": "pydeb_s3_release_rationale_364"
     },
@@ -16797,7 +16923,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_copy_behavior.py",
       "source_location": "L366",
-      "community": 8,
+      "community": 199,
       "norm_label": "error when target codename doesn't exist.",
       "id": "tests_test_copy_behavior_rationale_366"
     },
@@ -16806,7 +16932,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_copy_behavior.py",
       "source_location": "L409",
-      "community": 278,
+      "community": 8,
       "norm_label": "error when target codename doesn't have the architecture.",
       "id": "tests_test_copy_behavior_rationale_409"
     },
@@ -16950,7 +17076,7 @@
       "file_type": "code",
       "source_file": "tests/test_s3_utils.py",
       "source_location": "L122",
-      "community": 1,
+      "community": 52,
       "norm_label": "tests3read",
       "id": "tests_test_s3_utils_tests3read"
     },
@@ -16959,7 +17085,7 @@
       "file_type": "code",
       "source_file": "tests/test_s3_utils.py",
       "source_location": "L125",
-      "community": 1,
+      "community": 52,
       "norm_label": ".teardown_method()",
       "id": "tests_test_s3_utils_tests3read_teardown_method"
     },
@@ -16968,7 +17094,7 @@
       "file_type": "code",
       "source_file": "tests/test_s3_utils.py",
       "source_location": "L129",
-      "community": 1,
+      "community": 52,
       "norm_label": ".test_raises_when_no_adapter()",
       "id": "tests_test_s3_utils_tests3read_test_raises_when_no_adapter"
     },
@@ -17274,7 +17400,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_s3_utils.py",
       "source_location": "L126",
-      "community": 1,
+      "community": 52,
       "norm_label": "reset adapter after each test.",
       "id": "tests_test_s3_utils_rationale_126"
     },
@@ -17283,7 +17409,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_s3_utils.py",
       "source_location": "L130",
-      "community": 1,
+      "community": 52,
       "norm_label": "raises s3error when s3 not configured.",
       "id": "tests_test_s3_utils_rationale_130"
     },
@@ -17526,7 +17652,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L80",
-      "community": 168,
+      "community": 258,
       "norm_label": "show outputs package name in description.",
       "id": "tests_test_show_behavior_rationale_80"
     },
@@ -17544,7 +17670,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L122",
-      "community": 174,
+      "community": 238,
       "norm_label": "show returns error for nonexistent version.",
       "id": "tests_test_show_behavior_rationale_122"
     },
@@ -17553,7 +17679,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L141",
-      "community": 285,
+      "community": 168,
       "norm_label": "show works with explicit architecture.",
       "id": "tests_test_show_behavior_rationale_141"
     },
@@ -17562,7 +17688,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L161",
-      "community": 182,
+      "community": 174,
       "norm_label": "show returns error for package not in requested arch.",
       "id": "tests_test_show_behavior_rationale_161"
     },
@@ -17598,7 +17724,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L206",
-      "community": 167,
+      "community": 260,
       "norm_label": "show returns error when package not found.",
       "id": "tests_test_show_behavior_rationale_206"
     },
@@ -17625,7 +17751,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L244",
-      "community": 2,
+      "community": 254,
       "norm_label": "create and upload a release file.",
       "id": "tests_test_show_behavior_rationale_244"
     },
@@ -17661,7 +17787,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L320",
-      "community": 284,
+      "community": 2,
       "norm_label": "show with version output should go to stdout.",
       "id": "tests_test_show_behavior_rationale_320"
     },
@@ -18084,7 +18210,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_exists_behavior.py",
       "source_location": "L144",
-      "community": 172,
+      "community": 216,
       "norm_label": "exists returns 0 when package exists but different arch.",
       "id": "tests_test_exists_behavior_rationale_144"
     },
@@ -18093,7 +18219,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_exists_behavior.py",
       "source_location": "L175",
-      "community": 281,
+      "community": 172,
       "norm_label": "exists uses amd64 as default architecture.",
       "id": "tests_test_exists_behavior_rationale_175"
     },
@@ -18318,7 +18444,7 @@
       "file_type": "code",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L15",
-      "community": 175,
+      "community": 10,
       "norm_label": "setup_logger()",
       "id": "tests_test_clean_behavior_setup_logger"
     },
@@ -18327,7 +18453,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L16",
-      "community": 175,
+      "community": 10,
       "norm_label": "configure loguru to output to captured stderr.",
       "id": "tests_test_clean_behavior_rationale_16"
     },
@@ -18381,7 +18507,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L83",
-      "community": 276,
+      "community": 10,
       "norm_label": "clean command removes .deb files not referenced by any packages file.",
       "id": "tests_test_clean_behavior_rationale_83"
     },
@@ -18390,7 +18516,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L121",
-      "community": 176,
+      "community": 32,
       "norm_label": "clean command keeps .deb files that are referenced by packages files.",
       "id": "tests_test_clean_behavior_rationale_121"
     },
@@ -18399,7 +18525,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L155",
-      "community": 150,
+      "community": 11,
       "norm_label": "clean command handles case with no orphaned packages.",
       "id": "tests_test_clean_behavior_rationale_155"
     },
@@ -18408,7 +18534,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L181",
-      "community": 175,
+      "community": 10,
       "norm_label": "clean command removes multiple orphaned files.",
       "id": "tests_test_clean_behavior_rationale_181"
     },
@@ -18417,7 +18543,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L220",
-      "community": 196,
+      "community": 10,
       "norm_label": "clean command works across multiple components.",
       "id": "tests_test_clean_behavior_rationale_220"
     },
@@ -18426,7 +18552,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L265",
-      "community": 274,
+      "community": 10,
       "norm_label": "dry-run mode reports orphans but does not delete them.",
       "id": "tests_test_clean_behavior_rationale_265"
     },
@@ -18435,7 +18561,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L294",
-      "community": 150,
+      "community": 32,
       "norm_label": "dry-run mode with no orphans reports nothing to remove.",
       "id": "tests_test_clean_behavior_rationale_294"
     },
@@ -18444,7 +18570,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L317",
-      "community": 275,
+      "community": 10,
       "norm_label": "dry-run mode reports multiple would-be removals.",
       "id": "tests_test_clean_behavior_rationale_317"
     },
@@ -18453,7 +18579,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L349",
-      "community": 197,
+      "community": 10,
       "norm_label": "normal (non-dry-run) clean still removes orphans.",
       "id": "tests_test_clean_behavior_rationale_349"
     },
@@ -18498,7 +18624,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L406",
-      "community": 150,
+      "community": 10,
       "norm_label": "create and upload a release file.",
       "id": "tests_test_clean_behavior_rationale_406"
     },
@@ -18507,7 +18633,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L421",
-      "community": 176,
+      "community": 10,
       "norm_label": "add packages to manifest and update release.",
       "id": "tests_test_clean_behavior_rationale_421"
     },
@@ -18516,7 +18642,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L431",
-      "community": 157,
+      "community": 10,
       "norm_label": "upload a .deb file directly to the pool in s3.",
       "id": "tests_test_clean_behavior_rationale_431"
     },
@@ -18534,7 +18660,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L453",
-      "community": 198,
+      "community": 10,
       "norm_label": "clean command with prefix correctly lists pool files under the prefix.",
       "id": "tests_test_clean_behavior_rationale_453"
     },
@@ -18543,7 +18669,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L482",
-      "community": 157,
+      "community": 10,
       "norm_label": "clean command removes orphaned files when prefix is configured.          this te",
       "id": "tests_test_clean_behavior_rationale_482"
     },
@@ -18561,7 +18687,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L563",
-      "community": 199,
+      "community": 10,
       "norm_label": "dry-run mode with prefix reports orphans but does not delete them.",
       "id": "tests_test_clean_behavior_rationale_563"
     },
@@ -18570,7 +18696,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L592",
-      "community": 176,
+      "community": 10,
       "norm_label": "clean command with prefix handles case with no orphaned packages.",
       "id": "tests_test_clean_behavior_rationale_592"
     },
@@ -18777,7 +18903,7 @@
       "file_type": "code",
       "source_file": "tests/test_bandwidth_bits.py",
       "source_location": "L252",
-      "community": 39,
+      "community": 150,
       "norm_label": ".setup_method()",
       "id": "tests_test_bandwidth_bits_tests3storeusebytes_setup_method"
     },
@@ -18786,7 +18912,7 @@
       "file_type": "code",
       "source_file": "tests/test_bandwidth_bits.py",
       "source_location": "L257",
-      "community": 39,
+      "community": 150,
       "norm_label": ".teardown_method()",
       "id": "tests_test_bandwidth_bits_tests3storeusebytes_teardown_method"
     },
@@ -18795,7 +18921,7 @@
       "file_type": "code",
       "source_file": "tests/test_bandwidth_bits.py",
       "source_location": "L262",
-      "community": 39,
+      "community": 150,
       "norm_label": ".test_s3_store_passes_use_bytes_false()",
       "id": "tests_test_bandwidth_bits_tests3storeusebytes_test_s3_store_passes_use_bytes_false"
     },
@@ -18804,7 +18930,7 @@
       "file_type": "code",
       "source_file": "tests/test_bandwidth_bits.py",
       "source_location": "L301",
-      "community": 39,
+      "community": 150,
       "norm_label": ".test_s3_store_passes_use_bytes_true()",
       "id": "tests_test_bandwidth_bits_tests3storeusebytes_test_s3_store_passes_use_bytes_true"
     },
@@ -18813,7 +18939,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_bandwidth_bits.py",
       "source_location": "L258",
-      "community": 39,
+      "community": 150,
       "norm_label": "clean up after each test.",
       "id": "tests_test_bandwidth_bits_rationale_258"
     },
@@ -18822,7 +18948,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_bandwidth_bits.py",
       "source_location": "L263",
-      "community": 39,
+      "community": 150,
       "norm_label": "s3_store() passes use_bytes=false to uploadprogress (default bits).",
       "id": "tests_test_bandwidth_bits_rationale_263"
     },
@@ -18831,7 +18957,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_bandwidth_bits.py",
       "source_location": "L302",
-      "community": 39,
+      "community": 150,
       "norm_label": "s3_store() passes use_bytes=true to uploadprogress.",
       "id": "tests_test_bandwidth_bits_rationale_302"
     },
@@ -19182,7 +19308,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_verify_behavior.py",
       "source_location": "L193",
-      "community": 251,
+      "community": 246,
       "norm_label": "verify handles empty manifest gracefully.",
       "id": "tests_test_verify_behavior_rationale_193"
     },
@@ -19695,7 +19821,7 @@
       "file_type": "code",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L467",
-      "community": 11,
+      "community": 158,
       "norm_label": ".test_clean_uses_list_codenames_function()",
       "id": "tests_test_clean_codename_filtering_testcleancodenamesmocked_test_clean_uses_list_codenames_function"
     },
@@ -19704,7 +19830,7 @@
       "file_type": "code",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L513",
-      "community": 11,
+      "community": 158,
       "norm_label": ".test_clean_checks_all_codenames_manifests()",
       "id": "tests_test_clean_codename_filtering_testcleancodenamesmocked_test_clean_checks_all_codenames_manifests"
     },
@@ -19713,7 +19839,7 @@
       "file_type": "code",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L593",
-      "community": 216,
+      "community": 158,
       "norm_label": ".test_clean_handles_single_codename()",
       "id": "tests_test_clean_codename_filtering_testcleancodenamesedgecases_test_clean_handles_single_codename"
     },
@@ -19722,7 +19848,7 @@
       "file_type": "code",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L640",
-      "community": 216,
+      "community": 158,
       "norm_label": ".test_clean_with_codename_not_in_s3()",
       "id": "tests_test_clean_codename_filtering_testcleancodenamesedgecases_test_clean_with_codename_not_in_s3"
     },
@@ -19857,7 +19983,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L439",
-      "community": 11,
+      "community": 46,
       "norm_label": "tests with mocked s3 responses to verify codename checking behavior.      these",
       "id": "tests_test_clean_codename_filtering_rationale_439"
     },
@@ -19875,7 +20001,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L468",
-      "community": 11,
+      "community": 158,
       "norm_label": "clean command should call list_codenames to get all codenames.          the fix",
       "id": "tests_test_clean_codename_filtering_rationale_468"
     },
@@ -19884,7 +20010,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L514",
-      "community": 11,
+      "community": 158,
       "norm_label": "clean should check manifests for all codenames, not just specified one.",
       "id": "tests_test_clean_codename_filtering_rationale_514"
     },
@@ -19893,7 +20019,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L569",
-      "community": 216,
+      "community": 158,
       "norm_label": "edge case tests for codename filtering in clean command.",
       "id": "tests_test_clean_codename_filtering_rationale_569"
     },
@@ -19911,7 +20037,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L594",
-      "community": 216,
+      "community": 158,
       "norm_label": "clean should work correctly when there's only one codename.          when there'",
       "id": "tests_test_clean_codename_filtering_rationale_594"
     },
@@ -19920,7 +20046,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L641",
-      "community": 216,
+      "community": 158,
       "norm_label": "clean should handle when specified codename doesn't exist in s3.          if use",
       "id": "tests_test_clean_codename_filtering_rationale_641"
     },
@@ -20343,7 +20469,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L322",
-      "community": 16,
+      "community": 176,
       "norm_label": "head should raise s3notfounderror when object doesn't exist.",
       "id": "tests_test_s3_adapter_rationale_322"
     },
@@ -20451,7 +20577,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L458",
-      "community": 24,
+      "community": 182,
       "norm_label": "remove should raise s3notfounderror when object doesn't exist.",
       "id": "tests_test_s3_adapter_rationale_458"
     },
@@ -20469,7 +20595,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L490",
-      "community": 24,
+      "community": 196,
       "norm_label": "head should raise s3notfounderror when object doesn't exist.",
       "id": "tests_test_s3_adapter_rationale_490"
     },
@@ -20487,7 +20613,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L539",
-      "community": 156,
+      "community": 34,
       "norm_label": "tests for error handling in boto3s3adapter.",
       "id": "tests_test_s3_adapter_rationale_539"
     },
@@ -20523,7 +20649,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L575",
-      "community": 156,
+      "community": 34,
       "norm_label": "list_objects should raise s3error when client fails.",
       "id": "tests_test_s3_adapter_rationale_575"
     },
@@ -20847,7 +20973,7 @@
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/s3_adapter.py",
       "source_location": "L326",
-      "community": 33,
+      "community": 39,
       "norm_label": "check if an object exists in s3.",
       "id": "pydeb_s3_s3_adapter_rationale_326"
     },
@@ -20919,7 +21045,7 @@
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/s3_adapter.py",
       "source_location": "L499",
-      "community": 258,
+      "community": 1,
       "norm_label": "initialize the mock adapter.          args:             bucket: s3 bucket name (",
       "id": "pydeb_s3_s3_adapter_rationale_499"
     },
@@ -21140,47 +21266,11 @@
       "id": "pydeb_s3_package_rationale_342"
     },
     {
-      "label": "Custom Rich column showing transfer speed in bits/second.",
-      "file_type": "rationale",
-      "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L26",
-      "community": 9,
-      "norm_label": "custom rich column showing transfer speed in bits/second.",
-      "id": "pydeb_s3_progress_rationale_26"
-    },
-    {
-      "label": "Render the transfer speed in bits/second.",
-      "file_type": "rationale",
-      "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L29",
-      "community": 9,
-      "norm_label": "render the transfer speed in bits/second.",
-      "id": "pydeb_s3_progress_rationale_29"
-    },
-    {
-      "label": "Calculate MD5 hash of a file using streaming (memory efficient).",
-      "file_type": "rationale",
-      "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L44",
-      "community": 38,
-      "norm_label": "calculate md5 hash of a file using streaming (memory efficient).",
-      "id": "pydeb_s3_progress_rationale_44"
-    },
-    {
-      "label": "Callback class for tracking upload progress.",
-      "file_type": "rationale",
-      "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L56",
-      "community": 48,
-      "norm_label": "callback class for tracking upload progress.",
-      "id": "pydeb_s3_progress_rationale_56"
-    },
-    {
       "label": "Force-stop the progress bar if owned, regardless of completion.",
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/progress.py",
       "source_location": "L113",
-      "community": 48,
+      "community": 157,
       "norm_label": "force-stop the progress bar if owned, regardless of completion.",
       "id": "pydeb_s3_progress_rationale_113"
     },
@@ -21189,7 +21279,7 @@
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/progress.py",
       "source_location": "L118",
-      "community": 48,
+      "community": 157,
       "norm_label": "called by boto3 upload_file with current bytes transferred.",
       "id": "pydeb_s3_progress_rationale_118"
     },
@@ -21324,7 +21414,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_copy_behavior.py",
       "source_location": "L367",
-      "community": 8,
+      "community": 199,
       "norm_label": "error when target codename doesn't exist.",
       "id": "tests_test_copy_behavior_rationale_367"
     },
@@ -21333,7 +21423,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_copy_behavior.py",
       "source_location": "L410",
-      "community": 278,
+      "community": 8,
       "norm_label": "error when target codename doesn't have the architecture.",
       "id": "tests_test_copy_behavior_rationale_410"
     },
@@ -21522,7 +21612,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L81",
-      "community": 168,
+      "community": 258,
       "norm_label": "show outputs package name in description.",
       "id": "tests_test_show_behavior_rationale_81"
     },
@@ -21540,7 +21630,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L123",
-      "community": 174,
+      "community": 238,
       "norm_label": "show returns error for nonexistent version.",
       "id": "tests_test_show_behavior_rationale_123"
     },
@@ -21549,7 +21639,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L142",
-      "community": 285,
+      "community": 168,
       "norm_label": "show works with explicit architecture.",
       "id": "tests_test_show_behavior_rationale_142"
     },
@@ -21558,7 +21648,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L162",
-      "community": 182,
+      "community": 174,
       "norm_label": "show returns error for package not in requested arch.",
       "id": "tests_test_show_behavior_rationale_162"
     },
@@ -21594,7 +21684,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L207",
-      "community": 167,
+      "community": 260,
       "norm_label": "show returns error when package not found.",
       "id": "tests_test_show_behavior_rationale_207"
     },
@@ -21621,7 +21711,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L245",
-      "community": 2,
+      "community": 254,
       "norm_label": "create and upload a release file.",
       "id": "tests_test_show_behavior_rationale_245"
     },
@@ -21648,7 +21738,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_show_behavior.py",
       "source_location": "L321",
-      "community": 284,
+      "community": 2,
       "norm_label": "show with version output should go to stdout.",
       "id": "tests_test_show_behavior_rationale_321"
     },
@@ -21774,7 +21864,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_exists_behavior.py",
       "source_location": "L145",
-      "community": 172,
+      "community": 216,
       "norm_label": "exists returns 0 when package exists but different arch.",
       "id": "tests_test_exists_behavior_rationale_145"
     },
@@ -21783,7 +21873,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_exists_behavior.py",
       "source_location": "L176",
-      "community": 281,
+      "community": 172,
       "norm_label": "exists uses amd64 as default architecture.",
       "id": "tests_test_exists_behavior_rationale_176"
     },
@@ -21927,7 +22017,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L17",
-      "community": 175,
+      "community": 10,
       "norm_label": "configure loguru to output to captured stderr.",
       "id": "tests_test_clean_behavior_rationale_17"
     },
@@ -21990,7 +22080,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L84",
-      "community": 276,
+      "community": 10,
       "norm_label": "clean command removes .deb files not referenced by any packages file.",
       "id": "tests_test_clean_behavior_rationale_84"
     },
@@ -21999,7 +22089,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L122",
-      "community": 176,
+      "community": 32,
       "norm_label": "clean command keeps .deb files that are referenced by packages files.",
       "id": "tests_test_clean_behavior_rationale_122"
     },
@@ -22008,7 +22098,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L156",
-      "community": 150,
+      "community": 11,
       "norm_label": "clean command handles case with no orphaned packages.",
       "id": "tests_test_clean_behavior_rationale_156"
     },
@@ -22017,7 +22107,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L182",
-      "community": 175,
+      "community": 10,
       "norm_label": "clean command removes multiple orphaned files.",
       "id": "tests_test_clean_behavior_rationale_182"
     },
@@ -22026,7 +22116,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L221",
-      "community": 196,
+      "community": 10,
       "norm_label": "clean command works across multiple components.",
       "id": "tests_test_clean_behavior_rationale_221"
     },
@@ -22035,7 +22125,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L266",
-      "community": 274,
+      "community": 10,
       "norm_label": "dry-run mode reports orphans but does not delete them.",
       "id": "tests_test_clean_behavior_rationale_266"
     },
@@ -22044,7 +22134,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L295",
-      "community": 150,
+      "community": 32,
       "norm_label": "dry-run mode with no orphans reports nothing to remove.",
       "id": "tests_test_clean_behavior_rationale_295"
     },
@@ -22053,7 +22143,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L318",
-      "community": 275,
+      "community": 10,
       "norm_label": "dry-run mode reports multiple would-be removals.",
       "id": "tests_test_clean_behavior_rationale_318"
     },
@@ -22062,7 +22152,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L350",
-      "community": 197,
+      "community": 10,
       "norm_label": "normal (non-dry-run) clean still removes orphans.",
       "id": "tests_test_clean_behavior_rationale_350"
     },
@@ -22116,7 +22206,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L408",
-      "community": 150,
+      "community": 10,
       "norm_label": "create and upload a release file.",
       "id": "tests_test_clean_behavior_rationale_408"
     },
@@ -22125,7 +22215,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L433",
-      "community": 157,
+      "community": 10,
       "norm_label": "upload a .deb file directly to the pool in s3.",
       "id": "tests_test_clean_behavior_rationale_433"
     },
@@ -22143,7 +22233,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L455",
-      "community": 198,
+      "community": 10,
       "norm_label": "clean command with prefix correctly lists pool files under the prefix.",
       "id": "tests_test_clean_behavior_rationale_455"
     },
@@ -22152,7 +22242,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L484",
-      "community": 157,
+      "community": 10,
       "norm_label": "clean command removes orphaned files when prefix is configured.          this te",
       "id": "tests_test_clean_behavior_rationale_484"
     },
@@ -22170,7 +22260,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L565",
-      "community": 199,
+      "community": 10,
       "norm_label": "dry-run mode with prefix reports orphans but does not delete them.",
       "id": "tests_test_clean_behavior_rationale_565"
     },
@@ -22179,7 +22269,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_clean_behavior.py",
       "source_location": "L594",
-      "community": 176,
+      "community": 10,
       "norm_label": "clean command with prefix handles case with no orphaned packages.",
       "id": "tests_test_clean_behavior_rationale_594"
     },
@@ -22269,7 +22359,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_verify_behavior.py",
       "source_location": "L194",
-      "community": 251,
+      "community": 246,
       "norm_label": "verify handles empty manifest gracefully.",
       "id": "tests_test_verify_behavior_rationale_194"
     },
@@ -22800,7 +22890,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L23",
-      "community": 1,
+      "community": 175,
       "norm_label": "tests that verify the s3adapter protocol can be satisfied.",
       "id": "tests_test_s3_adapter_rationale_23"
     },
@@ -22809,7 +22899,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L26",
-      "community": 1,
+      "community": 175,
       "norm_label": "a class can implement the s3adapter protocol.",
       "id": "tests_test_s3_adapter_rationale_26"
     },
@@ -22818,7 +22908,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L84",
-      "community": 1,
+      "community": 175,
       "norm_label": "a full implementation satisfies the protocol.",
       "id": "tests_test_s3_adapter_rationale_84"
     },
@@ -22971,7 +23061,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L331",
-      "community": 16,
+      "community": 176,
       "norm_label": "head should raise s3notfounderror when object doesn't exist.",
       "id": "tests_test_s3_adapter_rationale_331"
     },
@@ -22980,7 +23070,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L336",
-      "community": 16,
+      "community": 176,
       "norm_label": "list_objects should return objects with given prefix.",
       "id": "tests_test_s3_adapter_rationale_336"
     },
@@ -23079,7 +23169,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L467",
-      "community": 24,
+      "community": 182,
       "norm_label": "remove should raise s3notfounderror when object doesn't exist.",
       "id": "tests_test_s3_adapter_rationale_467"
     },
@@ -23088,7 +23178,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L472",
-      "community": 24,
+      "community": 182,
       "norm_label": "copy should duplicate an object.",
       "id": "tests_test_s3_adapter_rationale_472"
     },
@@ -23106,7 +23196,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L499",
-      "community": 24,
+      "community": 196,
       "norm_label": "head should raise s3notfounderror when object doesn't exist.",
       "id": "tests_test_s3_adapter_rationale_499"
     },
@@ -23115,7 +23205,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L504",
-      "community": 24,
+      "community": 196,
       "norm_label": "list_objects should return objects with given prefix.",
       "id": "tests_test_s3_adapter_rationale_504"
     },
@@ -23187,7 +23277,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_s3_adapter.py",
       "source_location": "L584",
-      "community": 156,
+      "community": 34,
       "norm_label": "list_objects should raise s3error when client fails.",
       "id": "tests_test_s3_adapter_rationale_584"
     },
@@ -23349,7 +23439,7 @@
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/s3_adapter.py",
       "source_location": "L323",
-      "community": 33,
+      "community": 39,
       "norm_label": "check if an object exists in s3.",
       "id": "pydeb_s3_s3_adapter_rationale_323"
     },
@@ -23421,7 +23511,7 @@
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/s3_adapter.py",
       "source_location": "L496",
-      "community": 258,
+      "community": 1,
       "norm_label": "initialize the mock adapter.          args:             bucket: s3 bucket name (",
       "id": "pydeb_s3_s3_adapter_rationale_496"
     },
@@ -23529,7 +23619,7 @@
       "file_type": "rationale",
       "source_file": "src/pydeb_s3/release.py",
       "source_location": "L359",
-      "community": 270,
+      "community": 40,
       "norm_label": "get the access policy from visibility string.",
       "id": "pydeb_s3_release_rationale_359"
     },
@@ -30696,9 +30786,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L29",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pydeb_s3_cli_py",
-      "target": "pydeb_s3_cli_version_callback",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_version_callback"
     },
     {
       "relation": "contains",
@@ -30837,9 +30927,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L37",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_37",
-      "target": "pydeb_s3_cli_s3config",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_s3config"
     },
     {
       "relation": "uses",
@@ -30965,9 +31055,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L75",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_75",
-      "target": "pydeb_s3_cli_build_s3_config",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_build_s3_config"
     },
     {
       "relation": "rationale_for",
@@ -31093,9 +31183,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L104",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_104",
-      "target": "pydeb_s3_cli_configure_s3",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_configure_s3"
     },
     {
       "relation": "rationale_for",
@@ -31133,9 +31223,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L210",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_210",
-      "target": "pydeb_s3_cli_upload_command",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_upload_command"
     },
     {
       "relation": "calls",
@@ -31184,9 +31274,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L391",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_391",
-      "target": "pydeb_s3_cli_list_command",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_list_command"
     },
     {
       "relation": "calls",
@@ -31367,9 +31457,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L465",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_465",
-      "target": "pydeb_s3_cli_show_command",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_show_command"
     },
     {
       "relation": "calls",
@@ -31550,9 +31640,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L526",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_526",
-      "target": "pydeb_s3_cli_exists_command",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_exists_command"
     },
     {
       "relation": "calls",
@@ -31722,9 +31812,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L583",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_583",
-      "target": "pydeb_s3_cli_copy_command",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_copy_command"
     },
     {
       "relation": "calls",
@@ -31861,9 +31951,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L655",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_655",
-      "target": "pydeb_s3_cli_delete_command",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_delete_command"
     },
     {
       "relation": "calls",
@@ -31934,9 +32024,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L712",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_712",
-      "target": "pydeb_s3_cli_verify_command",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_verify_command"
     },
     {
       "relation": "calls",
@@ -32083,9 +32173,9 @@
       "source_file": "src/pydeb_s3/cli.py",
       "source_location": "L791",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "pydeb_s3_cli_rationale_791",
-      "target": "pydeb_s3_cli_clean_command",
-      "confidence_score": 1.0
+      "target": "pydeb_s3_cli_clean_command"
     },
     {
       "relation": "calls",
@@ -33291,10 +33381,10 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "pydeb_s3_progress_rationale_25",
+      "source": "pydeb_s3_progress_rationale_26",
       "target": "pydeb_s3_progress_bitstransferspeedcolumn"
     },
     {
@@ -33429,21 +33519,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L26",
+      "source_location": "L25",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "pydeb_s3_progress_rationale_26",
+      "source": "pydeb_s3_progress_rationale_25",
       "target": "pydeb_s3_progress_bitstransferspeedcolumn"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L28",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "pydeb_s3_progress_rationale_28",
-      "target": "pydeb_s3_progress_bitstransferspeedcolumn_render"
     },
     {
       "relation": "rationale_for",
@@ -33459,10 +33539,20 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L43",
+      "source_location": "L28",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "pydeb_s3_progress_rationale_43",
+      "source": "pydeb_s3_progress_rationale_28",
+      "target": "pydeb_s3_progress_bitstransferspeedcolumn_render"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pydeb_s3/progress.py",
+      "source_location": "L44",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "pydeb_s3_progress_rationale_44",
       "target": "pydeb_s3_progress_calculate_stream_md5"
     },
     {
@@ -33491,10 +33581,10 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L44",
+      "source_location": "L43",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "pydeb_s3_progress_rationale_44",
+      "source": "pydeb_s3_progress_rationale_43",
       "target": "pydeb_s3_progress_calculate_stream_md5"
     },
     {
@@ -33571,10 +33661,10 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L55",
+      "source_location": "L56",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "pydeb_s3_progress_rationale_55",
+      "source": "pydeb_s3_progress_rationale_56",
       "target": "pydeb_s3_progress_uploadprogress"
     },
     {
@@ -33988,10 +34078,10 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "src/pydeb_s3/progress.py",
-      "source_location": "L56",
+      "source_location": "L55",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "pydeb_s3_progress_rationale_56",
+      "source": "pydeb_s3_progress_rationale_55",
       "target": "pydeb_s3_progress_uploadprogress"
     },
     {
@@ -34004,6 +34094,16 @@
       "confidence_score": 1.0,
       "source": "pydeb_s3_progress_uploadprogress_finish",
       "target": "pydeb_s3_progress_uploadprogress_cleanup"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pydeb_s3/progress.py",
+      "source_location": "L114",
+      "weight": 1.0,
+      "source": "pydeb_s3_progress_rationale_114",
+      "target": "pydeb_s3_progress_uploadprogress_cleanup",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -34057,6 +34157,16 @@
       "confidence_score": 1.0,
       "source": "pydeb_s3_progress_uploadprogress_call",
       "target": "pydeb_s3_progress_uploadprogress_finish"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pydeb_s3/progress.py",
+      "source_location": "L119",
+      "weight": 1.0,
+      "source": "pydeb_s3_progress_rationale_119",
+      "target": "pydeb_s3_progress_uploadprogress_call",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -39388,6 +39498,16 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_upload_progress.py",
+      "source_location": "L186",
+      "weight": 1.0,
+      "source": "tests_test_upload_progress_rationale_186",
+      "target": "tests_test_upload_progress_testuploadprogressautodetection",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_upload_progress.py",
       "source_location": "L188",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -39398,11 +39518,31 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_upload_progress.py",
+      "source_location": "L189",
+      "weight": 1.0,
+      "source": "tests_test_upload_progress_rationale_189",
+      "target": "tests_test_upload_progress_testuploadprogressautodetection_test_auto_detects_interactive_from_tty",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_upload_progress.py",
       "source_location": "L191",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_upload_progress_rationale_191",
       "target": "tests_test_upload_progress_testuploadprogressautodetection_test_auto_detects_interactive_from_tty"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_upload_progress.py",
+      "source_location": "L206",
+      "weight": 1.0,
+      "source": "tests_test_upload_progress_rationale_206",
+      "target": "tests_test_upload_progress_testuploadprogressautodetection_test_auto_detects_non_interactive_from_tty",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -39438,6 +39578,16 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_upload_progress.py",
+      "source_location": "L224",
+      "weight": 1.0,
+      "source": "tests_test_upload_progress_rationale_224",
+      "target": "tests_test_upload_progress_teststreammd5",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_upload_progress.py",
       "source_location": "L226",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -39448,11 +39598,31 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_upload_progress.py",
+      "source_location": "L227",
+      "weight": 1.0,
+      "source": "tests_test_upload_progress_rationale_227",
+      "target": "tests_test_upload_progress_teststreammd5_test_stream_md5_calculates_correct_hash",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_upload_progress.py",
       "source_location": "L229",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_upload_progress_rationale_229",
       "target": "tests_test_upload_progress_teststreammd5_test_stream_md5_calculates_correct_hash"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_upload_progress.py",
+      "source_location": "L247",
+      "weight": 1.0,
+      "source": "tests_test_upload_progress_rationale_247",
+      "target": "tests_test_upload_progress_teststreammd5_test_stream_md5_handles_large_file",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -49905,9 +50075,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L47",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_py",
-      "target": "tests_test_clean_codename_filtering_testcleanwithforceflag",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleanwithforceflag"
     },
     {
       "relation": "contains",
@@ -49915,9 +50085,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L117",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_py",
-      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames"
     },
     {
       "relation": "contains",
@@ -50015,9 +50185,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_rationale_22",
-      "target": "tests_test_clean_codename_filtering_testlistcodenames",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testlistcodenames"
     },
     {
       "relation": "rationale_for",
@@ -50105,9 +50275,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L54",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleanwithforceflag",
-      "target": "tests_test_clean_codename_filtering_testcleanwithforceflag_create_release",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleanwithforceflag_create_release"
     },
     {
       "relation": "method",
@@ -50115,9 +50285,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L65",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleanwithforceflag",
-      "target": "tests_test_clean_codename_filtering_testcleanwithforceflag_add_packages_to_manifest",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleanwithforceflag_add_packages_to_manifest"
     },
     {
       "relation": "method",
@@ -50125,9 +50295,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L74",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleanwithforceflag",
-      "target": "tests_test_clean_codename_filtering_testcleanwithforceflag_upload_deb_to_pool",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleanwithforceflag_upload_deb_to_pool"
     },
     {
       "relation": "method",
@@ -50135,9 +50305,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L88",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleanwithforceflag",
-      "target": "tests_test_clean_codename_filtering_testcleanwithforceflag_test_clean_with_force_only_checks_specified_codename",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleanwithforceflag_test_clean_with_force_only_checks_specified_codename"
     },
     {
       "relation": "method",
@@ -50145,9 +50315,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L103",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleanwithforceflag",
-      "target": "tests_test_clean_codename_filtering_testcleanwithforceflag_test_clean_with_force_preserves_referenced_in_that_codename",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleanwithforceflag_test_clean_with_force_preserves_referenced_in_that_codename"
     },
     {
       "relation": "rationale_for",
@@ -50155,9 +50325,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L48",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_rationale_48",
-      "target": "tests_test_clean_codename_filtering_testcleanwithforceflag",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleanwithforceflag"
     },
     {
       "relation": "calls",
@@ -50166,9 +50336,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L90",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleanwithforceflag_test_clean_with_force_only_checks_specified_codename",
-      "target": "tests_test_clean_codename_filtering_testcleancodenamesmocked_create_release",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleancodenamesmocked_create_release"
     },
     {
       "relation": "calls",
@@ -50177,9 +50347,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L91",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleanwithforceflag_test_clean_with_force_only_checks_specified_codename",
-      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_add_packages_to_manifest",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_add_packages_to_manifest"
     },
     {
       "relation": "calls",
@@ -50188,9 +50358,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L96",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleanwithforceflag_test_clean_with_force_only_checks_specified_codename",
-      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_upload_deb_to_pool",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_upload_deb_to_pool"
     },
     {
       "relation": "rationale_for",
@@ -50198,9 +50368,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L89",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_rationale_89",
-      "target": "tests_test_clean_codename_filtering_testcleanwithforceflag_test_clean_with_force_only_checks_specified_codename",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleanwithforceflag_test_clean_with_force_only_checks_specified_codename"
     },
     {
       "relation": "calls",
@@ -50209,9 +50379,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L104",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleanwithforceflag_test_clean_with_force_preserves_referenced_in_that_codename",
-      "target": "tests_test_clean_codename_filtering_testcleancodenamesmocked_create_release",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleancodenamesmocked_create_release"
     },
     {
       "relation": "calls",
@@ -50220,9 +50390,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L105",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleanwithforceflag_test_clean_with_force_preserves_referenced_in_that_codename",
-      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_add_packages_to_manifest",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_add_packages_to_manifest"
     },
     {
       "relation": "calls",
@@ -50231,9 +50401,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L109",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleanwithforceflag_test_clean_with_force_preserves_referenced_in_that_codename",
-      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_upload_deb_to_pool",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_upload_deb_to_pool"
     },
     {
       "relation": "method",
@@ -50241,9 +50411,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L124",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames",
-      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_create_release",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_create_release"
     },
     {
       "relation": "method",
@@ -50251,9 +50421,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L135",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames",
-      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_add_packages_to_manifest",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_add_packages_to_manifest"
     },
     {
       "relation": "method",
@@ -50261,9 +50431,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L144",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames",
-      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_upload_deb_to_pool",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_upload_deb_to_pool"
     },
     {
       "relation": "method",
@@ -50271,9 +50441,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L158",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames",
-      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_test_clean_default_checks_all_codenames",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_test_clean_default_checks_all_codenames"
     },
     {
       "relation": "method",
@@ -50281,9 +50451,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L172",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames",
-      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_test_clean_default_deletes_truly_orphaned",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_test_clean_default_deletes_truly_orphaned"
     },
     {
       "relation": "rationale_for",
@@ -50291,9 +50461,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L118",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_rationale_118",
-      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames"
     },
     {
       "relation": "calls",
@@ -50302,9 +50472,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L160",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_test_clean_default_checks_all_codenames",
-      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_add_packages_to_manifest",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_add_packages_to_manifest"
     },
     {
       "relation": "calls",
@@ -50313,9 +50483,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L174",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_test_clean_default_deletes_truly_orphaned",
-      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_add_packages_to_manifest",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_add_packages_to_manifest"
     },
     {
       "relation": "calls",
@@ -50324,9 +50494,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L165",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_test_clean_default_checks_all_codenames",
-      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_upload_deb_to_pool",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_upload_deb_to_pool"
     },
     {
       "relation": "calls",
@@ -50335,9 +50505,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L178",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_test_clean_default_deletes_truly_orphaned",
-      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_upload_deb_to_pool",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_upload_deb_to_pool"
     },
     {
       "relation": "calls",
@@ -50346,9 +50516,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L159",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_test_clean_default_checks_all_codenames",
-      "target": "tests_test_clean_codename_filtering_testcleancodenamesmocked_create_release",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleancodenamesmocked_create_release"
     },
     {
       "relation": "calls",
@@ -50357,9 +50527,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L173",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleandefaultchecksallcodenames_test_clean_default_deletes_truly_orphaned",
-      "target": "tests_test_clean_codename_filtering_testcleancodenamesmocked_create_release",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleancodenamesmocked_create_release"
     },
     {
       "relation": "method",
@@ -50377,9 +50547,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L200",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleancodenamesmocked",
-      "target": "tests_test_clean_codename_filtering_testcleancodenamesmocked_test_clean_with_force_does_not_call_list_codenames",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleancodenamesmocked_test_clean_with_force_does_not_call_list_codenames"
     },
     {
       "relation": "method",
@@ -50387,9 +50557,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L219",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleancodenamesmocked",
-      "target": "tests_test_clean_codename_filtering_testcleancodenamesmocked_test_clean_without_force_calls_list_codenames",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleancodenamesmocked_test_clean_without_force_calls_list_codenames"
     },
     {
       "relation": "method",
@@ -50458,9 +50628,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L203",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleancodenamesmocked_test_clean_with_force_does_not_call_list_codenames",
-      "target": "tests_test_clean_codename_filtering_testcleancodenamesmocked_create_release",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleancodenamesmocked_create_release"
     },
     {
       "relation": "calls",
@@ -50469,9 +50639,9 @@
       "source_file": "tests/test_clean_codename_filtering.py",
       "source_location": "L222",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_clean_codename_filtering_testcleancodenamesmocked_test_clean_without_force_calls_list_codenames",
-      "target": "tests_test_clean_codename_filtering_testcleancodenamesmocked_create_release",
-      "confidence_score": 1.0
+      "target": "tests_test_clean_codename_filtering_testcleancodenamesmocked_create_release"
     },
     {
       "relation": "contains",
@@ -55993,26 +56163,6 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L547",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_integration_test_apt_behaviour_py",
-      "target": "integration_test_apt_behaviour_testexternalrepointegration"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L556",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_integration_test_apt_behaviour_py",
-      "target": "integration_test_apt_behaviour_ollama_repo"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/integration/test_apt_behaviour.py",
       "source_location": "L696",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -56028,6 +56178,26 @@
       "confidence_score": 1.0,
       "source": "integration_test_apt_behaviour_rationale_1",
       "target": "tests_integration_test_apt_behaviour_py"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L547",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_integration_test_apt_behaviour_py",
+      "target": "integration_test_apt_behaviour_testexternalrepointegration"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L556",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_integration_test_apt_behaviour_py",
+      "target": "integration_test_apt_behaviour_ollama_repo"
     },
     {
       "relation": "calls",
@@ -56121,6 +56291,27 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L716",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "integration_test_apt_behaviour_testdedupcrosscomponentfilename_test_apt_install_with_dedup_cross_component_filename",
+      "target": "integration_test_apt_behaviour_create_fake_deb"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L45",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "integration_test_apt_behaviour_rationale_45",
+      "target": "integration_test_apt_behaviour_create_fake_deb"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/integration/test_apt_behaviour.py",
       "source_location": "L654",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -56136,27 +56327,6 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "integration_test_apt_behaviour_testexternalrepointegration_test_dist_upgrade_does_not_reinstall_ollama",
-      "target": "integration_test_apt_behaviour_create_fake_deb"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L716",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "integration_test_apt_behaviour_testdedupcrosscomponentfilename_test_apt_install_with_dedup_cross_component_filename",
-      "target": "integration_test_apt_behaviour_create_fake_deb"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L45",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "integration_test_apt_behaviour_rationale_45",
       "target": "integration_test_apt_behaviour_create_fake_deb"
     },
     {
@@ -56348,6 +56518,27 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L719",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "integration_test_apt_behaviour_testdedupcrosscomponentfilename_test_apt_install_with_dedup_cross_component_filename",
+      "target": "integration_test_apt_behaviour_pydeb_upload"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L123",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "integration_test_apt_behaviour_rationale_123",
+      "target": "integration_test_apt_behaviour_pydeb_upload"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/integration/test_apt_behaviour.py",
       "source_location": "L655",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -56363,27 +56554,6 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "integration_test_apt_behaviour_testexternalrepointegration_test_dist_upgrade_does_not_reinstall_ollama",
-      "target": "integration_test_apt_behaviour_pydeb_upload"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L719",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "integration_test_apt_behaviour_testdedupcrosscomponentfilename_test_apt_install_with_dedup_cross_component_filename",
-      "target": "integration_test_apt_behaviour_pydeb_upload"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L123",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "integration_test_apt_behaviour_rationale_123",
       "target": "integration_test_apt_behaviour_pydeb_upload"
     },
     {
@@ -56770,76 +56940,6 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L621",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "integration_test_apt_behaviour_testexternalrepointegration",
-      "target": "integration_test_apt_behaviour_testexternalrepointegration_test_ollama_installs_via_extrepo"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L635",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "integration_test_apt_behaviour_testexternalrepointegration",
-      "target": "integration_test_apt_behaviour_testexternalrepointegration_test_upgrade_does_not_reinstall_ollama"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L665",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "integration_test_apt_behaviour_testexternalrepointegration",
-      "target": "integration_test_apt_behaviour_testexternalrepointegration_test_dist_upgrade_does_not_reinstall_ollama"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L548",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "integration_test_apt_behaviour_rationale_548",
-      "target": "integration_test_apt_behaviour_testexternalrepointegration"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L627",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "integration_test_apt_behaviour_rationale_627",
-      "target": "integration_test_apt_behaviour_testexternalrepointegration_test_ollama_installs_via_extrepo"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L644",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "integration_test_apt_behaviour_rationale_644",
-      "target": "integration_test_apt_behaviour_testexternalrepointegration_test_upgrade_does_not_reinstall_ollama"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/integration/test_apt_behaviour.py",
-      "source_location": "L674",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "integration_test_apt_behaviour_rationale_674",
-      "target": "integration_test_apt_behaviour_testexternalrepointegration_test_dist_upgrade_does_not_reinstall_ollama"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/integration/test_apt_behaviour.py",
       "source_location": "L699",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -56850,11 +56950,31 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L543",
+      "weight": 1.0,
+      "source": "integration_test_apt_behaviour_rationale_543",
+      "target": "integration_test_apt_behaviour_testdedupcrosscomponentfilename",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/integration/test_apt_behaviour.py",
       "source_location": "L697",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "integration_test_apt_behaviour_rationale_697",
       "target": "integration_test_apt_behaviour_testdedupcrosscomponentfilename"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L552",
+      "weight": 1.0,
+      "source": "integration_test_apt_behaviour_rationale_552",
+      "target": "integration_test_apt_behaviour_testdedupcrosscomponentfilename_test_apt_install_with_dedup_cross_component_filename",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -57636,6 +57756,76 @@
       "confidence_score": 1.0,
       "source": "plans_plan_10_next_steps_for_implementation",
       "target": "plans_plan_codeblock_3"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L621",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "integration_test_apt_behaviour_testexternalrepointegration",
+      "target": "integration_test_apt_behaviour_testexternalrepointegration_test_ollama_installs_via_extrepo"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L635",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "integration_test_apt_behaviour_testexternalrepointegration",
+      "target": "integration_test_apt_behaviour_testexternalrepointegration_test_upgrade_does_not_reinstall_ollama"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L665",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "integration_test_apt_behaviour_testexternalrepointegration",
+      "target": "integration_test_apt_behaviour_testexternalrepointegration_test_dist_upgrade_does_not_reinstall_ollama"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L548",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "integration_test_apt_behaviour_rationale_548",
+      "target": "integration_test_apt_behaviour_testexternalrepointegration"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L627",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "integration_test_apt_behaviour_rationale_627",
+      "target": "integration_test_apt_behaviour_testexternalrepointegration_test_ollama_installs_via_extrepo"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L644",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "integration_test_apt_behaviour_rationale_644",
+      "target": "integration_test_apt_behaviour_testexternalrepointegration_test_upgrade_does_not_reinstall_ollama"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/integration/test_apt_behaviour.py",
+      "source_location": "L674",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "integration_test_apt_behaviour_rationale_674",
+      "target": "integration_test_apt_behaviour_testexternalrepointegration_test_dist_upgrade_does_not_reinstall_ollama"
     },
     {
       "relation": "method",
@@ -60993,5 +61183,5 @@
       "source_file": "tests/conftest.py"
     }
   ],
-  "built_at_commit": "1ffbde7b35d23773a82f75ae28a6ccc350c6f6b7"
+  "built_at_commit": "99f126e532d31076745c3563a8bcd2f6ed228212"
 }

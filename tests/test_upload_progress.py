@@ -165,7 +165,7 @@ class TestUploadProgress:
             assert progress._calculate_percentage(1000) == 100
 
     def test_upload_progress_tracks_bytes_transferred(self):
-        """UploadProgress tracks bytes transferred."""
+        """UploadProgress tracks bytes transferred incrementally."""
         with patch("sys.stderr") as mock_stderr:
             mock_stderr.isatty.return_value = False
 
@@ -178,9 +178,7 @@ class TestUploadProgress:
             )
 
             progress(100)
-            assert progress._bytes_transferred == 100
-
-            progress(200)
+            progress(100)
             assert progress._bytes_transferred == 200
 
 

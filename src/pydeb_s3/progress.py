@@ -1,6 +1,7 @@
 """Progress tracking utilities for S3 uploads."""
 
 import hashlib
+import threading
 import sys
 import time
 from typing import Optional
@@ -72,6 +73,7 @@ class UploadProgress:
             self._is_interactive = interactive
 
         self._bytes_transferred = 0
+        self._lock = threading.Lock()
         self._start_time = time.time()
         self._last_log_time = self._start_time
         self._progress = None
@@ -115,7 +117,10 @@ class UploadProgress:
 
     def __call__(self, bytes_transferred: int) -> None:
         """Called by boto3 upload_file with current bytes transferred."""
-        self._bytes_transferred = bytes_transferred
+        with self._lock:
+            self._bytes_transferred += bytes_transferred
+            bytes_transferred = self._bytes_transferred
+
         current_time = time.time()
 
         if self._is_interactive and self._progress:
