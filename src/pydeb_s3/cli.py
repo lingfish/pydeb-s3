@@ -20,6 +20,17 @@ from pydeb_s3 import s3_utils
 from pydeb_s3.progress import BitsTransferSpeedColumn
 from pydeb_s3.s3_adapter import Boto3S3Adapter, S3Adapter
 
+try:
+    from pydeb_s3 import __version__
+except ImportError:
+    __version__ = "unknown"
+
+
+def version_callback(value: bool):
+    if value:
+        typer.echo(f"pydeb-s3 {__version__}")
+        raise typer.Exit()
+
 
 @dataclass
 class S3Config:
@@ -130,6 +141,10 @@ def _configure_s3(config: S3Config) -> S3Adapter:
 
 def cli_callback(
     ctx: typer.Context,
+    version: Annotated[
+        Optional[bool],
+        typer.Option("--version", "-V", help="Show version and exit", callback=version_callback, is_eager=True),
+    ] = None,
     quiet: Annotated[bool, typer.Option("--quiet", help="Only show errors")] = False,
     debug: Annotated[bool, typer.Option("--debug", help="Enable debug output")] = False,
     timestamps: Annotated[Optional[bool], typer.Option("--timestamps/--no-timestamps", help="Enable/disable timestamps (auto-detects TTY by default)")] = None,
@@ -148,6 +163,7 @@ def cli_callback(
         logger.add(sys.stderr, level=level)
     else:
         logger.add(sys.stderr, level=level, format="{message}")
+    logger.info(f"pydeb-s3 {__version__} starting")
     ctx.obj = {"quiet": quiet, "debug": debug, "timestamps": show_timestamps}
 
 
