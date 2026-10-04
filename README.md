@@ -33,6 +33,7 @@ pydeb-s3 has been rewritten in Python with modern tooling and additional capabil
 - **S3-compatible storage** support (AWS S3, Google Cloud Storage, MinIO, etc.)
 - **Concurrent operation locking** to prevent conflicting uploads
 - **Cross-component deduplication** with `--dedupe-component`: avoids re-uploading packages that already exist in another component (e.g., upload to `main` by copying from `non-free`)
+- **`Acquire-By-Hash` support**: publishes content-addressed `by-hash/` copies of each index (SHA256, SHA512, MD5Sum), so `apt` can fetch indexes atomically and never sees a Release pointing at a missing or mid-update Packages file
 - **Dry-run mode** for clean/verify operations
 - **Configurable timestamps** with `--timestamps/--no-timestamps` flag, auto-detects TTY for clean interactive output
 - Modern CLI with Typer, featuring help text and shell completion

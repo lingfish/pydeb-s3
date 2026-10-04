@@ -80,7 +80,7 @@ class TestDedupeUploadFlow:
             return original_copy(source, dest)
 
         def tracking_store(filepath, key, **kwargs):
-            if not key.endswith(("Packages", "Packages.gz")):
+            if not key.endswith(("Packages", "Packages.gz")) and "/by-hash/" not in key:
                 calls["store_file"].append((filepath, key))
             return original_store(filepath, key, **kwargs)
 
