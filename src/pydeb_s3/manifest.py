@@ -17,6 +17,12 @@ class AlreadyExistsError(Exception):
     """Raised when a package already exists."""
 
 
+# Internal hash key -> apt by-hash directory name (uppercase, per apt convention).
+# NOTE: Release.generate() only emits SHA256, SHA512 and MD5Sum hash sections.
+# Add ("sha1", "SHA1") here if a SHA1 section is ever emitted.
+_BY_HASH_DIRS = (("sha256", "SHA256"), ("sha512", "SHA512"), ("md5", "MD5Sum"))
+
+
 @dataclass
 class Manifest:
     """Represents a Packages manifest for APT repository."""
@@ -292,8 +298,14 @@ class Manifest:
                 use_bytes=use_bytes,
                 progress=progress,
             )
-            self.files[f"{self.component}/binary-{self.architecture}/Packages"] = self._hashfile(
-                packages_temp.name
+            packages_hashes = self._hashfile(packages_temp.name)
+            self.files[f"{self.component}/binary-{self.architecture}/Packages"] = packages_hashes
+            self._write_by_hash(
+                s3_adapter,
+                packages_temp.name,
+                path,
+                packages_hashes,
+                content_type="text/plain; charset=utf-8",
             )
             logger.debug(f"write_to_s3: Packages hash result: {self.files[f'{self.component}/binary-{self.architecture}/Packages']}")
         finally:
@@ -303,8 +315,11 @@ class Manifest:
             mode="wb", suffix=".Packages.gz", delete=False
         )
         try:
-            with gzip.open(gztemp.name, "wt") as gz:
-                gz.write(manifest)
+            # mtime=0 makes the gzip header deterministic, so identical package
+            # sets produce identical Packages.gz bytes (and hashes) across runs.
+            gztemp.write(gzip.compress(manifest.encode("utf-8"), mtime=0))
+            gztemp.flush()
+            gztemp.close()
             path = f"dists/{self.codename}/{self.component}/binary-{self.architecture}/Packages.gz"
             if callback:
                 callback(path)
@@ -316,11 +331,52 @@ class Manifest:
                 use_bytes=use_bytes,
                 progress=progress,
             )
-            self.files[f"{self.component}/binary-{self.architecture}/Packages.gz"] = self._hashfile(
-                gztemp.name
+            gz_hashes = self._hashfile(gztemp.name)
+            self.files[f"{self.component}/binary-{self.architecture}/Packages.gz"] = gz_hashes
+            self._write_by_hash(
+                s3_adapter,
+                gztemp.name,
+                path,
+                gz_hashes,
+                content_type="application/x-gzip; charset=binary",
             )
         finally:
             os.unlink(gztemp.name)
+
+    def _write_by_hash(
+        self,
+        s3_adapter: S3Adapter,
+        local_file: str,
+        index_key: str,
+        hashes: dict,
+        content_type: str,
+    ) -> None:
+        """Upload content-addressed by-hash copies of an index file.
+
+        apt's Acquire-By-Hash feature (advertised in the Release file) expects
+        each index under ``<dir>/by-hash/<NAME>/<hash>``. Uploading uses
+        ``store_file`` rather than ``copy`` so the ACL, content type and cache
+        control match the plain index. Keys are content-addressed, so an
+        existing object is guaranteed to be identical and is skipped.
+
+        Failure is fatal: a published Release must never advertise by-hash
+        files that do not exist.
+        """
+        directory = index_key.rsplit("/", 1)[0]
+        for algo, name in _BY_HASH_DIRS:
+            value = hashes.get(algo)
+            if not value:
+                continue
+            key = f"{directory}/by-hash/{name}/{value}"
+            if s3_adapter.exists(key):
+                continue
+            s3_adapter.store_file(
+                local_file,
+                key,
+                content_type=content_type,
+                cache_control=self.cache_control,
+                show_progress=False,
+            )
 
     def _hashfile(self, path: str) -> dict:
         """Calculate hashes for a file."""

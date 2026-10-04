@@ -119,6 +119,23 @@ def _http_get_binary(url: str) -> Tuple[int, Dict[str, str], bytes]:
         return 0, {}, str(e).encode()
 
 
+def _parse_hash_section(release_body: str, section: str) -> dict[str, str]:
+    """Return {filename: hash} for a Release hash section (e.g. "SHA512")."""
+    entries: dict[str, str] = {}
+    in_section = False
+    for line in release_body.splitlines():
+        if line.strip() == f"{section}:":
+            in_section = True
+            continue
+        if in_section:
+            if not line.startswith(" "):
+                break
+            parts = line.split()
+            if len(parts) >= 3:
+                entries[" ".join(parts[2:])] = parts[0]
+    return entries
+
+
 def _pydeb_upload(bucket: str, endpoint: str, deb_path: str, *extra_args: str) -> None:
     """Run pydeb-s3 upload with common args and optional extras."""
     subprocess.run(
@@ -537,6 +554,55 @@ class TestRepoStructure:
         assert "SHA256:" in body, "Release should have SHA256 section"
         assert "main/binary-amd64/Packages" in body, "Release should reference Packages file"
         assert "main/binary-amd64/Packages.gz" in body, "Release should reference Packages.gz file"
+
+    def test_release_advertises_acquire_by_hash(
+        self,
+        unsigned_populated_repo,
+        moto_server,
+    ):
+        """Release advertises Acquire-By-Hash (and the files must therefore exist)."""
+        code, _, body = _http_get(f"{moto_server}/{BUCKET}/dists/stable/Release")
+        assert code == 200
+        assert "Acquire-By-Hash: yes" in body, (
+            "Release should advertise Acquire-By-Hash: yes"
+        )
+
+    def test_by_hash_files_match_release_hashes(
+        self,
+        unsigned_populated_repo,
+        moto_server,
+    ):
+        """Every SHA512 by-hash URI in the Release resolves to the index bytes.
+
+        This is the exact URI apt requests when it honours Acquire-By-Hash.
+        """
+        code, _, body = _http_get(f"{moto_server}/{BUCKET}/dists/stable/Release")
+        assert code == 200
+
+        sha512 = _parse_hash_section(body, "SHA512")
+        assert "main/binary-amd64/Packages" in sha512, sha512
+        assert "main/binary-amd64/Packages.gz" in sha512, sha512
+
+        for rel_name, hashed in sha512.items():
+            if not rel_name.startswith("main/binary-amd64/"):
+                continue
+            index_dir = rel_name.rsplit("/", 1)[0]
+            plain_url = f"{moto_server}/{BUCKET}/dists/stable/{rel_name}"
+            by_hash_url = (
+                f"{moto_server}/{BUCKET}/dists/stable/{index_dir}/by-hash/SHA512/{hashed}"
+            )
+
+            plain_code, _, plain_body = _http_get_binary(plain_url)
+            by_hash_code, _, by_hash_body = _http_get_binary(by_hash_url)
+
+            assert plain_code == 200, f"Expected 200 for plain {plain_url}, got {plain_code}"
+            assert by_hash_code == 200, (
+                f"apt by-hash gateway returned {by_hash_code} for {by_hash_url} "
+                "(this is the Acquire-By-Hash 404 from production)"
+            )
+            assert by_hash_body == plain_body, (
+                f"by-hash content differs from plain index for {rel_name}"
+            )
 
 
 class TestDedupCrossComponentFilename:

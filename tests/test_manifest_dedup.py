@@ -87,8 +87,8 @@ class TestManifestDedup:
             return original_copy(source, dest)
 
         def tracking_store(filepath, key, **kwargs):
-            # Only track .deb file uploads (not Packages/Packages.gz)
-            if not key.endswith(("Packages", "Packages.gz")):
+            # Only track .deb file uploads (not Packages/Packages.gz or by-hash copies)
+            if not key.endswith(("Packages", "Packages.gz")) and "/by-hash/" not in key:
                 calls["store_file"].append((filepath, key))
             return original_store(filepath, key, **kwargs)
 
