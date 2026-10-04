@@ -34,6 +34,7 @@ pydeb-s3 has been rewritten in Python with modern tooling and additional capabil
 - **Concurrent operation locking** to prevent conflicting uploads
 - **Cross-component deduplication** with `--dedupe-component`: avoids re-uploading packages that already exist in another component (e.g., upload to `main` by copying from `non-free`)
 - **`Acquire-By-Hash` support**: publishes content-addressed `by-hash/` copies of each index (SHA256, SHA512, MD5Sum), so `apt` can fetch indexes atomically and never sees a Release pointing at a missing or mid-update Packages file
+- **`backfill-by-hash` command**: repairs repositories published before by-hash support existed by creating the by-hash copies named in the existing Release, without modifying or re-signing it
 - **Dry-run mode** for clean/verify operations
 - **Configurable timestamps** with `--timestamps/--no-timestamps` flag, auto-detects TTY for clean interactive output
 - Modern CLI with Typer, featuring help text and shell completion
@@ -99,6 +100,7 @@ Commands:
   delete   Remove a package from the repository.
   verify   Verify that the files in the package manifests exist.
   clean    Remove orphaned package files.
+  backfill-by-hash  Create missing by-hash index copies for an existing repository.
 ```
 
 For detailed options per command, run `pydeb-s3 <command> --help`.
@@ -149,6 +151,15 @@ $ pydeb-s3 verify --bucket my-bucket --fix-manifests
 ```bash
 $ pydeb-s3 clean --bucket my-bucket --dry-run
 $ pydeb-s3 clean --bucket my-bucket  # Actually remove orphans
+```
+
+### Backfill by-hash index copies (migration)
+For repositories published before `Acquire-By-Hash` support, create the missing
+by-hash copies from the existing Release (no re-signing):
+```bash
+$ pydeb-s3 backfill-by-hash --bucket my-bucket --codename stable --dry-run
+$ pydeb-s3 backfill-by-hash --bucket my-bucket --codename stable
+$ pydeb-s3 backfill-by-hash --bucket my-bucket --all-codenames
 ```
 
 ## Configuration

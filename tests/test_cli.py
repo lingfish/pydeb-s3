@@ -163,6 +163,20 @@ class TestCleanValidation:
         assert result.exit_code == 0
 
 
+class TestBackfillByHashValidation:
+    """Tests for backfill-by-hash command validation."""
+
+    def test_requires_bucket(self):
+        """backfill-by-hash fails without --bucket."""
+        result = runner.invoke(app, ["backfill-by-hash"])
+        assert result.exit_code != 0
+
+    def test_shows_help(self):
+        """backfill-by-hash shows help."""
+        result = runner.invoke(app, ["backfill-by-hash", "--help"])
+        assert result.exit_code == 0
+
+
 class TestCLICommands:
     """Tests for CLI command registration."""
 
@@ -178,3 +192,4 @@ class TestCLICommands:
         assert "delete" in res.output
         assert "verify" in res.output
         assert "clean" in res.output
+        assert "backfill-by-hash" in res.output

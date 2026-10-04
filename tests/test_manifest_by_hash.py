@@ -247,6 +247,27 @@ class TestWriteByHashHelper:
         )
         assert len(adapter.stored) == 1
 
+    def test_dry_run_reports_without_writing(self):
+        """dry_run returns the mapped keys but performs no uploads."""
+        adapter = _RecordingAdapter()
+        hashes = {"sha256": "a" * 64, "sha512": "b" * 128, "md5": "c" * 32}
+
+        keys = manifest_module.write_by_hash_copies(
+            adapter,
+            "/tmp/index",
+            PACKAGES_KEY,
+            hashes,
+            "text/plain",
+            dry_run=True,
+        )
+
+        assert adapter.stored == []
+        assert keys == [
+            _by_hash_key(PACKAGES_KEY, "SHA256", "a" * 64),
+            _by_hash_key(PACKAGES_KEY, "SHA512", "b" * 128),
+            _by_hash_key(PACKAGES_KEY, "MD5Sum", "c" * 32),
+        ]
+
 
 class TestPackagesGzDeterminism:
     """Packages.gz must be byte-reproducible so by-hash keys are stable."""

@@ -82,6 +82,23 @@ class S3Adapter(Protocol):
         """
         ...
 
+    def download(self, path: str, filepath: str) -> None:
+        """Download an object from S3 to a local file (binary-safe).
+
+        Unlike read(), this does not assume UTF-8 content and can be used
+        for binary objects such as Packages.gz.
+
+        Args:
+            path: S3 key (without prefix)
+            filepath: Local filesystem path to write
+
+        Raises:
+            S3NotFoundError: If object doesn't exist
+            S3AccessError: If access denied
+            S3Error: On other S3 failures
+        """
+        ...
+
     def exists(self, path: str) -> bool:
         """Check if an object exists in S3.
 
@@ -321,6 +338,26 @@ class Boto3S3Adapter(S3Adapter):
             logger.error("S3 error reading {}: {}", path, e)
             raise S3Error(f"Failed to read {path}: {e}")
 
+    def download(self, path: str, filepath: str) -> None:
+        """Download an object from S3 to a local file (binary-safe)."""
+        if not self._client or not self.bucket:
+            logger.error("S3 not configured")
+            raise S3Error("S3 not configured")
+
+        try:
+            logger.debug("Downloading s3://{}/{} to {}", self.bucket, path, filepath)
+            self._client.download_file(self.bucket, self._s3_path(path), filepath)
+        except ClientError as e:
+            code = e.response["Error"]["Code"]
+            if code in ("404", "NoSuchKey", "NotFound"):
+                logger.warning("Object not found: {}", path)
+                raise S3NotFoundError(path)
+            if code in ("403", "AccessDenied"):
+                logger.error("Access denied downloading {}: {}", path, e)
+                raise S3AccessError(path, "download")
+            logger.error("S3 error downloading {}: {}", path, e)
+            raise S3Error(f"Failed to download {path}: {e}")
+
     def exists(self, path: str) -> bool:
         """Check if an object exists in S3."""
         if not self._client or not self.bucket:
@@ -555,6 +592,14 @@ class MockS3Adapter(S3Adapter):
         if full_key not in self._storage:
             raise S3NotFoundError(path)
         return self._storage[full_key].decode("utf-8")
+
+    def download(self, path: str, filepath: str) -> None:
+        """Download an object from the mock S3 to a local file (binary-safe)."""
+        full_key = self._s3_path(path)
+        if full_key not in self._storage:
+            raise S3NotFoundError(path)
+        with open(filepath, "wb") as f:
+            f.write(self._storage[full_key])
 
     def exists(self, path: str) -> bool:
         """Check if an object exists in the mock S3."""

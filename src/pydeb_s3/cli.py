@@ -3,6 +3,7 @@
 import glob
 import os
 import sys
+import tempfile
 from dataclasses import dataclass
 from typing import Annotated, Optional
 
@@ -18,7 +19,7 @@ from pydeb_s3 import package as package_module
 from pydeb_s3 import release as release_module
 from pydeb_s3 import s3_utils
 from pydeb_s3.progress import BitsTransferSpeedColumn
-from pydeb_s3.s3_adapter import Boto3S3Adapter, S3Adapter
+from pydeb_s3.s3_adapter import Boto3S3Adapter, S3Adapter, S3Error
 
 try:
     from pydeb_s3 import __version__
@@ -110,6 +111,10 @@ def _configure_s3(config: S3Config) -> S3Adapter:
         settings["endpoint_url"] = config.endpoint
     if config.proxy_uri:
         settings["proxy"] = {"http": config.proxy_uri, "https": config.proxy_uri}
+    if config.force_path_style:
+        settings["use_accelerate_endpoint"] = False
+    if config.checksum_when_required:
+        settings["request_checksum_calculation"] = "when_required"
 
     if config.access_key_id and config.secret_access_key:
         settings["aws_access_key_id"] = config.access_key_id
@@ -891,3 +896,184 @@ def clean_command(
             logger.info(f"Removed {removed_count} orphaned package(s).")
     else:
         logger.info("No orphaned packages found.")
+
+
+_INDEX_CONTENT_TYPES = {
+    ".gz": "application/x-gzip; charset=binary",
+    ".xz": "application/x-xz; charset=binary",
+    ".bz2": "application/x-bzip2; charset=binary",
+}
+
+
+def _index_content_type(path: str) -> str:
+    """Guess the content type of an index file from its extension."""
+    for suffix, content_type in _INDEX_CONTENT_TYPES.items():
+        if path.endswith(suffix):
+            return content_type
+    return "text/plain; charset=utf-8"
+
+
+def _backfill_codename(
+    s3_adapter: S3Adapter,
+    codename: str,
+    origin: Optional[str],
+    suite: Optional[str],
+    cache_control: Optional[str],
+    dry_run: bool,
+) -> int:
+    """Create missing by-hash copies for a single codename. Returns the count."""
+    release_path = f"dists/{codename}/Release"
+    if not s3_adapter.exists(release_path):
+        logger.error(f"No Release file found at {release_path}; nothing to backfill.")
+        raise typer.Exit(code=1)
+
+    release_content = s3_adapter.read(release_path)
+    if "Acquire-By-Hash" not in release_content:
+        logger.warning(
+            f"{release_path} does not advertise Acquire-By-Hash; "
+            "by-hash copies are unnecessary but will still be created."
+        )
+
+    release = release_module.Release.retrieve(s3_adapter, codename, origin, suite)
+
+    # Only the index files pydeb-s3 publishes; ignore anything else the Release
+    # may reference (Contents, Sources, Translation, ...).
+    indexes = {
+        name: hashes
+        for name, hashes in release.files.items()
+        if name.endswith(("/Packages", "/Packages.gz"))
+    }
+    if not indexes:
+        logger.info(f"No Packages indexes found in {release_path}; nothing to backfill.")
+        return 0
+
+    # Phase 1: download and verify every index before writing anything, so a
+    # mismatch (e.g. a publish raced us) aborts without partial by-hash trees.
+    verified = []  # (index_key, temp_path, hashes, content_type, cache_control)
+    temp_paths = []
+    try:
+        for rel_name in sorted(indexes):
+            index_key = f"dists/{codename}/{rel_name}"
+            fd, tmp_path = tempfile.mkstemp(suffix=".index")
+            os.close(fd)
+            temp_paths.append(tmp_path)
+
+            logger.info(f"Verifying {index_key}")
+            s3_adapter.download(index_key, tmp_path)
+            actual = manifest_module.hash_file(tmp_path)
+
+            for algo in ("size", "sha256", "sha512", "md5", "sha1"):
+                expected = indexes[rel_name].get(algo)
+                if expected is None:
+                    continue
+                if actual[algo] != expected:
+                    logger.error(
+                        f"{index_key} does not match the Release ({algo}: "
+                        f"expected {expected}, got {actual[algo]}). The repository is "
+                        "inconsistent; re-publish/re-sign before backfilling."
+                    )
+                    raise typer.Exit(code=1)
+
+            # Only write by-hash copies for the algorithms the Release advertises.
+            advertised = {
+                algo: actual[algo]
+                for algo in ("sha256", "sha512", "md5")
+                if indexes[rel_name].get(algo)
+            }
+
+            content_type = _index_content_type(rel_name)
+            index_cache_control = cache_control
+            try:
+                head = s3_adapter.head(index_key)
+                content_type = head.get("ContentType", content_type)
+                if head.get("CacheControl"):
+                    index_cache_control = head["CacheControl"]
+            except S3Error as e:
+                logger.debug(f"Could not read metadata for {index_key}: {e}")
+
+            verified.append((index_key, tmp_path, advertised, content_type, index_cache_control))
+
+        # Phase 2: write the by-hash copies.
+        written = 0
+        for index_key, tmp_name, hashes, content_type, index_cache_control in verified:
+            keys = manifest_module.write_by_hash_copies(
+                s3_adapter,
+                tmp_name,
+                index_key,
+                hashes,
+                content_type,
+                index_cache_control,
+                dry_run=dry_run,
+            )
+            for key in keys:
+                if dry_run:
+                    logger.warning(f"Would create {key}")
+                else:
+                    logger.info(f"Created {key}")
+            written += len(keys)
+        return written
+    finally:
+        for path in temp_paths:
+            if os.path.exists(path):
+                os.unlink(path)
+
+
+@app.command("backfill-by-hash")
+def backfill_by_hash_command(
+    bucket: Annotated[Optional[str], typer.Option("-b", "--bucket", help="The name of the S3 bucket.")] = None,
+    prefix: Annotated[Optional[str], typer.Option("--prefix", help="The path prefix to use when storing on S3.")] = None,
+    origin: Annotated[Optional[str], typer.Option("-o", "--origin", help="The origin used in the repository Release file.")] = None,
+    suite: Annotated[Optional[str], typer.Option("--suite", help="The suite used in the repository Release file.")] = None,
+    codename: Annotated[str, typer.Option("-c", "--codename", help="The codename of the APT repository.")] = "stable",
+    all_codenames: Annotated[bool, typer.Option("--all-codenames", help="Backfill every codename found under dists/.")] = False,
+    s3_region: Annotated[str, typer.Option("--s3-region", help="The region for connecting to S3.")] = "us-east-1",
+    access_key_id: Annotated[Optional[str], typer.Option("--access-key-id", help="The access key for connecting to S3.")] = None,
+    secret_access_key: Annotated[Optional[str], typer.Option("--secret-access-key", help="The secret key for connecting to S3.")] = None,
+    session_token: Annotated[Optional[str], typer.Option("--session-token", help="The session token for connecting to S3.")] = None,
+    endpoint: Annotated[Optional[str], typer.Option("--endpoint", help="The URL endpoint to the S3 API.")] = None,
+    force_path_style: Annotated[bool, typer.Option("--force-path-style", help="Use S3 path style instead of subdomains.")] = False,
+    encryption: Annotated[bool, typer.Option("-e", "--encryption", help="Use S3 server side encryption.")] = False,
+    visibility: Annotated[str, typer.Option("-v", "--visibility", help="The access policy for the created files. Can be public, private, authenticated, or nil.")] = "public",
+    cache_control: Annotated[Optional[str], typer.Option("-C", "--cache-control", help="Add cache-control headers to S3 objects.")] = None,
+    checksum_when_required: Annotated[bool, typer.Option("--checksum-when-required", help="Disable SDK upload checksums for S3-compatible endpoints.")] = False,
+    dry_run: Annotated[bool, typer.Option("-n", "--dry-run", help="Show what would be created without uploading.")] = False,
+):
+    """Create missing by-hash index copies for an existing repository.
+
+    Repairs repositories published before by-hash support existed: reads the
+    existing Release file and copies each Packages/Packages.gz index to the
+    by-hash paths named there. Does not modify or re-sign the Release.
+    """
+    if not bucket:
+        logger.error("No value provided for required option '--bucket'")
+        raise typer.Exit(code=1)
+
+    s3_config = build_s3_config(
+        bucket=bucket,
+        prefix=prefix,
+        s3_region=s3_region,
+        endpoint=endpoint,
+        access_key_id=access_key_id,
+        secret_access_key=secret_access_key,
+        session_token=session_token,
+        visibility=visibility,
+        encryption=encryption,
+        force_path_style=force_path_style,
+        checksum_when_required=checksum_when_required,
+        cache_control=cache_control,
+    )
+    s3_adapter = _configure_s3(s3_config)
+
+    codenames = [codename]
+    if all_codenames:
+        discovered = s3_utils.list_codenames(s3_adapter)
+        codenames = discovered or [codename]
+
+    total = 0
+    for cname in codenames:
+        total += _backfill_codename(s3_adapter, cname, origin, suite, cache_control, dry_run)
+
+    if dry_run:
+        logger.info(f"Would create {total} by-hash object(s).")
+    else:
+        logger.info(f"Created {total} by-hash object(s).")

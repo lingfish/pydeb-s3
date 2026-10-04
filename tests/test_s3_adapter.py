@@ -44,6 +44,9 @@ class TestS3AdapterProtocol:
             def read(self, path: str) -> str:
                 """Read an object from S3, return as string."""
 
+            def download(self, path: str, filepath: str) -> None:
+                """Download an object from S3 to a local file."""
+
             def exists(self, path: str) -> bool:
                 """Check if an object exists in S3."""
 
@@ -66,6 +69,7 @@ class TestS3AdapterProtocol:
         adapter = MinimalS3Adapter(bucket="test-bucket", prefix="test-prefix")
         assert hasattr(adapter, "store_file")
         assert hasattr(adapter, "read")
+        assert hasattr(adapter, "download")
         assert hasattr(adapter, "exists")
         assert hasattr(adapter, "remove")
         assert hasattr(adapter, "copy")
@@ -95,6 +99,9 @@ class TestS3AdapterProtocol:
                 self.calls.append(("read", path))
                 return "content"
 
+            def download(self, path: str, filepath: str) -> None:
+                self.calls.append(("download", path, filepath))
+
             def exists(self, path: str) -> bool:
                 self.calls.append(("exists", path))
                 return True
@@ -119,13 +126,14 @@ class TestS3AdapterProtocol:
         # Verify all methods can be called
         adapter.store_file("/tmp/test", "key")
         adapter.read("path")
+        adapter.download("path", "/tmp/out")
         adapter.exists("path")
         adapter.remove("path")
         adapter.copy("src", "dst")
         adapter.head("path")
         adapter.list_objects("prefix")
 
-        assert len(adapter.calls) == 7
+        assert len(adapter.calls) == 8
 
 
 class TestS3Exceptions:
@@ -244,6 +252,74 @@ class TestBoto3S3Adapter:
         """read should raise S3NotFoundError when object doesn't exist."""
         with pytest.raises(S3NotFoundError):
             adapter.read("nonexistent/path")
+
+    def test_download_round_trip_bytes(self, adapter):
+        """download returns exact bytes, including non-UTF-8 content."""
+        payload = b"\x1f\x8b\x08\x00\xff\xfe\x00binary\x00data"
+        with tempfile.NamedTemporaryFile(mode="wb", delete=False) as f:
+            f.write(payload)
+            temp_path = f.name
+        with tempfile.NamedTemporaryFile(delete=False) as out:
+            out_path = out.name
+        try:
+            adapter.store_file(temp_path, "test/binary.gz")
+            adapter.download("test/binary.gz", out_path)
+            with open(out_path, "rb") as f:
+                assert f.read() == payload
+        finally:
+            os.unlink(temp_path)
+            os.unlink(out_path)
+
+    def test_download_with_prefix(self, adapter):
+        """download resolves keys under the configured prefix."""
+        with tempfile.NamedTemporaryFile(mode="wb", delete=False) as f:
+            f.write(b"payload")
+            temp_path = f.name
+        try:
+            adapter.store_file(temp_path, "test/prefixed.txt")
+            with tempfile.NamedTemporaryFile(delete=False) as out:
+                out_path = out.name
+            adapter.download("test/prefixed.txt", out_path)
+            with open(out_path, "rb") as f:
+                assert f.read() == b"payload"
+            os.unlink(out_path)
+        finally:
+            os.unlink(temp_path)
+
+    def test_download_raises_not_found(self, adapter):
+        """download should raise S3NotFoundError when object doesn't exist."""
+        with pytest.raises(S3NotFoundError):
+            adapter.download("nonexistent/path", "/tmp/pydeb-s3-missing")
+
+    def test_download_maps_nosuchkey_to_not_found(self, adapter):
+        """A NoSuchKey ClientError maps to S3NotFoundError."""
+        from botocore.exceptions import ClientError
+
+        adapter._client.download_file = MagicMock(
+            side_effect=ClientError({"Error": {"Code": "NoSuchKey"}}, "GetObject")
+        )
+        with pytest.raises(S3NotFoundError):
+            adapter.download("whatever", "/tmp/pydeb-s3-out")
+
+    def test_download_maps_404_to_not_found(self, adapter):
+        """A 404 ClientError (head path) maps to S3NotFoundError."""
+        from botocore.exceptions import ClientError
+
+        adapter._client.download_file = MagicMock(
+            side_effect=ClientError({"Error": {"Code": "404"}}, "HeadObject")
+        )
+        with pytest.raises(S3NotFoundError):
+            adapter.download("whatever", "/tmp/pydeb-s3-out")
+
+    def test_download_maps_access_denied(self, adapter):
+        """An AccessDenied ClientError maps to S3AccessError."""
+        from botocore.exceptions import ClientError
+
+        adapter._client.download_file = MagicMock(
+            side_effect=ClientError({"Error": {"Code": "AccessDenied"}}, "GetObject")
+        )
+        with pytest.raises(S3AccessError):
+            adapter.download("whatever", "/tmp/pydeb-s3-out")
 
     def test_exists_returns_true(self, adapter):
         """exists should return True when object exists."""
@@ -519,6 +595,45 @@ class TestMockS3Adapter:
         """read should raise S3NotFoundError when object doesn't exist."""
         with pytest.raises(S3NotFoundError):
             mock_adapter.read("nonexistent.txt")
+
+    def test_download_returns_exact_bytes(self, mock_adapter):
+        """download writes exact bytes, including non-UTF-8 content."""
+        payload = b"\x00\x01\xff\xfe binary"
+        with tempfile.NamedTemporaryFile(mode="wb", delete=False) as f:
+            f.write(payload)
+            temp_path = f.name
+        with tempfile.NamedTemporaryFile(delete=False) as out:
+            out_path = out.name
+        try:
+            mock_adapter.store_file(temp_path, "binary.dat")
+            mock_adapter.download("binary.dat", out_path)
+            with open(out_path, "rb") as f:
+                assert f.read() == payload
+        finally:
+            os.unlink(temp_path)
+            os.unlink(out_path)
+
+    def test_download_with_prefix(self, mock_adapter):
+        """download resolves unprefixed keys under the configured prefix."""
+        with tempfile.NamedTemporaryFile(mode="wb", delete=False) as f:
+            f.write(b"prefixed")
+            temp_path = f.name
+        with tempfile.NamedTemporaryFile(delete=False) as out:
+            out_path = out.name
+        try:
+            mock_adapter.store_file(temp_path, "some/key.bin")
+            assert "test-prefix/some/key.bin" in mock_adapter._storage
+            mock_adapter.download("some/key.bin", out_path)
+            with open(out_path, "rb") as f:
+                assert f.read() == b"prefixed"
+        finally:
+            os.unlink(temp_path)
+            os.unlink(out_path)
+
+    def test_download_raises_not_found(self, mock_adapter):
+        """download should raise S3NotFoundError when object doesn't exist."""
+        with pytest.raises(S3NotFoundError):
+            mock_adapter.download("nonexistent.txt", "/tmp/pydeb-s3-out")
 
     def test_prefix_handling(self):
         """MockS3Adapter should handle prefix correctly."""

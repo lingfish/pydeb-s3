@@ -23,6 +23,70 @@ class AlreadyExistsError(Exception):
 _BY_HASH_DIRS = (("sha256", "SHA256"), ("sha512", "SHA512"), ("md5", "MD5Sum"))
 
 
+def hash_file(path: str) -> dict:
+    """Calculate md5/sha1/sha256/sha512 hashes and size for a local file."""
+    with open(path, "rb") as f:
+        data = f.read()
+    return {
+        "size": os.path.getsize(path),
+        "sha1": hashlib.sha1(data).hexdigest(),
+        "sha256": hashlib.sha256(data).hexdigest(),
+        "sha512": hashlib.sha512(data).hexdigest(),
+        "md5": hashlib.md5(data).hexdigest(),
+    }
+
+
+def write_by_hash_copies(
+    s3_adapter: S3Adapter,
+    local_file: str,
+    index_key: str,
+    hashes: dict,
+    content_type: str,
+    cache_control: Optional[str] = None,
+    dry_run: bool = False,
+) -> list:
+    """Write content-addressed by-hash copies of an index file.
+
+    apt's Acquire-By-Hash feature (advertised in the Release file) expects
+    each index under ``<dir>/by-hash/<NAME>/<hash>``. Uploading uses
+    ``store_file`` rather than ``copy`` so the ACL, content type and cache
+    control match the plain index. Keys are content-addressed, so an
+    existing object is guaranteed to be identical and is skipped.
+
+    Args:
+        s3_adapter: Adapter for S3 storage operations.
+        local_file: Local path to the index file bytes.
+        index_key: Full S3 key of the plain index (including dists/<codename>).
+        hashes: Hash dict (keys: sha256, sha512, md5).
+        content_type: Content type for the by-hash objects.
+        cache_control: Optional cache-control header.
+        dry_run: If True, report but do not upload.
+
+    Returns:
+        The list of by-hash keys that were uploaded (or, in dry-run, would be).
+    """
+    directory = index_key.rsplit("/", 1)[0]
+    written: list = []
+    for algo, name in _BY_HASH_DIRS:
+        value = hashes.get(algo)
+        if not value:
+            continue
+        key = f"{directory}/by-hash/{name}/{value}"
+        if s3_adapter.exists(key):
+            continue
+        written.append(key)
+        if dry_run:
+            continue
+        s3_adapter.store_file(
+            local_file,
+            key,
+            content_type=content_type,
+            cache_control=cache_control,
+            show_progress=False,
+        )
+    return written
+
+
 @dataclass
 class Manifest:
     """Represents a Packages manifest for APT repository."""
@@ -353,42 +417,22 @@ class Manifest:
     ) -> None:
         """Upload content-addressed by-hash copies of an index file.
 
-        apt's Acquire-By-Hash feature (advertised in the Release file) expects
-        each index under ``<dir>/by-hash/<NAME>/<hash>``. Uploading uses
-        ``store_file`` rather than ``copy`` so the ACL, content type and cache
-        control match the plain index. Keys are content-addressed, so an
-        existing object is guaranteed to be identical and is skipped.
-
-        Failure is fatal: a published Release must never advertise by-hash
-        files that do not exist.
+        Delegates to the module-level ``write_by_hash_copies`` helper. Failure
+        is fatal: a published Release must never advertise by-hash files that
+        do not exist.
         """
-        directory = index_key.rsplit("/", 1)[0]
-        for algo, name in _BY_HASH_DIRS:
-            value = hashes.get(algo)
-            if not value:
-                continue
-            key = f"{directory}/by-hash/{name}/{value}"
-            if s3_adapter.exists(key):
-                continue
-            s3_adapter.store_file(
-                local_file,
-                key,
-                content_type=content_type,
-                cache_control=self.cache_control,
-                show_progress=False,
-            )
+        write_by_hash_copies(
+            s3_adapter,
+            local_file,
+            index_key,
+            hashes,
+            content_type,
+            self.cache_control,
+        )
 
     def _hashfile(self, path: str) -> dict:
         """Calculate hashes for a file."""
-        with open(path, "rb") as f:
-            data = f.read()
-        return {
-            "size": os.path.getsize(path),
-            "sha1": hashlib.sha1(data).hexdigest(),
-            "sha256": hashlib.sha256(data).hexdigest(),
-            "sha512": hashlib.sha512(data).hexdigest(),
-            "md5": hashlib.md5(data).hexdigest(),
-        }
+        return hash_file(path)
 
 
 def parse_packages(content: str) -> Manifest:
